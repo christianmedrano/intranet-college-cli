@@ -34,7 +34,8 @@ Sin este núcleo, cada módulo definiría `Alumno`, `Curso` o `Sección` a su ma
 - Anuncios y mensajería → `specs/communication/`.
 - Materiales de aula virtual → `specs/virtual-classroom/`.
 - Multi-colegio: un despliegue atiende una sola institución.
-- Envío real de correos transaccionales (se define en la pregunta abierta Q4).
+- Inicio de sesión con Google o Microsoft (SSO). Se evalúa en una fase posterior.
+- Envío real de correos transaccionales (ver Q4).
 
 ## 3. Actores y permisos
 
@@ -64,12 +65,13 @@ La matriz normativa está en `docs/rbac-matrix.md`. Los permisos se expresan com
 
 ### RF-CORE-002 — Gestión de usuarios
 
-**Descripción:** El SuperAdmin puede crear, editar, desactivar y listar usuarios. El Director solo puede gestionar usuarios de su institución con rol `Docente`, `Padre/Apoderado` o `Alumno`.
+**Descripción:** El SuperAdmin puede crear, editar, desactivar y listar usuarios. El Director solo puede gestionar usuarios de su institución con rol `Docente`, `Padre/Apoderado` o `Alumno`. Al crear un usuario se genera un PIN temporal y se marca `debe_cambiar_password = true`.
 
 **Criterios de aceptación:**
 
-- **Dado** un SuperAdmin, **cuando** crea un usuario con `username` duplicado, **entonces** recibe `409 CONFLICT`.
+- **Dado** un SuperAdmin, **cuando** crea un usuario con identificador duplicado, **entonces** recibe `409 CONFLICT`.
 - **Dado** un Director, **cuando** intenta crear un `SuperAdmin`, **entonces** recibe `403 FORBIDDEN`.
+- **Dado** un usuario recién creado, **cuando** inicia sesión con su PIN temporal, **entonces** el sistema exige cambiarlo antes de acceder a cualquier otro recurso.
 - **Dado** un usuario desactivado, **cuando** intenta iniciar sesión, **entonces** recibe `401 UNAUTHORIZED`.
 
 ### RF-CORE-003 — Roles y permisos
@@ -83,12 +85,13 @@ La matriz normativa está en `docs/rbac-matrix.md`. Los permisos se expresan com
 
 ### RF-CORE-004 — Inicio de sesión
 
-**Descripción:** El usuario se autentica con `username` o correo y contraseña. El sistema devuelve un token de acceso de corta duración y establece un refresh token en cookie `httpOnly`.
+**Descripción:** El usuario se autentica con un **identificador flexible**: nombre de usuario, correo electrónico o número de documento (DNI, carné de extranjería o pasaporte). El sistema devuelve un token de acceso de corta duración y establece un refresh token en cookie `httpOnly`.
 
 **Criterios de aceptación:**
 
-- **Dado** credenciales válidas, **cuando** se autentica, **entonces** recibe `200` con `accessToken` y el refresh queda en cookie `httpOnly`.
-- **Dado** credenciales inválidas, **cuando** se autentica, **entonces** recibe `401` sin revelar cuál dato falló.
+- **Dado** un identificador válido (usuario, correo o documento) y contraseña correcta, **cuando** se autentica, **entonces** recibe `200` con `accessToken` y el refresh queda en cookie `httpOnly`.
+- **Dado** un identificador válido, **cuando** se autentica con contraseña incorrecta, **entonces** recibe `401` sin revelar cuál dato falló.
+- **Dado** un identificador que coincide con más de un usuario, **cuando** se autentica, **entonces** recibe `409 CONFLICT` y se solicita un identificador más específico.
 - **Dado** cinco intentos fallidos en 15 minutos, **cuando** intenta de nuevo, **entonces** recibe `429 RATE_LIMITED`.
 
 ### RF-CORE-005 — Sesión y perfil
@@ -203,6 +206,16 @@ La matriz normativa está en `docs/rbac-matrix.md`. Los permisos se expresan com
 - **Dado** un cambio de rol, **cuando** se ejecuta, **entonces** se crea un registro de auditoría inmutable.
 - **Dado** un registro de auditoría, **cuando** se intenta editar o eliminar, **entonces** el sistema lo impide.
 
+### RF-CORE-017 — Cambio obligatorio de contraseña
+
+**Descripción:** Todo usuario con `debe_cambiar_password = true` debe establecer una contraseña definitiva antes de usar el sistema. La contraseña debe cumplir la política mínima.
+
+**Criterios de aceptación:**
+
+- **Dado** un usuario con PIN temporal, **cuando** inicia sesión, **entonces** solo puede acceder a `POST /auth/change-password`.
+- **Dado** una contraseña de menos de 10 caracteres o igual al identificador, **cuando** intenta cambiarla, **entonces** recibe `400 VALIDATION_ERROR`.
+- **Dado** un cambio exitoso, **cuando** se completa, **entonces** `debe_cambiar_password` pasa a `false` y se revocan las sesiones previas.
+
 ## 5. Reglas de negocio
 
 - `RN-CORE-001`: Una sola institución por despliegue.
@@ -219,6 +232,10 @@ La matriz normativa está en `docs/rbac-matrix.md`. Los permisos se expresan com
 - `RN-CORE-012`: La auditoría es de solo inserción.
 - `RN-CORE-013`: Las contraseñas y hashes nunca se devuelven en respuestas ni se registran en logs.
 - `RN-CORE-014`: Toda entidad usa UUID, auditoría de creación/modificación y borrado lógico cuando aplica.
+- `RN-CORE-015`: El login acepta un identificador flexible (usuario, correo o documento). Si hay ambigüedad, se rechaza la autenticación.
+- `RN-CORE-016`: La contraseña inicial es un PIN temporal generado por el sistema, nunca el DNI ni la fecha de nacimiento. El primer acceso obliga a cambiarla.
+- `RN-CORE-017`: La contraseña debe tener al menos 10 caracteres y no puede ser igual al identificador ni al documento.
+- `RN-CORE-018`: El SSO con Google o Microsoft no forma parte del MVP.
 
 ## 6. Modelo de datos
 
@@ -228,7 +245,7 @@ La matriz normativa está en `docs/rbac-matrix.md`. Los permisos se expresan com
 |---|---|---|
 | `Institucion` | id, nombre, direccion, telefono, email, logo_url | Registro único |
 | `Persona` | id, nombres, apellidos, tipo_documento, numero_documento, fecha_nacimiento, telefono, email_contacto, direccion | Único (tipo_documento, numero_documento) |
-| `Usuario` | id, persona_id, username, email, password_hash, activo, ultimo_acceso | Único username; email único si existe |
+| `Usuario` | id, persona_id, username, email, password_hash, debe_cambiar_password, activo, ultimo_acceso | Único username si existe; email único si existe |
 | `Rol` | id, codigo, nombre, descripcion | Único codigo |
 | `UsuarioRol` | usuario_id, rol_id | PK compuesta |
 | `SesionRefresh` | id, usuario_id, token_hash, expira_en, revocado_en, ip, user_agent | Índice por usuario_id |
@@ -284,6 +301,7 @@ Prefijo `/api/v1`. Errores con el sobre estándar de `docs/architecture.md`.
 | `POST` | `/auth/logout` | autenticado | Revoca el refresh |
 | `POST` | `/auth/forgot-password` | público | Solicita restablecimiento |
 | `POST` | `/auth/reset-password` | público | Restablece con token |
+| `POST` | `/auth/change-password` | autenticado | Cambio obligatorio o voluntario |
 | `GET` | `/me` | autenticado | Perfil y permisos |
 
 ### Estructura y personas
@@ -329,16 +347,18 @@ Prefijo `/api/v1`. Errores con el sobre estándar de `docs/architecture.md`.
 
 ## 10. Preguntas abiertas
 
-| ID | Pregunta | Propuesta | Estado |
+| ID | Pregunta | Decisión | Estado |
 |---|---|---|---|
-| Q1 | ¿Identificador de acceso? | `username` obligatorio + email opcional para adultos; login acepta ambos | abierta |
-| Q2 | ¿Roles múltiples por usuario? | Sí, para cubrir docentes que también son apoderados | abierta |
-| Q3 | ¿Cuentas de alumnos? | Todos los niveles, con acceso restringido por rol | abierta |
-| Q4 | ¿Envío real de correo para recuperación? | No en el MVP: generar token y entregarlo por administración | abierta |
+| Q1 | ¿Identificador de acceso? | Login multicampo: usuario, correo o número de documento | resuelta |
+| Q2 | ¿Roles múltiples por usuario? | Sí, los permisos se unen | resuelta |
+| Q3 | ¿Cuentas de alumnos? | Todos los niveles, con acceso según rol y vínculo | resuelta |
+| Q4 | ¿Envío real de correo para recuperación? | No en el MVP: token entregado por administración | resuelta |
 | Q5 | ¿Un apoderado principal por alumno? | Sí, exactamente uno | propuesta |
 | Q6 | ¿Un solo año académico activo? | Sí | propuesta |
+| Q7 | ¿Contraseña inicial? | PIN temporal generado por el sistema + cambio obligatorio | propuesta |
+| Q8 | ¿SSO con Google o Microsoft en el MVP? | No, fuera de alcance | propuesta |
 
-> La spec no se aprueba hasta que Q1–Q4 estén resueltas.
+> La spec no se aprueba hasta confirmar Q5–Q8.
 
 ## 11. Trazabilidad
 
@@ -360,3 +380,4 @@ Prefijo `/api/v1`. Errores con el sobre estándar de `docs/architecture.md`.
 | RF-CORE-014 | T025 |
 | RF-CORE-015 | T026 |
 | RF-CORE-016 | T029, T030, T031 |
+| RF-CORE-017 | T039 |

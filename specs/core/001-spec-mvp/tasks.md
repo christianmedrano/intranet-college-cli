@@ -80,6 +80,7 @@ Formato obligatorio:
 - [ ] T036 — Pantalla de recuperación de contraseña — `apps/web/src/features/auth/ForgotPasswordPage.tsx` — RF-CORE-007 — mensaje neutro que no revela si el correo existe
 - [ ] T037 — Guard de rutas y redirección por rol — `apps/web/src/app/guards/RequireAuth.tsx` — RF-CORE-005 — sin sesión redirige a `/login`
 - [ ] T038 — Pruebas de login, recuperación y guard — `apps/web/src/features/auth/*.test.tsx` — RF-CORE-004, RF-CORE-005, RF-CORE-007 — casos feliz y error en verde
+- [ ] T039 — Cambio obligatorio de contraseña, PIN temporal y política mínima — `apps/api/src/modules/core/auth/`, `apps/web/src/features/auth/ChangePasswordPage.tsx` — RF-CORE-017 — PIN temporal, bloqueo hasta cambio y revocación de sesiones
 
 ## Definition of Done
 

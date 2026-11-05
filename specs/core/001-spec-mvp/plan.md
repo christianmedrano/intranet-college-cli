@@ -193,6 +193,7 @@ Cobertura mínima: 70 % en servicios de `core`.
 | RF-CORE-012, RF-CORE-013, RF-CORE-014 | T025 |
 | RF-CORE-015 | T026 |
 | RF-CORE-016 | T029, T030, T031 |
+| RF-CORE-017 | T039 |
 | Autenticación en UI | T033–T038 |
 
 ## 11. Notas de implementación
