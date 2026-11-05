@@ -1,75 +1,80 @@
-# React + TypeScript + Vite
+# Intranet Escolar
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Intranet para una institución educativa de los niveles **Inicial, Primaria y Secundaria**, desarrollada con **Spec-Driven Development (SDD)**: ninguna funcionalidad se implementa si no está especificada y aprobada.
 
-Currently, two official plugins are available:
+## Alcance del MVP
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Core:** entidades del dominio, autenticación, roles y auditoría.
+- **Académico:** calificaciones, asistencias y horarios.
+- **Administrativo:** pagos (registro y consulta), matrículas y certificados.
+- **Comunicación:** anuncios y mensajería docente ↔ apoderado.
+- **Aula virtual:** materiales por curso y período.
 
-## React Compiler
+## Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Capa | Tecnología |
+|---|---|
+| Frontend | React 19 + TypeScript + Vite + Tailwind CSS |
+| Backend | Node.js + Fastify + TypeScript |
+| ORM | Prisma |
+| Base de datos | MySQL 8.0.16+ |
+| Validación | Zod |
+| Pruebas | Vitest + Testing Library + Supertest + Playwright |
 
-## Expanding the ESLint configuration
+## Estructura
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```text
+apps/
+  web/        Frontend
+  api/        Backend
+packages/
+  shared/     Tipos, schemas Zod y contratos
+specs/        Especificaciones (fuente de verdad)
+docs/         Gobernanza, arquitectura, plantillas y ADRs
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+> **Estado actual:** el frontend aún vive en la raíz (`src/`) como plantilla de Vite. La migración al monorepo está planificada y se ejecutará en un commit aislado. Consulta `docs/architecture.md` para el estado real.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Requisitos
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js 20 LTS o superior
+- npm 10 o superior
+- MySQL 8.0.16 o superior
 
+## Puesta en marcha (estado actual)
+
+```bash
+npm install
+npm run dev
 ```
+
+Scripts disponibles:
+
+| Script | Descripción |
+|---|---|
+| `npm run dev` | Servidor de desarrollo |
+| `npm run build` | Compilación de producción |
+| `npm run lint` | Análisis estático |
+| `npm run typecheck` | Verificación de tipos |
+| `npm run preview` | Vista previa del build |
+
+## Documentación
+
+| Documento | Contenido |
+|---|---|
+| [`docs/constitution.md`](docs/constitution.md) | Reglas inquebrantables del proyecto |
+| [`docs/architecture.md`](docs/architecture.md) | Arquitectura y estado del repositorio |
+| [`docs/stack.md`](docs/stack.md) | Dependencias aprobadas |
+| [`docs/glossary.md`](docs/glossary.md) | Vocabulario del dominio escolar |
+| [`docs/rbac-matrix.md`](docs/rbac-matrix.md) | Matriz de permisos por rol |
+| [`AGENTS.md`](AGENTS.md) | Protocolo de trabajo para agentes de IA |
+| [`CLAUDE.md`](CLAUDE.md) | Adaptador para Claude Code |
+
+## Flujo de trabajo
+
+1. `spec.md` — qué se construye y con qué reglas.
+2. `plan.md` — cómo se implementa, con Constitution Check.
+3. `tasks.md` — tareas atómicas con ID de requerimiento.
+4. Implementación con el gate `lint + typecheck + test` en verde.
+
+Las plantillas están en `docs/templates/`.
