@@ -39,7 +39,7 @@ Formato obligatorio:
 ## Fase 2 — Autenticación
 
 - [ ] T009 — Configurar entorno, PrismaClient, errores y logger con redacción — `apps/api/src/core/config.ts`, `db.ts`, `errors.ts` — RF-CORE-004 — arranque falla si falta `JWT_SECRET`; logs sin secretos
-- [ ] T010 — Servicio de hash con Argon2id y verificación — `apps/api/src/core/auth/password.ts`, `test/core/password.test.ts` — RF-CORE-004 — hash distinto por salt y verificación correcta
+- [x] T010 — Servicio de hash con Argon2id y verificación — `apps/api/src/core/auth/password.ts`, `test/core/password.test.ts` — RF-CORE-004 — hash distinto por salt y verificación correcta
 - [ ] T011 — Endpoint `POST /auth/login` con username o email — `apps/api/src/modules/core/auth/` — RF-CORE-004 — credenciales válidas devuelven access token y cookie refresh
 - [ ] T012 — Guard `requireAuth` y endpoint `GET /me` con roles y permisos efectivos — `apps/api/src/core/auth/guards.ts`, `modules/core/auth/` — RF-CORE-005 — token ausente o expirado devuelve 401
 - [ ] T013 — Rotación de refresh, logout y revocación — `apps/api/src/modules/core/auth/` — RF-CORE-006 — refresh reutilizado se rechaza; logout revoca
@@ -86,7 +86,7 @@ Formato obligatorio:
 
 > Tareas descubiertas durante la implementación. No forman parte del alcance original de la spec.
 
-- [ ] T040 — Definir la estrategia de empaquetado y consumo de `packages/shared` — `packages/shared/`, `apps/api/tsconfig.json`, `apps/web/tsconfig.app.json`, `package.json` — infra — `npm run build` produce un `dist` de la API ejecutable con Node y sin referencias a TypeScript en tiempo de ejecución
+- [x] T040 — Definir la estrategia de empaquetado y consumo de `packages/shared` — `packages/shared/`, `apps/api/tsconfig.json`, `apps/web/tsconfig.app.json`, `package.json` — infra — `npm run build` produce un `dist` de la API ejecutable con Node y sin referencias a TypeScript en tiempo de ejecución
 
 ## Definition of Done
 
