@@ -41,6 +41,7 @@
 | `@fastify/cookie` | Cookies de refresh |
 | `@fastify/multipart` | Subida de archivos |
 | `prisma`, `@prisma/client` | ORM y migraciones |
+| `@prisma/adapter-mariadb` | Driver adapter requerido por el query compiler de Prisma 7 para MySQL |
 | `zod` | Validación de entrada y entorno |
 | `argon2` | Hash de contraseñas |
 | `jose` o `jsonwebtoken` | Tokens de acceso |

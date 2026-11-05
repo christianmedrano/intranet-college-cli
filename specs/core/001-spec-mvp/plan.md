@@ -139,9 +139,12 @@ Todas están en `docs/stack.md`, por lo que no requieren aprobación adicional:
 | Paquete | Motivo |
 |---|---|
 | `prisma`, `@prisma/client` | ORM y migraciones |
+| `@prisma/adapter-mariadb` | Driver adapter de Prisma 7 para MySQL (ver nota) |
 | `argon2` | Hash de contraseñas |
 | `jose` | Firma y verificación de JWT |
 | `react-router` | Router del frontend |
+
+**Nota sobre `@prisma/adapter-mariadb`:** Prisma 7 activa el *query compiler* y elimina el motor Rust. `new PrismaClient()` sin opciones falla con «A driver adapter is required to connect to your database». Se evaluó bajar a Prisma 6 para evitarlo, pero el adaptador es oficial, añade una dependencia mínima y mantiene la versión mayor actual. Aprobado el 2026-11-05.
 
 No se agregarán librerías de UI en esta fase.
 
