@@ -3,3 +3,4 @@
 
 export * from './schemas/base.js'
 export * from './contracts/base.js'
+export * from './domain/permissions.js'
