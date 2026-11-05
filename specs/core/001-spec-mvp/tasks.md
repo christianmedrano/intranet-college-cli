@@ -24,15 +24,15 @@ Formato obligatorio:
 
 ## Fase 0 — Preparación
 
-- [ ] T001 — Instalar Prisma y crear `prisma/schema.prisma` con datasource MySQL — `apps/api/prisma/schema.prisma`, `apps/api/package.json` — infra — `prisma validate` pasa y `generate` funciona
+- [x] T001 — Instalar Prisma y crear `prisma/schema.prisma` con datasource MySQL — `apps/api/prisma/schema.prisma`, `apps/api/package.json` — infra — `prisma validate` pasa y `generate` funciona
 - [ ] T002 — Documentar y crear la base `intranet_college` con `utf8mb4` — `apps/api/.env.example`, `README.md` — infra — `prisma migrate dev` conecta sin error
-- [ ] T003 — Crear schemas base compartidos: UUID, paginación, sobre de error y permisos — `packages/shared/src/schemas/base.ts`, `packages/shared/src/contracts/base.ts` — infra — tipos exportados y `typecheck` en verde
+- [x] T003 — Crear schemas base compartidos: UUID, paginación, sobre de error y permisos — `packages/shared/src/schemas/base.ts`, `packages/shared/src/contracts/base.ts` — infra — tipos exportados y `typecheck` en verde
 
 ## Fase 1 — Modelo de datos
 
-- [ ] T004 — Modelar identidad: Institucion, Persona, Usuario, Rol, UsuarioRol, SesionRefresh, TokenRecuperacion — `apps/api/prisma/schema.prisma` — RF-CORE-002, RF-CORE-003 — relaciones y únicos definidos
-- [ ] T005 — Modelar estructura: AnioAcademico, PeriodoAcademico, Nivel, Grado, Seccion, Curso — `apps/api/prisma/schema.prisma` — RF-CORE-008, RF-CORE-009, RF-CORE-010 — únicos por año/orden definidos
-- [ ] T006 — Modelar personas y matrícula: Alumno, Docente, Apoderado, ApoderadoAlumno, Matricula, AsignacionDocente, Auditoria — `apps/api/prisma/schema.prisma` — RF-CORE-012 a RF-CORE-016 — FKs y borrado lógico definidos
+- [x] T004 — Modelar identidad: Institucion, Persona, Usuario, Rol, UsuarioRol, SesionRefresh, TokenRecuperacion — `apps/api/prisma/schema.prisma` — RF-CORE-002, RF-CORE-003 — relaciones y únicos definidos
+- [x] T005 — Modelar estructura: AnioAcademico, PeriodoAcademico, Nivel, Grado, Seccion, Curso — `apps/api/prisma/schema.prisma` — RF-CORE-008, RF-CORE-009, RF-CORE-010 — únicos por año/orden definidos
+- [x] T006 — Modelar personas y matrícula: Alumno, Docente, Apoderado, ApoderadoAlumno, Matricula, AsignacionDocente, Auditoria — `apps/api/prisma/schema.prisma` — RF-CORE-012 a RF-CORE-016 — FKs y borrado lógico definidos
 - [ ] T007 — Generar migración `core_init` y seed de roles, institución y SuperAdmin — `apps/api/prisma/migrations/`, `apps/api/prisma/seed.ts` — RF-CORE-002, RF-CORE-003 — seed idempotente; no corre en producción
 - [ ] T008 — Pruebas de integridad del modelo: únicos, FKs y borrado lógico — `apps/api/test/core/model.test.ts` — RF-CORE-002, RF-CORE-012, RF-CORE-015 — duplicados devuelven error de integridad
 
@@ -81,6 +81,12 @@ Formato obligatorio:
 - [ ] T037 — Guard de rutas y redirección por rol — `apps/web/src/app/guards/RequireAuth.tsx` — RF-CORE-005 — sin sesión redirige a `/login`
 - [ ] T038 — Pruebas de login, recuperación y guard — `apps/web/src/features/auth/*.test.tsx` — RF-CORE-004, RF-CORE-005, RF-CORE-007 — casos feliz y error en verde
 - [ ] T039 — Cambio obligatorio de contraseña, PIN temporal y política mínima — `apps/api/src/modules/core/auth/`, `apps/web/src/features/auth/ChangePasswordPage.tsx` — RF-CORE-017 — PIN temporal, bloqueo hasta cambio y revocación de sesiones
+
+## Fase 7 — Deuda técnica identificada
+
+> Tareas descubiertas durante la implementación. No forman parte del alcance original de la spec.
+
+- [ ] T040 — Definir la estrategia de empaquetado y consumo de `packages/shared` — `packages/shared/`, `apps/api/tsconfig.json`, `apps/web/tsconfig.app.json`, `package.json` — infra — `npm run build` produce un `dist` de la API ejecutable con Node y sin referencias a TypeScript en tiempo de ejecución
 
 ## Definition of Done
 
