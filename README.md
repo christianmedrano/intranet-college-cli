@@ -33,30 +33,40 @@ specs/        Especificaciones (fuente de verdad)
 docs/         Gobernanza, arquitectura, plantillas y ADRs
 ```
 
-> **Estado actual:** el frontend aún vive en la raíz (`src/`) como plantilla de Vite. La migración al monorepo está planificada y se ejecutará en un commit aislado. Consulta `docs/architecture.md` para el estado real.
+> **Estado actual:** monorepo operativo con `apps/web` y `apps/api`. El frontend aún renderiza la plantilla de Vite y la base de datos está pendiente de configurar. Consulta `docs/architecture.md` para el detalle.
 
 ## Requisitos
 
-- Node.js 20 LTS o superior
+- Node.js 20.19+ o 22.12+ (probado con 26.13 LTS)
 - npm 10 o superior
-- MySQL 8.0.16 o superior
+- MySQL 8.0.16 o superior (se configura a partir de la Fase 4)
 
-## Puesta en marcha (estado actual)
+## Puesta en marcha
 
 ```bash
 npm install
 npm run dev
 ```
 
+Servicios:
+
+| Servicio | URL |
+|---|---|
+| Frontend | http://localhost:5173 |
+| API | http://localhost:3000/api/v1/health |
+
 Scripts disponibles:
 
 | Script | Descripción |
 |---|---|
-| `npm run dev` | Servidor de desarrollo |
-| `npm run build` | Compilación de producción |
+| `npm run dev` | Arranca frontend y API a la vez |
+| `npm run dev:web` | Solo frontend |
+| `npm run dev:api` | Solo API |
+| `npm run build` | Compila todos los workspaces |
 | `npm run lint` | Análisis estático |
 | `npm run typecheck` | Verificación de tipos |
-| `npm run preview` | Vista previa del build |
+| `npm test` | Pruebas de web y API |
+| `npm run preview` | Vista previa del build del frontend |
 
 ## Documentación
 

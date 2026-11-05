@@ -7,10 +7,16 @@
 
 | Herramienta | Versión | Nota |
 |---|---|---|
-| Node.js | LTS 20+ | Runtime de frontend y backend |
+| Node.js | LTS 20.19+ | Probado con 26.13.0 |
 | npm | 10+ | Workspaces del monorepo |
 | MySQL | 8.0.16+ | InnoDB, `utf8mb4`, `CHECK` aplicado |
-| TypeScript | 7.x | Modo estricto |
+| TypeScript | 6.x | Modo estricto |
+
+## Raíz del monorepo
+
+| Paquete | Uso |
+|---|---|
+| `concurrently` | Orquesta `dev:web` y `dev:api` en un solo comando |
 
 ## Frontend (`apps/web`)
 

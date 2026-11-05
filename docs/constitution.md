@@ -250,8 +250,6 @@ Cambiar cualquiera de estas piezas requiere una enmienda a la constitución y un
 npm run lint && npm run typecheck && npm test
 ```
 
-> El script `test` existe a partir de la Fase 3 (migración a monorepo). Hasta entonces el gate mínimo es `npm run lint && npm run typecheck`.
-
 - Si un test falla por una causa ajena a la tarea, el agente **se detiene y lo reporta**. No lo arregla en silencio, no lo deshabilita y no lo marca como conocido sin aprobación.
 - Cobertura mínima: **70 %** en dominio y servicios. No se exige umbral en componentes de UI.
 

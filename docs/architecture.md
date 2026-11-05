@@ -5,17 +5,26 @@
 
 ## 1. Estado actual vs. objetivo
 
-| Área | Estado actual | Objetivo |
+| Área | Estado actual | Pendiente |
 |---|---|---|
-| Repositorio | Proyecto Vite en la raíz (`src/`) | Monorepo con `apps/web`, `apps/api`, `packages/shared` |
-| Frontend | Plantilla de Vite | React + TypeScript + Tailwind, feature-first |
-| Backend | No existe | Fastify + Prisma + MySQL 8 |
-| Base de datos | No configurada | `intranet_college` en MySQL 8.0.16+ |
-| Pruebas | No configuradas | Vitest, Testing Library, Supertest, Playwright |
+| Repositorio | Monorepo con workspaces (`apps/web`, `apps/api`, `packages/shared`) | — |
+| Frontend | React 19 + Vite 8 + TypeScript 6 + Tailwind 4; aún renderiza la plantilla de Vite | Reemplazar por la app real según specs |
+| Backend | Fastify 5 con `GET /api/v1/health`, CORS y rate limit | Módulos de dominio, auth y RBAC |
+| Base de datos | No configurada | Prisma + MySQL 8 en `specs/core` |
+| Pruebas | Vitest 5 en web y api; Testing Library configurada | Playwright y pruebas de dominio |
 | Specs | Carpetas vacías | `core` + 4 módulos con spec/plan/tasks |
-| Gobernanza | Constitución v2, plantillas y matriz RBAC | Mantener sincronizada |
+| Gobernanza | Constitución v2, plantillas, matriz RBAC y ADRs | Mantener sincronizada |
 
-La migración al monorepo se ejecuta en la Fase 3 del plan y en un commit aislado.
+Comandos desde la raíz:
+
+| Comando | Acción |
+|---|---|
+| `npm run dev` | Arranca web (5173) y api (3000) con concurrently |
+| `npm run dev:web` / `npm run dev:api` | Arranca solo una aplicación |
+| `npm run build` | Compila todos los workspaces |
+| `npm run lint` | ESLint sobre todo el repositorio |
+| `npm run typecheck` | TypeScript en todos los workspaces |
+| `npm test` | Vitest en web y api |
 
 ## 2. Estructura objetivo
 
@@ -156,4 +165,5 @@ Los tests de dominio no dependen de la base de datos. Los de API usan una base d
 | Almacenamiento de archivos en producción | Abierto | ADR antes de implementar aula virtual |
 | Roles administrativos adicionales | Abierto | `specs/administrative/001-spec-mvp/` |
 | Participación de alumnos en mensajería | Abierto | `specs/communication/001-spec-mvp/` |
-| Toolchain de lint: TypeScript 7.0.2 no es soportado por typescript-eslint 8.72 | Bloqueante | Decisión de dependencias (downgrade a TS 6.x o API side-by-side) |
+| Prisma + MySQL | Pendiente | `specs/core/001-spec-mvp/` |
+| Playwright y pruebas E2E | Pendiente | Primera feature con flujo completo |

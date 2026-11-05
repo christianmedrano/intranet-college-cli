@@ -19,7 +19,7 @@ Antes de escribir o modificar código, lee en este orden:
 
 Si un documento no existe o está vacío, **detente y repórtalo**. No inventes su contenido.
 
-## 3. Mapa del repositorio (objetivo)
+## 3. Mapa del repositorio (estado actual)
 
 ```text
 intranet-college-cli/
@@ -54,7 +54,7 @@ intranet-college-cli/
 └─ CLAUDE.md
 ```
 
-**Importante:** este es el mapa objetivo. El estado real está en `docs/architecture.md` § Estado actual. Si una ruta no existe, no la crees por iniciativa propia: verifica si la tarea lo autoriza.
+**Importante:** verifica siempre el estado real en `docs/architecture.md`. Si una ruta no existe, no la crees por iniciativa propia: confirma si la tarea lo autoriza.
 
 ## 4. Pre-flight obligatorio
 
@@ -100,7 +100,7 @@ Reglas:
 npm run lint && npm run typecheck && npm test
 ```
 
-- Hasta que exista el runner de pruebas (Fase 3), el gate mínimo es `npm run lint && npm run typecheck`.
+- El gate se ejecuta desde la raíz del monorepo.
 - Si el gate falla por una causa ajena a tu tarea, **detente y repórtalo**. No "arregles" tests ajenos, no cambies expectativas y no deshabilites reglas.
 
 ## 8. Límites duros
