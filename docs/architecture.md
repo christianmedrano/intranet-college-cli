@@ -12,7 +12,7 @@
 | Backend | Fastify 5 con `GET /api/v1/health`, CORS y rate limit | Módulos de dominio, auth y RBAC |
 | Base de datos | No configurada | Prisma + MySQL 8 en `specs/core` |
 | Pruebas | Vitest 5 en web y api; Testing Library configurada | Playwright y pruebas de dominio |
-| Specs | `specs/core/001-spec-mvp/` en revisión; 4 módulos vacíos | Resolver Q1–Q4 y aprobar `core` |
+| Specs | `specs/core/001-spec-mvp/` aprobada v1.0.0; 4 módulos vacíos | Implementar `core` |
 | Gobernanza | Constitución v2, plantillas, matriz RBAC y ADRs | Mantener sincronizada |
 
 Comandos desde la raíz:

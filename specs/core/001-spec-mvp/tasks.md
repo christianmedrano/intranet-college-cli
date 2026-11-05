@@ -4,10 +4,10 @@
 |---|---|
 | Spec | `specs/core/001-spec-mvp/spec.md` |
 | Plan | `specs/core/001-spec-mvp/plan.md` |
-| Estado | `bloqueado` (spec en revisión) |
+| Estado | `lista para ejecutar` |
 | Fecha | 2026-11-05 |
 
-> **No iniciar ninguna tarea hasta que la spec esté aprobada y las preguntas Q1–Q4 resueltas.**
+> Spec aprobada v1.0.0. Ejecutar las tareas en orden; no iniciar una sin el gate de la anterior en verde.
 
 ## Convenciones
 
@@ -98,4 +98,5 @@ Se aplica el anexo A de `docs/constitution.md`:
 
 | Fecha | Tarea | Motivo | Estado |
 |---|---|---|---|
-| 2026-11-05 | Todas | Spec en revisión: Q1–Q4 sin resolver | bloqueado |
+| 2026-11-05 | Todas | Spec en revisión: Q1–Q4 sin resolver | resuelto |
+| 2026-11-05 | — | Spec aprobada v1.0.0; sin bloqueos | — |

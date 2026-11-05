@@ -4,8 +4,8 @@
 |---|---|
 | ID | `CORE-001` |
 | Módulo | `core` |
-| Versión | `0.1.0` |
-| Estado | `en revisión` |
+| Versión | `1.0.0` |
+| Estado | `aprobada` |
 | Fecha | 2026-11-05 |
 
 ## 1. Contexto
@@ -353,12 +353,12 @@ Prefijo `/api/v1`. Errores con el sobre estándar de `docs/architecture.md`.
 | Q2 | ¿Roles múltiples por usuario? | Sí, los permisos se unen | resuelta |
 | Q3 | ¿Cuentas de alumnos? | Todos los niveles, con acceso según rol y vínculo | resuelta |
 | Q4 | ¿Envío real de correo para recuperación? | No en el MVP: token entregado por administración | resuelta |
-| Q5 | ¿Un apoderado principal por alumno? | Sí, exactamente uno | propuesta |
-| Q6 | ¿Un solo año académico activo? | Sí | propuesta |
-| Q7 | ¿Contraseña inicial? | PIN temporal generado por el sistema + cambio obligatorio | propuesta |
-| Q8 | ¿SSO con Google o Microsoft en el MVP? | No, fuera de alcance | propuesta |
+| Q5 | ¿Un apoderado principal por alumno? | Sí, exactamente uno | resuelta |
+| Q6 | ¿Un solo año académico activo? | Sí | resuelta |
+| Q7 | ¿Contraseña inicial? | PIN temporal generado por el sistema + cambio obligatorio | resuelta |
+| Q8 | ¿SSO con Google o Microsoft en el MVP? | No, fuera de alcance | resuelta |
 
-> La spec no se aprueba hasta confirmar Q5–Q8.
+> Spec aprobada el 2026-11-05 con las decisiones Q1–Q8.
 
 ## 11. Trazabilidad
 

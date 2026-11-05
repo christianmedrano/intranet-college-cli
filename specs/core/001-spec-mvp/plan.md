@@ -3,8 +3,8 @@
 | Campo | Valor |
 |---|---|
 | Spec asociada | `specs/core/001-spec-mvp/spec.md` |
-| Versión | `0.1.0` |
-| Estado | `borrador` |
+| Versión | `1.0.0` |
+| Estado | `aprobado` |
 | Fecha | 2026-11-05 |
 
 ## 1. Resumen
