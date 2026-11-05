@@ -5,18 +5,20 @@
   "version": "0.0.0",
   "type": "module",
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ],
   "scripts": {
-    "dev": "concurrently -k -n web,api -c blue,green \"npm:dev:web\" \"npm:dev:api\"",
+    "dev": "concurrently -k -n shared,web,api -c yellow,blue,green \"npm:dev:shared\" \"npm:dev:web\" \"npm:dev:api\"",
+    "dev:shared": "tsc -p packages/shared/tsconfig.json --watch --preserveWatchOutput",
     "dev:web": "npm run dev -w @intranet/web",
     "dev:api": "npm run dev -w @intranet/api",
     "build": "npm run build --workspaces --if-present",
     "lint": "eslint .",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run build -w @intranet/shared && npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "preview": "npm run preview -w @intranet/web"
+    "preview": "npm run preview -w @intranet/web",
+    "postinstall": "npm run build -w @intranet/shared"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

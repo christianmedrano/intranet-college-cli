@@ -19,7 +19,7 @@ Comandos desde la raíz:
 
 | Comando | Acción |
 |---|---|
-| `npm run dev` | Arranca web (5173) y api (3000) con concurrently |
+| `npm run dev` | Arranca web (5173), api (3000) y compilación en watch de `shared` |
 | `npm run dev:web` / `npm run dev:api` | Arranca solo una aplicación |
 | `npm run build` | Compila todos los workspaces |
 | `npm run lint` | ESLint sobre todo el repositorio |
@@ -78,6 +78,7 @@ apps/web  ──imports──▶  packages/shared  ◀──imports──  apps/
 - Una feature no importa de otra feature.
 - `specs/core` define las entidades raíz; los módulos las consumen.
 - La lógica de negocio autoritativa vive en `apps/api`.
+- `packages/shared` se compila a `dist` (ESM + declaraciones) y se consume como paquete. `npm install`, `npm run build` y `npm run typecheck` lo compilan antes que web y api; `npm run dev` lo deja en modo watch.
 
 ## 4. Flujo de una petición
 

@@ -59,7 +59,7 @@ Scripts disponibles:
 
 | Script | Descripción |
 |---|---|
-| `npm run dev` | Arranca frontend y API a la vez |
+| `npm run dev` | Arranca frontend, API y `shared` en modo watch |
 | `npm run dev:web` | Solo frontend |
 | `npm run dev:api` | Solo API |
 | `npm run build` | Compila todos los workspaces |
