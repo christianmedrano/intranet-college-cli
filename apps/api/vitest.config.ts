@@ -1,4 +1,12 @@
+import { existsSync } from 'node:fs'
+import { loadEnvFile } from 'node:process'
 import { defineConfig } from 'vitest/config'
+
+// `.env` aporta TEST_DATABASE_URL a las pruebas de integración. `loadEnvFile`
+// no sobrescribe variables ya definidas en el shell.
+if (existsSync('.env')) {
+  loadEnvFile()
+}
 
 export default defineConfig({
   test: {

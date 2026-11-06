@@ -15,5 +15,9 @@ export default defineConfig({
   },
   datasource: {
     url: process.env.DATABASE_URL,
+    // Base dedicada para que `migrate dev` detecte drift sin exigir permisos
+    // globales de creación de bases al usuario de la aplicación. Prisma hace
+    // un reinicio lógico de esta base, nunca la elimina.
+    shadowDatabaseUrl: process.env.SHADOW_DATABASE_URL,
   },
 })

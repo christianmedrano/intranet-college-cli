@@ -57,24 +57,39 @@ Servicios:
 
 ## Base de datos
 
-1. Crea la base y un usuario dedicado:
+1. Crea las bases y un usuario dedicado. `intranet_shadow` la usa `prisma migrate dev` e `intranet_college_test` las pruebas de integración:
 
 ```sql
 CREATE DATABASE IF NOT EXISTS intranet_college
   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+CREATE DATABASE IF NOT EXISTS intranet_shadow
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+CREATE DATABASE IF NOT EXISTS intranet_college_test
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+
 CREATE USER IF NOT EXISTS 'intranet_app'@'localhost'
   IDENTIFIED BY 'TU_CLAVE';
+
 GRANT ALL PRIVILEGES ON intranet_college.* TO 'intranet_app'@'localhost';
+GRANT CREATE, ALTER, DROP, INDEX, REFERENCES, SELECT, INSERT, UPDATE, DELETE
+  ON intranet_shadow.* TO 'intranet_app'@'localhost';
+GRANT ALL PRIVILEGES ON intranet_college_test.* TO 'intranet_app'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-2. Copia `apps/api/.env.example` a `apps/api/.env` y ajusta `DATABASE_URL`, `JWT_SECRET` y las variables `SEED_ADMIN_*`.
+2. Copia `apps/api/.env.example` a `apps/api/.env` y ajusta `DATABASE_URL`, `SHADOW_DATABASE_URL`, `TEST_DATABASE_URL`, `JWT_SECRET` y las variables `SEED_ADMIN_*`.
 
 3. Aplica las migraciones y carga los datos semilla:
 
 ```bash
 npm run db:deploy  -w @intranet/api
 npm run db:seed    -w @intranet/api
+```
+
+4. Prepara la base de pruebas (una vez, y tras cada migración nueva):
+
+```bash
+npm run db:test:deploy -w @intranet/api
 ```
 
 El seed crea los 5 roles, una institución de ejemplo y el `SuperAdmin` definido en `SEED_ADMIN_*`. Es idempotente: no sobrescribe la contraseña de un usuario existente ni los datos editados de la institución. El `SuperAdmin` se crea con `debe_cambiar_password = true`, por lo que deberá cambiar la clave en su primer acceso.

@@ -15,6 +15,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
+    "db:test:deploy": "tsx scripts/prepare-test-db.ts",
     "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
