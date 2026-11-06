@@ -1,12 +1,48 @@
-import { loginSchema } from '@intranet/shared'
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  resetPasswordSchema,
+  uuidParamSchema,
+} from '@intranet/shared'
 import type { FastifyReply, FastifyRequest } from 'fastify'
+import type { ZodType } from 'zod'
 import {
   clearRefreshCookie,
   REFRESH_COOKIE,
   setRefreshCookie,
 } from '../../../core/auth/cookies.js'
 import { AppError } from '../../../core/errors.js'
-import { getPerfil, login, logout, refreshSession } from './auth.service.js'
+import {
+  forgotPassword,
+  getPerfil,
+  issueRecoveryToken,
+  login,
+  logout,
+  refreshSession,
+  resetPassword,
+} from './auth.service.js'
+
+/**
+ * Valida el cuerpo o los parámetros con un schema compartido.
+ *
+ * Convierte los problemas de Zod en detalles del sobre de error, sin exponer
+ * los valores recibidos.
+ */
+function parseOrThrow<T>(schema: ZodType<T>, datos: unknown): T {
+  const parsed = schema.safeParse(datos)
+
+  if (!parsed.success) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      undefined,
+      parsed.error.issues.map(
+        (issue) => `${issue.path.join('.') || 'cuerpo'}: ${issue.message}`,
+      ),
+    )
+  }
+
+  return parsed.data
+}
 
 /**
  * `POST /auth/login`
@@ -107,4 +143,56 @@ export async function logoutController(
   clearRefreshCookie(reply)
 
   reply.code(204).send()
+}
+
+/**
+ * `POST /auth/forgot-password`
+ *
+ * Responde siempre `202`, exista o no el correo, para no revelar qué cuentas
+ * están registradas (RF-CORE-007).
+ */
+export async function forgotPasswordController(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
+  const input = parseOrThrow(forgotPasswordSchema, request.body)
+
+  await forgotPassword(input)
+
+  reply.code(202).send({
+    message:
+      'Si el correo está registrado, el administrador podrá entregarte un enlace de recuperación.',
+  })
+}
+
+/**
+ * `POST /auth/reset-password`
+ *
+ * Consume el token de un solo uso y cambia la contraseña. El token debe
+ * obtenerlo el usuario a través de la administración.
+ */
+export async function resetPasswordController(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
+  const input = parseOrThrow(resetPasswordSchema, request.body)
+
+  await resetPassword(input)
+
+  reply.code(200).send({ message: 'Contraseña actualizada correctamente.' })
+}
+
+/**
+ * `POST /usuarios/:id/token-recuperacion`
+ *
+ * Emite el token en claro una única vez para que el administrador lo entregue.
+ * Requiere `core.usuarios.gestionar` y un usuario vigente.
+ */
+export async function issueRecoveryTokenController(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
+  const { id } = parseOrThrow(uuidParamSchema, request.params)
+
+  reply.code(200).send(await issueRecoveryToken(id))
 }

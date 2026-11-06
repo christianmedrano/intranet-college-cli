@@ -4,7 +4,7 @@
 |---|---|
 | ID | `CORE-001` |
 | Módulo | `core` |
-| Versión | `1.0.0` |
+| Versión | `1.1.0` |
 | Estado | `aprobada` |
 | Fecha | 2026-11-05 |
 
@@ -119,7 +119,10 @@ La matriz normativa está en `docs/rbac-matrix.md`. Los permisos se expresan com
 **Criterios de aceptación:**
 
 - **Dado** un correo registrado, **cuando** solicita recuperación, **entonces** se genera un token y la respuesta es siempre `202` (no revela si el correo existe).
+- **Dado** un correo no registrado, **cuando** solicita recuperación, **entonces** la respuesta también es `202` y no se genera ningún token.
+- **Dado** un administrador con `core.usuarios.gestionar`, **cuando** solicita el token de recuperación de un usuario vigente, **entonces** recibe el token en claro una única vez y cualquier token anterior sin usar queda invalidado.
 - **Dado** un token usado o expirado, **cuando** intenta restablecer, **entonces** recibe `400 VALIDATION_ERROR`.
+- **Dado** un restablecimiento exitoso, **cuando** el usuario tenía sesiones activas, **entonces** todas sus sesiones se revocan y debe iniciar sesión de nuevo.
 
 ### RF-CORE-008 — Año académico
 
@@ -310,6 +313,7 @@ Prefijo `/api/v1`. Errores con el sobre estándar de `docs/architecture.md`.
 |---|---|---|
 | `GET` / `PATCH` | `/institucion` | `core.institucion.editar` |
 | `GET` / `POST` / `PATCH` | `/usuarios` | `core.usuarios.gestionar` |
+| `POST` | `/usuarios/:id/token-recuperacion` | `core.usuarios.gestionar` |
 | `GET` / `POST` / `PATCH` | `/anios-academicos` | `core.estructura.gestionar` |
 | `POST` | `/anios-academicos/:id/activar` | `core.estructura.gestionar` |
 | `GET` / `POST` / `PATCH` | `/anios-academicos/:id/periodos` | `core.estructura.gestionar` |
@@ -337,6 +341,8 @@ Prefijo `/api/v1`. Errores con el sobre estándar de `docs/architecture.md`.
 | Documento duplicado | `409 CONFLICT` con mensaje genérico |
 | Apoderado consulta alumno ajeno | `403 FORBIDDEN` |
 | Token de recuperación reutilizado | `400 VALIDATION_ERROR` |
+| Solicitud de recuperación con correo inexistente | `202`, sin generar token |
+| Administrador emite un token nuevo | El anterior sin usar queda invalidado |
 | Borrado de auditoría | `405` o `403`; la entidad no expone DELETE |
 
 ## 9. Dependencias
@@ -352,13 +358,14 @@ Prefijo `/api/v1`. Errores con el sobre estándar de `docs/architecture.md`.
 | Q1 | ¿Identificador de acceso? | Login multicampo: usuario, correo o número de documento | resuelta |
 | Q2 | ¿Roles múltiples por usuario? | Sí, los permisos se unen | resuelta |
 | Q3 | ¿Cuentas de alumnos? | Todos los niveles, con acceso según rol y vínculo | resuelta |
-| Q4 | ¿Envío real de correo para recuperación? | No en el MVP: token entregado por administración | resuelta |
+| Q4 | ¿Envío real de correo para recuperación? | No en el MVP: token entregado por administración mediante `POST /usuarios/:id/token-recuperacion` | resuelta |
 | Q5 | ¿Un apoderado principal por alumno? | Sí, exactamente uno | resuelta |
 | Q6 | ¿Un solo año académico activo? | Sí | resuelta |
 | Q7 | ¿Contraseña inicial? | PIN temporal generado por el sistema + cambio obligatorio | resuelta |
 | Q8 | ¿SSO con Google o Microsoft en el MVP? | No, fuera de alcance | resuelta |
 
 > Spec aprobada el 2026-11-05 con las decisiones Q1–Q8.
+> Versión `1.1.0` (2026-11-05): se documenta la entrega del token de recuperación mediante `POST /usuarios/:id/token-recuperacion` (Q4).
 
 ## 11. Trazabilidad
 

@@ -162,3 +162,155 @@ export async function revocarSesion(
     data: { revocadoEn: datos.ahora },
   })
 }
+
+/**
+ * Busca un usuario vigente por correo para iniciar la recuperación.
+ *
+ * Solo devuelve cuentas activas y sin borrado lógico; el servicio responde
+ * igual cuando no hay coincidencia para no revelar qué correos existen.
+ */
+export async function findUsuarioPorEmail(
+  prisma: PrismaClient,
+  email: string,
+): Promise<{ id: string } | null> {
+  return prisma.usuario.findFirst({
+    where: { email, activo: true, deletedAt: null },
+    select: { id: true },
+  })
+}
+
+/** Datos del usuario necesarios para emitir un token o validar la política. */
+export interface UsuarioParaRecuperacion {
+  id: string
+  username: string | null
+  email: string | null
+  persona: { numeroDocumento: string }
+}
+
+/**
+ * Carga un usuario vigente por identificador.
+ *
+ * Se usa tanto para emitir un token desde administración como para validar la
+ * política de contraseña al restablecer.
+ */
+export async function findUsuarioVigente(
+  prisma: PrismaClient,
+  usuarioId: string,
+): Promise<UsuarioParaRecuperacion | null> {
+  return prisma.usuario.findFirst({
+    where: { id: usuarioId, activo: true, deletedAt: null },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      persona: { select: { numeroDocumento: true } },
+    },
+  })
+}
+
+export interface EmisionDeToken {
+  usuarioId: string
+  tokenHash: string
+  expiraEn: Date
+  ahora: Date
+}
+
+/**
+ * Emite un token de recuperación invalidando los anteriores sin usar.
+ *
+ * Marcar los previos como usados evita que dos enlaces sigan vivos a la vez.
+ * Se hace en una transacción para que nunca queden dos tokens válidos.
+ */
+export async function emitirTokenRecuperacion(
+  prisma: PrismaClient,
+  datos: EmisionDeToken,
+): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    await tx.tokenRecuperacion.updateMany({
+      where: { usuarioId: datos.usuarioId, usadoEn: null },
+      data: { usadoEn: datos.ahora },
+    })
+
+    await tx.tokenRecuperacion.create({
+      data: {
+        usuarioId: datos.usuarioId,
+        tokenHash: datos.tokenHash,
+        expiraEn: datos.expiraEn,
+      },
+    })
+  })
+}
+
+/** Busca un token de recuperación por su hash e incluye al usuario. */
+export async function findTokenRecuperacion(
+  prisma: PrismaClient,
+  tokenHash: string,
+) {
+  return prisma.tokenRecuperacion.findUnique({
+    where: { tokenHash },
+    include: {
+      usuario: {
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          activo: true,
+          deletedAt: true,
+          persona: { select: { numeroDocumento: true } },
+        },
+      },
+    },
+  })
+}
+
+export interface ConsumoDeToken {
+  tokenId: string
+  usuarioId: string
+  passwordHash: string
+  ahora: Date
+}
+
+/**
+ * Consume el token y aplica el cambio de contraseña en una transacción.
+ *
+ * La actualización del token es condicional (`usadoEn: null` y vigente), así que
+ * dos restablecimientos simultáneos con el mismo token no pueden triunfar.
+ * Además revoca todas las sesiones del usuario (RF-CORE-007).
+ *
+ * @returns `false` si el token ya fue usado o expiró.
+ */
+export async function consumirTokenRecuperacion(
+  prisma: PrismaClient,
+  datos: ConsumoDeToken,
+): Promise<boolean> {
+  return prisma.$transaction(async (tx) => {
+    const consumido = await tx.tokenRecuperacion.updateMany({
+      where: {
+        id: datos.tokenId,
+        usuarioId: datos.usuarioId,
+        usadoEn: null,
+        expiraEn: { gt: datos.ahora },
+      },
+      data: { usadoEn: datos.ahora },
+    })
+
+    if (consumido.count !== 1) {
+      return false
+    }
+
+    await tx.usuario.update({
+      where: { id: datos.usuarioId },
+      data: {
+        passwordHash: datos.passwordHash,
+        debeCambiarPassword: false,
+      },
+    })
+
+    await tx.sesionRefresh.updateMany({
+      where: { usuarioId: datos.usuarioId, revocadoEn: null },
+      data: { revocadoEn: datos.ahora },
+    })
+
+    return true
+  })
+}

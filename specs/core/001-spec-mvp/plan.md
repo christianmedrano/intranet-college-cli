@@ -3,7 +3,7 @@
 | Campo | Valor |
 |---|---|
 | Spec asociada | `specs/core/001-spec-mvp/spec.md` |
-| Versión | `1.0.0` |
+| Versión | `1.1.0` |
 | Estado | `aprobado` |
 | Fecha | 2026-11-05 |
 
@@ -123,6 +123,13 @@ Se implementan los endpoints de la spec §7. Convenciones:
 - Paginación `?page&pageSize` con `meta`.
 - Validación Zod en cada endpoint.
 
+Recuperación de contraseña (RF-CORE-007):
+
+- `POST /auth/forgot-password` es público y **siempre** responde `202`, exista o no el correo.
+- `POST /auth/reset-password` consume el token de un solo uso (30 minutos) y revoca todas las sesiones del usuario.
+- `POST /usuarios/:id/token-recuperacion` permite a quien tenga `core.usuarios.gestionar` obtener el token en claro una única vez, ya que el MVP no envía correo. Emitir uno nuevo invalida el anterior sin usar.
+- El token se guarda solo como hash SHA-256; el valor en claro nunca se persiste ni se registra en logs.
+
 Permisos:
 
 - `core.institucion.editar`
@@ -153,7 +160,7 @@ No se agregarán librerías de UI en esta fase.
 | Nivel | Casos |
 |---|---|
 | Dominio | Unión de permisos por roles; validación de estados; configuración de 3 y 4 períodos |
-| API | Login válido/inválido, rate limit, refresh y revocación, CRUD con permisos, matrícula duplicada, año activo único |
+| API | Login válido/inválido, rate limit, refresh y revocación, recuperación con token de un solo uso, CRUD con permisos, matrícula duplicada, año activo único |
 | Integración | Transacción de activación de año; cierre de período; vínculo apoderado–alumno |
 | UI | Render de login, error de credenciales, redirección de guard |
 | E2E | Diferido a la primera feature con flujo completo |
@@ -166,7 +173,7 @@ Cobertura mínima: 70 % en servicios de `core`.
 |---|---|---|
 | Unicidad del año activo sin índice parcial | Datos inconsistentes | Transacción + prueba de concurrencia |
 | Roles múltiples complican el RBAC | Permisos mal evaluados | Permisos efectivos calculados en un solo servicio y probados |
-| Recuperación de contraseña sin correo | Usuarios bloqueados | Token entregado por administración (Q4) |
+| Recuperación de contraseña sin correo | Usuarios bloqueados | Token entregado por administración vía endpoint protegido (Q4) |
 | Refresh token robado | Suplantación | Rotación, revocación y almacenamiento del hash |
 | Prisma + MySQL en Windows | Fricción de configuración | Documentar `.env` y usar `prisma migrate dev` |
 | Crecimiento del módulo core | Acoplamiento | Submódulos por carpeta y límites de importación |

@@ -1,10 +1,18 @@
 import type {
+  ForgotPasswordInput,
   LoginInput,
   LoginResponse,
   MeResponse,
+  RecoveryTokenResponse,
+  ResetPasswordInput,
 } from '@intranet/shared'
-import { verifyPassword } from '../../../core/auth/password.js'
 import {
+  assertPasswordPolicy,
+  hashPassword,
+  verifyPassword,
+} from '../../../core/auth/password.js'
+import {
+  createRecoveryToken,
   createRefreshToken,
   hashToken,
   signAccessToken,
@@ -15,8 +23,13 @@ import { AppError } from '../../../core/errors.js'
 import { getEffectivePermissions, normalizeRoleCodes } from '../../../core/rbac.js'
 import type { PrismaClient } from '../../../generated/prisma/client.js'
 import {
+  consumirTokenRecuperacion,
+  emitirTokenRecuperacion,
   findSesionPorHash,
+  findTokenRecuperacion,
   findUsuarioConRoles,
+  findUsuarioPorEmail,
+  findUsuarioVigente,
   findUsuariosPorIdentificador,
   registrarInicioDeSesion,
   revocarSesion,
@@ -203,4 +216,131 @@ export async function logout(
     usuarioId,
     ahora: new Date(),
   })
+}
+
+/**
+ * Solicita un restablecimiento de contraseña (RF-CORE-007).
+ *
+ * No revela si el correo existe: la ausencia de coincidencia termina sin error
+ * y la capa HTTP responde siempre `202`. Solo se emite token para cuentas
+ * vigentes.
+ *
+ * @param input Correo del usuario.
+ * @param prisma Cliente inyectable para las pruebas.
+ */
+export async function forgotPassword(
+  input: ForgotPasswordInput,
+  prisma: PrismaClient = getPrisma(),
+): Promise<void> {
+  const usuario = await findUsuarioPorEmail(prisma, input.email)
+
+  if (!usuario) {
+    return
+  }
+
+  const token = createRecoveryToken()
+
+  await emitirTokenRecuperacion(prisma, {
+    usuarioId: usuario.id,
+    tokenHash: token.tokenHash,
+    expiraEn: token.expiraEn,
+    ahora: new Date(),
+  })
+}
+
+/**
+ * Restablece la contraseña con un token de un solo uso (RF-CORE-007).
+ *
+ * Un token usado, expirado o desconocido devuelve el mismo `400`, sin distinguir
+ * el motivo. Aplica la política de RN-CORE-017 y revoca todas las sesiones del
+ * usuario para que un token robado no deje sesiones abiertas.
+ *
+ * @param input Token en claro y nueva contraseña.
+ * @param prisma Cliente inyectable para las pruebas.
+ * @throws AppError `VALIDATION_ERROR` si el token no es usable o la contraseña
+ * incumple la política.
+ */
+export async function resetPassword(
+  input: ResetPasswordInput,
+  prisma: PrismaClient = getPrisma(),
+): Promise<void> {
+  const ahora = new Date()
+  const registro = await findTokenRecuperacion(
+    prisma,
+    hashToken(input.token),
+  )
+
+  const invalido =
+    !registro ||
+    registro.usadoEn !== null ||
+    registro.expiraEn.getTime() <= ahora.getTime() ||
+    !registro.usuario.activo ||
+    registro.usuario.deletedAt !== null
+
+  if (!registro || invalido) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      'El enlace de recuperación no es válido o expiró.',
+    )
+  }
+
+  assertPasswordPolicy(input.password, [
+    registro.usuario.username,
+    registro.usuario.email,
+    registro.usuario.persona.numeroDocumento,
+  ])
+
+  const passwordHash = await hashPassword(input.password)
+  const consumido = await consumirTokenRecuperacion(prisma, {
+    tokenId: registro.id,
+    usuarioId: registro.usuarioId,
+    passwordHash,
+    ahora,
+  })
+
+  if (!consumido) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      'El enlace de recuperación no es válido o expiró.',
+    )
+  }
+}
+
+/**
+ * Emite un token de recuperación desde administración (Q4 de la spec).
+ *
+ * El MVP no envía correo, así que el operador con `core.usuarios.gestionar`
+ * obtiene el token en claro una única vez. Emitir uno nuevo invalida el anterior.
+ *
+ * @param usuarioId Usuario destino.
+ * @param prisma Cliente inyectable para las pruebas.
+ * @throws AppError `NOT_FOUND` si el usuario no existe, está inactivo o fue
+ * borrado lógicamente.
+ */
+export async function issueRecoveryToken(
+  usuarioId: string,
+  prisma: PrismaClient = getPrisma(),
+): Promise<RecoveryTokenResponse> {
+  const usuario = await findUsuarioVigente(prisma, usuarioId)
+
+  if (!usuario) {
+    throw new AppError(
+      'NOT_FOUND',
+      'El usuario no existe o no está vigente.',
+    )
+  }
+
+  const token = createRecoveryToken()
+
+  await emitirTokenRecuperacion(prisma, {
+    usuarioId: usuario.id,
+    tokenHash: token.tokenHash,
+    expiraEn: token.expiraEn,
+    ahora: new Date(),
+  })
+
+  return {
+    token: token.token,
+    expiresAt: token.expiraEn.toISOString(),
+  }
 }

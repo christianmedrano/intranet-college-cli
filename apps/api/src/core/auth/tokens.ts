@@ -124,3 +124,32 @@ export function createRefreshToken(): RefreshToken {
 export function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex')
 }
+
+/** Vigencia normativa del token de recuperación (RF-CORE-007). */
+export const RECOVERY_TOKEN_TTL_MS = 30 * 60 * 1_000
+
+export interface RecoveryToken {
+  /** Valor en claro; solo se entrega al administrador y nunca se almacena. */
+  token: string
+  /** SHA-256 del valor; es lo único que se guarda en la base. */
+  tokenHash: string
+  expiraEn: Date
+}
+
+/**
+ * Genera un token de recuperación de un solo uso.
+ *
+ * Es opaco, de alta entropía y dura 30 minutos. El valor en claro no se
+ * persiste: quien lo necesite debe obtenerlo en el momento de la emisión.
+ *
+ * @param ahora Instante de emisión; inyectable para las pruebas.
+ */
+export function createRecoveryToken(ahora: Date = new Date()): RecoveryToken {
+  const token = randomBytes(32).toString('base64url')
+
+  return {
+    token,
+    tokenHash: hashToken(token),
+    expiraEn: new Date(ahora.getTime() + RECOVERY_TOKEN_TTL_MS),
+  }
+}

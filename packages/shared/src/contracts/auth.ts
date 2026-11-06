@@ -36,3 +36,24 @@ export interface MeResponse {
   roles: RoleCode[]
   permissions: Permission[]
 }
+
+/** Respuesta de `POST /auth/forgot-password`. No revela si el correo existe. */
+export interface ForgotPasswordResponse {
+  message: string
+}
+
+/** Respuesta de `POST /auth/reset-password`. */
+export interface ResetPasswordResponse {
+  message: string
+}
+
+/**
+ * Respuesta de `POST /usuarios/:id/token-recuperacion`.
+ *
+ * El token en claro se devuelve una única vez; la base solo conserva su hash.
+ */
+export interface RecoveryTokenResponse {
+  token: string
+  /** Fecha ISO-8601 en la que el token deja de ser válido. */
+  expiresAt: string
+}
