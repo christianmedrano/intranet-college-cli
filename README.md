@@ -33,13 +33,13 @@ specs/        Especificaciones (fuente de verdad)
 docs/         Gobernanza, arquitectura, plantillas y ADRs
 ```
 
-> **Estado actual:** monorepo operativo con `apps/web` y `apps/api`. El frontend aún renderiza la plantilla de Vite y la base de datos está pendiente de configurar. Consulta `docs/architecture.md` para el detalle.
+> **Estado actual:** monorepo operativo con `apps/web` y `apps/api`. El frontend aún renderiza la plantilla de Vite. La base de datos MySQL ya está configurada y el esquema se gestiona con Prisma Migrate. Consulta `docs/architecture.md` para el detalle.
 
 ## Requisitos
 
 - Node.js 20.19+ o 22.12+ (probado con 26.13 LTS)
 - npm 10 o superior
-- MySQL 8.0.16 o superior (se configura a partir de la Fase 4)
+- MySQL 8.0.16 o superior
 
 ## Puesta en marcha
 
@@ -54,6 +54,32 @@ Servicios:
 |---|---|
 | Frontend | http://localhost:5173 |
 | API | http://localhost:3000/api/v1/health |
+
+## Base de datos
+
+1. Crea la base y un usuario dedicado:
+
+```sql
+CREATE DATABASE IF NOT EXISTS intranet_college
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+CREATE USER IF NOT EXISTS 'intranet_app'@'localhost'
+  IDENTIFIED BY 'TU_CLAVE';
+GRANT ALL PRIVILEGES ON intranet_college.* TO 'intranet_app'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+2. Copia `apps/api/.env.example` a `apps/api/.env` y ajusta `DATABASE_URL`, `JWT_SECRET` y las variables `SEED_ADMIN_*`.
+
+3. Aplica las migraciones y carga los datos semilla:
+
+```bash
+npm run db:deploy  -w @intranet/api
+npm run db:seed    -w @intranet/api
+```
+
+El seed crea los 5 roles, una institución de ejemplo y el `SuperAdmin` definido en `SEED_ADMIN_*`. Es idempotente: no sobrescribe la contraseña de un usuario existente ni los datos editados de la institución. El `SuperAdmin` se crea con `debe_cambiar_password = true`, por lo que deberá cambiar la clave en su primer acceso.
+
+> El seed nunca se ejecuta con `NODE_ENV=production`.
 
 Scripts disponibles:
 
