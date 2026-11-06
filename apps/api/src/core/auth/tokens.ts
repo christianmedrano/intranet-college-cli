@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto'
-import { SignJWT } from 'jose'
+import { jwtVerify, SignJWT } from 'jose'
 import { loadConfig } from '../config.js'
 
 /** Emisor y audiencia del token de acceso; el guard de T012 los exige. */
@@ -71,6 +71,28 @@ export async function signAccessToken(usuarioId: string): Promise<AccessToken> {
     .sign(claveSecreta())
 
   return { token, expiresIn }
+}
+
+/**
+ * Verifica un token de acceso y devuelve el identificador del usuario.
+ *
+ * Valida firma, algoritmo, emisor, audiencia y expiración.
+ *
+ * @param token Valor recibido en `Authorization: Bearer`.
+ * @throws Error si el token es inválido, fue manipulado o expiró.
+ */
+export async function verifyAccessToken(token: string): Promise<string> {
+  const { payload } = await jwtVerify(token, claveSecreta(), {
+    issuer: JWT_ISSUER,
+    audience: JWT_AUDIENCE,
+    algorithms: [ALGORITMO],
+  })
+
+  if (!payload.sub) {
+    throw new Error('El token no identifica a un usuario.')
+  }
+
+  return payload.sub
 }
 
 export interface RefreshToken {

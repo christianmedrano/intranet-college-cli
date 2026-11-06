@@ -62,3 +62,21 @@ export async function registrarInicioDeSesion(
     }),
   ])
 }
+
+/**
+ * Carga el usuario con su persona y sus roles para construir el perfil.
+ *
+ * Excluye el borrado lógico; la vigencia (`activo`) la evalúa el servicio.
+ */
+export async function findUsuarioConRoles(
+  prisma: PrismaClient,
+  usuarioId: string,
+) {
+  return prisma.usuario.findFirst({
+    where: { id: usuarioId, deletedAt: null },
+    include: {
+      persona: true,
+      roles: { include: { rol: true } },
+    },
+  })
+}

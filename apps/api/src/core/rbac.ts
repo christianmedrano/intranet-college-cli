@@ -1,6 +1,7 @@
 import type { FastifyRequest } from 'fastify'
 import {
   permissionsForRoles,
+  roleCodes,
   type Permission,
   type RoleCode,
 } from '@intranet/shared'
@@ -26,6 +27,21 @@ export function getEffectivePermissions(
   roles: readonly RoleCode[],
 ): Permission[] {
   return permissionsForRoles(roles)
+}
+
+/**
+ * Normaliza códigos de rol leídos de la base.
+ *
+ * Descarta los desconocidos y los duplicados. Un rol que no está en el catálogo
+ * se ignora a propósito: nunca debe otorgar permisos por accidente.
+ *
+ * @param codigos Códigos tal como están almacenados.
+ * @returns Roles del catálogo, en su orden canónico.
+ */
+export function normalizeRoleCodes(codigos: readonly string[]): RoleCode[] {
+  const presentes = new Set(codigos)
+
+  return roleCodes.filter((codigo) => presentes.has(codigo))
 }
 
 /** Indica si el conjunto de roles otorga el permiso solicitado. */

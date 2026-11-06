@@ -41,7 +41,7 @@ Formato obligatorio:
 - [x] T009 — Configurar entorno, PrismaClient, errores y logger con redacción — `apps/api/src/core/config.ts`, `db.ts`, `errors.ts` — RF-CORE-004 — arranque falla si falta `JWT_SECRET`; logs sin secretos
 - [x] T010 — Servicio de hash con Argon2id y verificación — `apps/api/src/core/auth/password.ts`, `test/core/password.test.ts` — RF-CORE-004 — hash distinto por salt y verificación correcta
 - [x] T011 — Endpoint `POST /auth/login` con username o email — `apps/api/src/modules/core/auth/` — RF-CORE-004 — credenciales válidas devuelven access token y cookie refresh
-- [ ] T012 — Guard `requireAuth` y endpoint `GET /me` con roles y permisos efectivos — `apps/api/src/core/auth/guards.ts`, `modules/core/auth/` — RF-CORE-005 — token ausente o expirado devuelve 401
+- [x] T012 — Guard `requireAuth` y endpoint `GET /me` con roles y permisos efectivos — `apps/api/src/core/auth/guards.ts`, `modules/core/auth/` — RF-CORE-005 — token ausente o expirado devuelve 401
 - [ ] T013 — Rotación de refresh, logout y revocación — `apps/api/src/modules/core/auth/` — RF-CORE-006 — refresh reutilizado se rechaza; logout revoca
 - [ ] T014 — Recuperación y restablecimiento de contraseña con token de un solo uso — `apps/api/src/modules/core/auth/` — RF-CORE-007 — token usado o expirado devuelve 400
 - [ ] T015 — Rate limit específico en login — `apps/api/src/app.ts` — RF-CORE-004 — sexto intento en 15 minutos devuelve 429

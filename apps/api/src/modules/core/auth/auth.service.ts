@@ -1,4 +1,8 @@
-import type { LoginInput, LoginResponse } from '@intranet/shared'
+import type {
+  LoginInput,
+  LoginResponse,
+  MeResponse,
+} from '@intranet/shared'
 import { verifyPassword } from '../../../core/auth/password.js'
 import {
   createRefreshToken,
@@ -7,8 +11,10 @@ import {
 } from '../../../core/auth/tokens.js'
 import { getPrisma } from '../../../core/db.js'
 import { AppError } from '../../../core/errors.js'
+import { getEffectivePermissions, normalizeRoleCodes } from '../../../core/rbac.js'
 import type { PrismaClient } from '../../../generated/prisma/client.js'
 import {
+  findUsuarioConRoles,
   findUsuariosPorIdentificador,
   registrarInicioDeSesion,
 } from './auth.repository.js'
@@ -71,5 +77,46 @@ export async function login(
     tokenType: 'Bearer',
     expiresIn: access.expiresIn,
     refresh,
+  }
+}
+
+/**
+ * Devuelve el perfil del usuario autenticado con sus roles y permisos
+ * efectivos (RF-CORE-005).
+ *
+ * Vuelve a comprobar la vigencia del usuario porque el token puede haber sido
+ * emitido antes de una desactivación (RN-CORE-006).
+ *
+ * @param usuarioId Identificador del usuario autenticado.
+ * @param prisma Cliente inyectable para las pruebas.
+ * @throws AppError `UNAUTHORIZED` si el usuario ya no existe o está inactivo.
+ */
+export async function getPerfil(
+  usuarioId: string,
+  prisma: PrismaClient = getPrisma(),
+): Promise<MeResponse> {
+  const usuario = await findUsuarioConRoles(prisma, usuarioId)
+
+  if (!usuario || !usuario.activo) {
+    throw new AppError('UNAUTHORIZED', 'La sesión no es válida.')
+  }
+
+  const roles = normalizeRoleCodes(
+    usuario.roles.map((fila) => fila.rol.codigo),
+  )
+
+  return {
+    id: usuario.id,
+    username: usuario.username,
+    email: usuario.email,
+    debeCambiarPassword: usuario.debeCambiarPassword,
+    persona: {
+      nombres: usuario.persona.nombres,
+      apellidos: usuario.persona.apellidos,
+      tipoDocumento: usuario.persona.tipoDocumento,
+      numeroDocumento: usuario.persona.numeroDocumento,
+    },
+    roles,
+    permissions: getEffectivePermissions(roles),
   }
 }
