@@ -25,7 +25,7 @@ Formato obligatorio:
 ## Fase 0 — Preparación
 
 - [x] T001 — Instalar Prisma y crear `prisma/schema.prisma` con datasource MySQL — `apps/api/prisma/schema.prisma`, `apps/api/package.json` — infra — `prisma validate` pasa y `generate` funciona
-- [ ] T002 — Documentar y crear la base `intranet_college` con `utf8mb4` — `apps/api/.env.example`, `README.md` — infra — `prisma migrate dev` conecta sin error
+- [x] T002 — Documentar y crear la base `intranet_college` con `utf8mb4` — `apps/api/.env.example`, `README.md` — infra — `prisma migrate dev` conecta sin error
 - [x] T003 — Crear schemas base compartidos: UUID, paginación, sobre de error y permisos — `packages/shared/src/schemas/base.ts`, `packages/shared/src/contracts/base.ts` — infra — tipos exportados y `typecheck` en verde
 
 ## Fase 1 — Modelo de datos
@@ -34,7 +34,7 @@ Formato obligatorio:
 - [x] T005 — Modelar estructura: AnioAcademico, PeriodoAcademico, Nivel, Grado, Seccion, Curso — `apps/api/prisma/schema.prisma` — RF-CORE-008, RF-CORE-009, RF-CORE-010 — únicos por año/orden definidos
 - [x] T006 — Modelar personas y matrícula: Alumno, Docente, Apoderado, ApoderadoAlumno, Matricula, AsignacionDocente, Auditoria — `apps/api/prisma/schema.prisma` — RF-CORE-012 a RF-CORE-016 — FKs y borrado lógico definidos
 - [x] T007 — Generar migración `core_init` y seed de roles, institución y SuperAdmin — `apps/api/prisma/migrations/`, `apps/api/prisma/seed.ts` — RF-CORE-002, RF-CORE-003 — seed idempotente; no corre en producción
-- [ ] T008 — Pruebas de integridad del modelo: únicos, FKs y borrado lógico — `apps/api/test/core/model.test.ts` — RF-CORE-002, RF-CORE-012, RF-CORE-015 — duplicados devuelven error de integridad
+- [x] T008 — Pruebas de integridad del modelo: únicos, FKs y borrado lógico — `apps/api/test/core/model.test.ts` — RF-CORE-002, RF-CORE-012, RF-CORE-015 — duplicados devuelven error de integridad
 
 ## Fase 2 — Autenticación
 
