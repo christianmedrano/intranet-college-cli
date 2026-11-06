@@ -22,5 +22,22 @@ export default defineConfig({
         'mysql://test:test@localhost:3306/intranet_college_test',
       JWT_SECRET: 'clave-de-pruebas-con-mas-de-32-caracteres',
     },
+    coverage: {
+      provider: 'v8',
+      reporter: ['text'],
+      include: ['src/**/*.ts'],
+      exclude: [
+        'src/generated/**',
+        'src/server.ts',
+        'src/core/seed.ts',
+        'src/types/**',
+      ],
+      thresholds: {
+        statements: 70,
+        branches: 70,
+        functions: 70,
+        lines: 70,
+      },
+    },
   },
 })

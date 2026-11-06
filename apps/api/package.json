@@ -9,6 +9,7 @@
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "postinstall": "prisma generate",
     "db:validate": "prisma validate",
     "db:format": "prisma format",
@@ -32,6 +33,7 @@
   "devDependencies": {
     "@types/node": "^24.19.2",
     "@types/supertest": "^7.2.1",
+    "@vitest/coverage-v8": "^5.1.0",
     "prisma": "^7.10.1",
     "supertest": "^7.3.1",
     "tsx": "^4.23.15",

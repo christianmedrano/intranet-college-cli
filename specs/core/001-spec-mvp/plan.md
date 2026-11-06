@@ -165,7 +165,7 @@ No se agregarán librerías de UI en esta fase.
 | UI | Render de login, error de credenciales, redirección de guard |
 | E2E | Diferido a la primera feature con flujo completo |
 
-Cobertura mínima: 70 % en servicios de `core`.
+Cobertura mínima: 70 % en servicios de `core`. Se verifica con `npm run test:coverage`; el umbral está configurado en `apps/api/vitest.config.ts` con el proveedor `@vitest/coverage-v8`.
 
 ## 8. Riesgos y mitigaciones
 

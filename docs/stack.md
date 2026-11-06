@@ -58,6 +58,7 @@
 | Paquete | Uso |
 |---|---|
 | `vitest` | Pruebas unitarias e integración |
+| `@vitest/coverage-v8` | Cobertura de pruebas (aprobado el 2026-11-05) |
 | `@testing-library/react` | Pruebas de UI |
 | `@testing-library/jest-dom` | Matchers de DOM |
 | `supertest` | Pruebas de API |
