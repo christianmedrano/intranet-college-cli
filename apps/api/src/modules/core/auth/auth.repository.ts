@@ -80,3 +80,85 @@ export async function findUsuarioConRoles(
     },
   })
 }
+
+/**
+ * Busca una sesión por el hash del refresh.
+ *
+ * Trae el estado del usuario para que el servicio pueda rechazar la renovación
+ * de una cuenta desactivada o con borrado lógico.
+ */
+export async function findSesionPorHash(
+  prisma: PrismaClient,
+  tokenHash: string,
+) {
+  return prisma.sesionRefresh.findUnique({
+    where: { tokenHash },
+    include: {
+      usuario: {
+        select: { id: true, activo: true, deletedAt: true },
+      },
+    },
+  })
+}
+
+export interface RotacionDeSesion {
+  sesionId: string
+  usuarioId: string
+  tokenHash: string
+  expiraEn: Date
+  ahora: Date
+}
+
+/**
+ * Rota una sesión: revoca la anterior y crea la nueva de forma atómica.
+ *
+ * La revocación es condicional (`revocadoEn: null`) para que dos renovaciones
+ * simultáneas con el mismo token no produzcan dos sesiones válidas: la segunda
+ * no encuentra filas que actualizar y la transacción se revierte.
+ *
+ * @returns `false` si la sesión ya había sido revocada por otra petición.
+ */
+export async function rotarSesion(
+  prisma: PrismaClient,
+  datos: RotacionDeSesion,
+): Promise<boolean> {
+  return prisma.$transaction(async (tx) => {
+    const revocada = await tx.sesionRefresh.updateMany({
+      where: { id: datos.sesionId, revocadoEn: null },
+      data: { revocadoEn: datos.ahora },
+    })
+
+    if (revocada.count !== 1) {
+      return false
+    }
+
+    await tx.sesionRefresh.create({
+      data: {
+        usuarioId: datos.usuarioId,
+        tokenHash: datos.tokenHash,
+        expiraEn: datos.expiraEn,
+      },
+    })
+
+    return true
+  })
+}
+
+/**
+ * Revoca la sesión identificada por el hash, solo si pertenece al usuario.
+ *
+ * Es idempotente: una sesión ya revocada o inexistente no produce error.
+ */
+export async function revocarSesion(
+  prisma: PrismaClient,
+  datos: { tokenHash: string; usuarioId: string; ahora: Date },
+): Promise<void> {
+  await prisma.sesionRefresh.updateMany({
+    where: {
+      tokenHash: datos.tokenHash,
+      usuarioId: datos.usuarioId,
+      revocadoEn: null,
+    },
+    data: { revocadoEn: datos.ahora },
+  })
+}

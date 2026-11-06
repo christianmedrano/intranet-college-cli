@@ -26,3 +26,13 @@ export function setRefreshCookie(
     expires: refresh.expiraEn,
   })
 }
+
+/**
+ * Elimina la cookie de refresh.
+ *
+ * Debe usar el mismo `path` con el que se creó; de lo contrario el navegador
+ * conserva la cookie original.
+ */
+export function clearRefreshCookie(reply: FastifyReply): void {
+  reply.clearCookie(REFRESH_COOKIE, { path: REFRESH_COOKIE_PATH })
+}

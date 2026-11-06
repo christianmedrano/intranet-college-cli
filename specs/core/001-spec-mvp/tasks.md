@@ -42,7 +42,7 @@ Formato obligatorio:
 - [x] T010 — Servicio de hash con Argon2id y verificación — `apps/api/src/core/auth/password.ts`, `test/core/password.test.ts` — RF-CORE-004 — hash distinto por salt y verificación correcta
 - [x] T011 — Endpoint `POST /auth/login` con username o email — `apps/api/src/modules/core/auth/` — RF-CORE-004 — credenciales válidas devuelven access token y cookie refresh
 - [x] T012 — Guard `requireAuth` y endpoint `GET /me` con roles y permisos efectivos — `apps/api/src/core/auth/guards.ts`, `modules/core/auth/` — RF-CORE-005 — token ausente o expirado devuelve 401
-- [ ] T013 — Rotación de refresh, logout y revocación — `apps/api/src/modules/core/auth/` — RF-CORE-006 — refresh reutilizado se rechaza; logout revoca
+- [x] T013 — Rotación de refresh, logout y revocación — `apps/api/src/modules/core/auth/` — RF-CORE-006 — refresh reutilizado se rechaza; logout revoca
 - [ ] T014 — Recuperación y restablecimiento de contraseña con token de un solo uso — `apps/api/src/modules/core/auth/` — RF-CORE-007 — token usado o expirado devuelve 400
 - [ ] T015 — Rate limit específico en login — `apps/api/src/app.ts` — RF-CORE-004 — sexto intento en 15 minutos devuelve 429
 - [ ] T016 — Pruebas de autenticación: éxito, fallo, inactivo, expirado, refresh y reset — `apps/api/test/core/auth.test.ts` — RF-CORE-004 a RF-CORE-007 — cobertura de servicios ≥ 70 %
