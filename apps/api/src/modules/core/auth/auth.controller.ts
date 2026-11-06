@@ -11,6 +11,12 @@ import {
   REFRESH_COOKIE,
   setRefreshCookie,
 } from '../../../core/auth/cookies.js'
+import {
+  assertLoginAllowed,
+  clearLoginFailures,
+  loginAttemptKey,
+  recordLoginFailure,
+} from '../../../core/auth/login-throttle.js'
 import { AppError } from '../../../core/errors.js'
 import {
   forgotPassword,
@@ -47,8 +53,11 @@ function parseOrThrow<T>(schema: ZodType<T>, datos: unknown): T {
 /**
  * `POST /auth/login`
  *
- * Valida el cuerpo, delega en el servicio y entrega el refresh en cookie
- * `httpOnly`. El cuerpo nunca contiene el refresh token.
+ * Valida el cuerpo, aplica el límite de intentos fallidos y entrega el refresh
+ * en cookie `httpOnly`. El cuerpo nunca contiene el refresh token.
+ *
+ * El contador solo suma credenciales inválidas o identificadores ambiguos; un
+ * acceso correcto lo reinicia (RF-CORE-004).
  */
 export async function loginController(
   request: FastifyRequest,
@@ -66,7 +75,26 @@ export async function loginController(
     )
   }
 
-  const resultado = await login(parsed.data)
+  const clave = loginAttemptKey(request.ip, parsed.data.identifier)
+
+  assertLoginAllowed(clave)
+
+  let resultado: Awaited<ReturnType<typeof login>>
+
+  try {
+    resultado = await login(parsed.data)
+  } catch (error) {
+    if (
+      error instanceof AppError &&
+      (error.code === 'UNAUTHORIZED' || error.code === 'CONFLICT')
+    ) {
+      recordLoginFailure(clave)
+    }
+
+    throw error
+  }
+
+  clearLoginFailures(clave)
 
   setRefreshCookie(reply, resultado.refresh)
 

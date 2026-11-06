@@ -209,6 +209,7 @@ Cobertura mínima: 70 % en servicios de `core`.
 ## 11. Notas de implementación
 
 - Los permisos se definen como constantes en `packages/shared` para que el frontend y el backend usen los mismos códigos.
+- El límite de login es un contador en memoria por `IP + identificador`, con ventana fija de 15 minutos. Solo suma fallos (`401` y `409`); un acceso correcto reinicia el contador. Si el despliegue usa varias réplicas, habrá que moverlo a un almacén compartido (RF-CORE-004).
 - El guard de vínculo es obligatorio: rol correcto **no** implica acceso al recurso.
 - El logger debe redactar `password`, `passwordHash`, `token`, `refreshToken` y `authorization`.
 - Las operaciones que cambian notas, pagos o datos personales escriben auditoría dentro de la misma transacción.

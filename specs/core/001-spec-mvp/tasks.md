@@ -44,7 +44,7 @@ Formato obligatorio:
 - [x] T012 — Guard `requireAuth` y endpoint `GET /me` con roles y permisos efectivos — `apps/api/src/core/auth/guards.ts`, `modules/core/auth/` — RF-CORE-005 — token ausente o expirado devuelve 401
 - [x] T013 — Rotación de refresh, logout y revocación — `apps/api/src/modules/core/auth/` — RF-CORE-006 — refresh reutilizado se rechaza; logout revoca
 - [x] T014 — Recuperación y restablecimiento de contraseña con token de un solo uso, más emisión del token por administración — `apps/api/src/modules/core/auth/`, `apps/api/src/core/auth/tokens.ts`, `packages/shared/src/schemas/auth.ts` — RF-CORE-007 — `forgot-password` responde 202 siempre; token usado o expirado devuelve 400; el reset revoca las sesiones; `POST /usuarios/:id/token-recuperacion` exige `core.usuarios.gestionar`
-- [ ] T015 — Rate limit específico en login — `apps/api/src/app.ts` — RF-CORE-004 — sexto intento en 15 minutos devuelve 429
+- [x] T015 — Rate limit específico en login — `apps/api/src/core/auth/login-throttle.ts`, `apps/api/src/modules/core/auth/auth.controller.ts`, `apps/api/src/app.ts` — RF-CORE-004 — sexto intento fallido en 15 minutos devuelve 429 y un acceso correcto reinicia el contador
 - [ ] T016 — Pruebas de autenticación: éxito, fallo, inactivo, expirado, refresh y reset — `apps/api/test/core/auth.test.ts` — RF-CORE-004 a RF-CORE-007 — cobertura de servicios ≥ 70 %
 
 ## Fase 3 — RBAC

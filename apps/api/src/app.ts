@@ -3,7 +3,7 @@ import cors from '@fastify/cors'
 import rateLimit from '@fastify/rate-limit'
 import Fastify, { type FastifyInstance } from 'fastify'
 import { loadConfig } from './core/config.js'
-import { registerErrorHandler } from './core/errors.js'
+import { AppError, registerErrorHandler } from './core/errors.js'
 import { authRoutes } from './modules/core/auth/auth.routes.js'
 import { healthRoutes } from './routes/health.js'
 
@@ -36,7 +36,12 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   await app.register(cors, { origin: config.CORS_ORIGIN })
   await app.register(cookie)
-  await app.register(rateLimit, { max: 100, timeWindow: '1 minute' })
+  await app.register(rateLimit, {
+    max: 100,
+    timeWindow: '1 minute',
+    // Mantiene el sobre de error estándar también en los 429 del plugin.
+    errorResponseBuilder: () => new AppError('RATE_LIMITED'),
+  })
   await app.register(healthRoutes)
   await app.register(authRoutes, { prefix: '/api/v1' })
 

@@ -188,6 +188,73 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
       expect(respuesta.body).toMatchObject({ error: { code: 'CONFLICT' } })
     })
 
+    it('devuelve 429 al sexto intento fallido en 15 minutos', async () => {
+      await crearUsuario({
+        username: 'throttle.user',
+        email: 'throttle@ejemplo.edu.pe',
+        documento: '55555555',
+      })
+
+      for (let intento = 1; intento <= 5; intento += 1) {
+        const fallo = await iniciarSesion('throttle.user', 'ClaveEquivocada123')
+        expect(fallo.status).toBe(401)
+        expect(fallo.headers['set-cookie']).toBeUndefined()
+      }
+
+      const bloqueado = await iniciarSesion('throttle.user')
+
+      expect(bloqueado.status).toBe(429)
+      expect(bloqueado.body).toMatchObject({
+        error: { code: 'RATE_LIMITED' },
+      })
+      await expect(prisma.sesionRefresh.count()).resolves.toBe(0)
+    })
+
+    it('reinicia el contador tras un acceso correcto', async () => {
+      await crearUsuario({
+        username: 'reset.user',
+        email: 'reset@ejemplo.edu.pe',
+        documento: '66666666',
+      })
+
+      for (let intento = 0; intento < 4; intento += 1) {
+        const fallo = await iniciarSesion('reset.user', 'ClaveEquivocada123')
+        expect(fallo.status).toBe(401)
+      }
+
+      const exito = await iniciarSesion('reset.user')
+      expect(exito.status).toBe(200)
+
+      for (let intento = 1; intento <= 5; intento += 1) {
+        const fallo = await iniciarSesion('reset.user', 'ClaveEquivocada123')
+        expect(fallo.status).toBe(401)
+      }
+
+      const bloqueado = await iniciarSesion('reset.user')
+      expect(bloqueado.status).toBe(429)
+    })
+
+    it('no bloquea a otros identificadores', async () => {
+      await crearUsuario({
+        username: 'bloqueado.user',
+        email: 'bloqueado@ejemplo.edu.pe',
+        documento: '77777777',
+      })
+      await crearUsuario({
+        username: 'libre.user',
+        email: 'libre@ejemplo.edu.pe',
+        documento: '88888888',
+      })
+
+      for (let intento = 1; intento <= 5; intento += 1) {
+        await iniciarSesion('bloqueado.user', 'ClaveEquivocada123')
+      }
+
+      const libre = await iniciarSesion('libre.user')
+
+      expect(libre.status).toBe(200)
+    })
+
     it('devuelve 400 si el cuerpo no cumple el esquema', async () => {
       const respuesta = await request(app.server)
         .post('/api/v1/auth/login')
