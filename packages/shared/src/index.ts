@@ -2,5 +2,7 @@
 // Fuente de verdad: specs/core/001-spec-mvp/spec.md
 
 export * from './schemas/base.js'
+export * from './schemas/auth.js'
 export * from './contracts/base.js'
+export * from './contracts/auth.js'
 export * from './domain/permissions.js'

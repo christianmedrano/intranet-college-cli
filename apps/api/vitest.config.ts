@@ -12,9 +12,14 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['test/**/*.test.ts'],
+    // Las pruebas de integración comparten `intranet_college_test` y limpian la
+    // base entre casos: en paralelo se pisan entre sí.
+    fileParallelism: false,
     env: {
       NODE_ENV: 'test',
-      DATABASE_URL: 'mysql://test:test@localhost:3306/intranet_college_test',
+      DATABASE_URL:
+        process.env.TEST_DATABASE_URL ??
+        'mysql://test:test@localhost:3306/intranet_college_test',
       JWT_SECRET: 'clave-de-pruebas-con-mas-de-32-caracteres',
     },
   },
