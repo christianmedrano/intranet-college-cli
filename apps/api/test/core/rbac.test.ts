@@ -1,52 +1,95 @@
-import Fastify, { type FastifyInstance } from 'fastify'
 import {
+  permissionCodes,
   permissionsForRoles,
   roleCodes,
+  rolePermissions,
   type Permission,
   type RoleCode,
 } from '@intranet/shared'
-import { afterEach, describe, expect, it } from 'vitest'
+import Fastify, { type FastifyInstance, type FastifyRequest } from 'fastify'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { registerErrorHandler } from '../../src/core/errors.js'
-import { hasPermission, requirePermission } from '../../src/core/rbac.js'
+import {
+  getEffectivePermissions,
+  hasPermission,
+  normalizeRoleCodes,
+  requirePermission,
+} from '../../src/core/rbac.js'
 
-const ROLE_SET = new Set<string>(roleCodes)
-
-function toRole(value: string): RoleCode | undefined {
-  return ROLE_SET.has(value) ? roleCodes.find((role) => role === value) : undefined
+/**
+ * Matriz normativa de `docs/rbac-matrix.md`, escrita de forma explícita para
+ * que un cambio accidental en el catálogo rompa estas pruebas.
+ */
+const MATRIZ: Readonly<Record<RoleCode, readonly Permission[]>> = {
+  SUPER_ADMIN: [
+    'core.institucion.editar',
+    'core.usuarios.gestionar',
+    'core.estructura.gestionar',
+    'core.matriculas.gestionar',
+    'core.auditoria.leer',
+    'core.perfil.leer',
+  ],
+  DIRECTOR: [
+    'core.institucion.editar',
+    'core.usuarios.gestionar',
+    'core.estructura.gestionar',
+    'core.matriculas.gestionar',
+    'core.auditoria.leer',
+    'core.perfil.leer',
+  ],
+  DOCENTE: ['core.perfil.leer'],
+  APODERADO: ['core.perfil.leer'],
+  ALUMNO: ['core.perfil.leer'],
 }
 
-let app: FastifyInstance | undefined
+describe('matriz RBAC', () => {
+  for (const role of roleCodes) {
+    it(`otorga a ${role} exactamente los permisos documentados`, () => {
+      expect(permissionsForRoles([role])).toEqual(MATRIZ[role])
+      expect(getEffectivePermissions([role])).toEqual(MATRIZ[role])
+    })
+  }
 
-function buildGuardedApp(): FastifyInstance {
-  const instance = Fastify()
-  registerErrorHandler(instance)
+  it('une los permisos de varios roles sin duplicados', () => {
+    const union = permissionsForRoles(['DOCENTE', 'APODERADO'])
 
-  instance.addHook('onRequest', async (request) => {
-    const header = request.headers['x-test-role']
-    if (typeof header === 'string') {
-      const role = toRole(header)
-      if (role) {
-        request.authUser = { id: 'usuario-prueba', roles: [role] }
-      }
-    }
+    expect(union).toEqual(['core.perfil.leer'])
+    expect(union).toHaveLength(new Set(union).size)
   })
 
-  instance.get(
-    '/auditoria',
-    { preHandler: requirePermission('core.auditoria.leer') },
-    async () => ({ ok: true }),
-  )
+  it('la unión nunca supera el máximo de los roles implicados', () => {
+    expect(permissionsForRoles(['DIRECTOR', 'DOCENTE'])).toEqual(
+      MATRIZ.DIRECTOR,
+    )
+    expect(permissionsForRoles(['ALUMNO', 'APODERADO'])).toEqual([
+      'core.perfil.leer',
+    ])
+  })
 
-  app = instance
-  return instance
-}
+  it('responde por permiso concreto', () => {
+    expect(hasPermission(['DIRECTOR'], 'core.usuarios.gestionar')).toBe(true)
+    expect(hasPermission(['DOCENTE'], 'core.usuarios.gestionar')).toBe(false)
+    expect(hasPermission([], 'core.perfil.leer')).toBe(false)
+  })
 
-afterEach(async () => {
-  await app?.close()
-  app = undefined
-})
+  it('descarta roles desconocidos y normaliza el orden', () => {
+    expect(normalizeRoleCodes(['DOCENTE', 'HACKER', 'DOCENTE'])).toEqual([
+      'DOCENTE',
+    ])
+    expect(normalizeRoleCodes(['ALUMNO', 'SUPER_ADMIN'])).toEqual([
+      'SUPER_ADMIN',
+      'ALUMNO',
+    ])
+  })
 
-describe('catálogo de permisos', () => {
+  it('el catálogo de permisos coincide con la matriz documentada', () => {
+    const permisosDeLaMatriz = new Set(
+      Object.values(MATRIZ).flatMap((permisos) => permisos),
+    )
+
+    expect([...permisosDeLaMatriz].sort()).toEqual([...permissionCodes].sort())
+  })
+
   it('no admite permisos fuera del catálogo', () => {
     // Comprobación en tiempo de compilación: un literal ajeno al catálogo
     // no es asignable a `Permission`.
@@ -55,63 +98,110 @@ describe('catálogo de permisos', () => {
 
     expect(esAjeno).toBe(true)
   })
-
-  it('el SuperAdmin tiene todos los permisos de core', () => {
-    expect(permissionsForRoles(['SUPER_ADMIN'])).toEqual([
-      'core.institucion.editar',
-      'core.usuarios.gestionar',
-      'core.estructura.gestionar',
-      'core.matriculas.gestionar',
-      'core.auditoria.leer',
-      'core.perfil.leer',
-    ])
-  })
-
-  it('un docente solo puede consultar su perfil en core', () => {
-    expect(permissionsForRoles(['DOCENTE'])).toEqual(['core.perfil.leer'])
-    expect(hasPermission(['DOCENTE'], 'core.usuarios.gestionar')).toBe(false)
-  })
-
-  it('une los permisos de varios roles sin duplicados', () => {
-    const permisos = permissionsForRoles(['DOCENTE', 'DIRECTOR'])
-
-    expect(permisos).toEqual(permissionsForRoles(['DIRECTOR']))
-    expect(permisos.filter((p) => p === 'core.perfil.leer')).toHaveLength(1)
-  })
 })
 
-describe('guard requirePermission', () => {
-  it('devuelve 401 si no hay identidad autenticada', async () => {
-    const response = await buildGuardedApp().inject({
-      method: 'GET',
-      url: '/auditoria',
+describe('requirePermission por HTTP', () => {
+  let app: FastifyInstance
+
+  /**
+   * Simula el guard de autenticación: hidrata `authUser` desde una cabecera.
+   * Sin cabecera deja la petición sin identidad para probar el 401.
+   *
+   * Debe ser `async`: Fastify v5 solo da por terminado un hook cuando recibe
+   * una promesa o un `done`. Un hook síncrono de un argumento deja la petición
+   * colgada y `inject` nunca resuelve.
+   */
+  async function fakeAuth(request: FastifyRequest): Promise<void> {
+    const cabecera = request.headers['x-test-roles']
+
+    if (typeof cabecera !== 'string' || cabecera.trim() === '') {
+      return
+    }
+
+    request.authUser = {
+      id: '00000000-0000-4000-8000-000000000001',
+      roles: normalizeRoleCodes(cabecera.split(',').map((rol) => rol.trim())),
+    }
+  }
+
+  function indiceDe(permission: Permission): number {
+    return permissionCodes.indexOf(permission)
+  }
+
+  beforeAll(async () => {
+    app = Fastify()
+    registerErrorHandler(app)
+
+    permissionCodes.forEach((permission, indice) => {
+      app.get(
+        `/protegido/${indice}`,
+        { preHandler: [fakeAuth, requirePermission(permission)] },
+        async () => ({ ok: true }),
+      )
     })
 
-    expect(response.statusCode).toBe(401)
-    expect(response.json()).toMatchObject({
+    await app.ready()
+  })
+
+  afterAll(async () => {
+    await app.close()
+  })
+
+  for (const role of roleCodes) {
+    it(`aplica la matriz a ${role} en casos permitidos y prohibidos`, async () => {
+      for (const [indice, permission] of permissionCodes.entries()) {
+        const respuesta = await app.inject({
+          method: 'GET',
+          url: `/protegido/${indice}`,
+          headers: { 'x-test-roles': role },
+        })
+
+        const permitido = rolePermissions[role].includes(permission)
+
+        expect(respuesta.statusCode, `${role} → ${permission}`).toBe(
+          permitido ? 200 : 403,
+        )
+      }
+    })
+  }
+
+  it('devuelve 401 si no hay identidad', async () => {
+    const respuesta = await app.inject({
+      method: 'GET',
+      url: '/protegido/0',
+    })
+
+    expect(respuesta.statusCode).toBe(401)
+    expect(respuesta.json()).toMatchObject({
       error: { code: 'UNAUTHORIZED' },
     })
   })
 
-  it('devuelve 403 si el rol no tiene el permiso', async () => {
-    const response = await buildGuardedApp().inject({
+  it('devuelve 403 con un rol desconocido', async () => {
+    const respuesta = await app.inject({
       method: 'GET',
-      url: '/auditoria',
-      headers: { 'x-test-role': 'DOCENTE' },
+      url: `/protegido/${indiceDe('core.perfil.leer')}`,
+      headers: { 'x-test-roles': 'SUPER_ADMIN_FALSO' },
     })
 
-    expect(response.statusCode).toBe(403)
-    expect(response.json()).toMatchObject({ error: { code: 'FORBIDDEN' } })
+    expect(respuesta.statusCode).toBe(403)
+    expect(respuesta.json()).toMatchObject({ error: { code: 'FORBIDDEN' } })
   })
 
-  it('permite el acceso cuando el rol tiene el permiso', async () => {
-    const response = await buildGuardedApp().inject({
+  it('acumula permisos cuando el usuario tiene varios roles', async () => {
+    const usuarios = await app.inject({
       method: 'GET',
-      url: '/auditoria',
-      headers: { 'x-test-role': 'SUPER_ADMIN' },
+      url: `/protegido/${indiceDe('core.usuarios.gestionar')}`,
+      headers: { 'x-test-roles': 'DOCENTE,DIRECTOR' },
     })
 
-    expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual({ ok: true })
+    const auditoria = await app.inject({
+      method: 'GET',
+      url: `/protegido/${indiceDe('core.auditoria.leer')}`,
+      headers: { 'x-test-roles': 'DOCENTE,DIRECTOR' },
+    })
+
+    expect(usuarios.statusCode).toBe(200)
+    expect(auditoria.statusCode).toBe(200)
   })
 })

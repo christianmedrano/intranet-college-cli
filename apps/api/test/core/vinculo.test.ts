@@ -110,6 +110,18 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('guards de vínculo', () => {
     return { persona, usuario, apoderado }
   }
 
+  async function asignarRol(usuarioId: string, codigo: string): Promise<void> {
+    const rol = await prisma.rol.upsert({
+      where: { codigo },
+      create: { codigo, nombre: codigo },
+      update: {},
+    })
+
+    await prisma.usuarioRol.create({
+      data: { usuarioId, rolId: rol.id },
+    })
+  }
+
   async function crearEstructura() {
     const institucion = await prisma.institucion.create({
       data: { nombre: 'IE de Pruebas' },
@@ -184,6 +196,38 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('guards de vínculo', () => {
       await expect(
         assertApoderadoOfAlumno(padre.usuario.id, hijo.alumno.id),
       ).resolves.toBeUndefined()
+    })
+
+    it('evalúa el vínculo de apoderado aunque el usuario también sea docente', async () => {
+      const padre = await crearApoderadoConUsuario()
+      await asignarRol(padre.usuario.id, 'DOCENTE')
+      await asignarRol(padre.usuario.id, 'APODERADO')
+
+      const hijo = await crearAlumnoSinUsuario()
+
+      await prisma.apoderadoAlumno.create({
+        data: {
+          apoderadoId: padre.apoderado.id,
+          alumnoId: hijo.alumno.id,
+          parentesco: 'Padre',
+          esPrincipal: true,
+        },
+      })
+
+      await expect(
+        assertApoderadoOfAlumno(padre.usuario.id, hijo.alumno.id),
+      ).resolves.toBeUndefined()
+    })
+
+    it('rechaza al docente sin vínculo aunque tenga el rol DOCENTE', async () => {
+      const docente = await crearDocenteConUsuario()
+      await asignarRol(docente.usuario.id, 'DOCENTE')
+
+      const alumno = await crearAlumnoSinUsuario()
+
+      await expect(
+        assertApoderadoOfAlumno(docente.usuario.id, alumno.alumno.id),
+      ).rejects.toMatchObject({ code: 'FORBIDDEN' })
     })
 
     it('rechaza a un apoderado ajeno con 403', async () => {

@@ -51,7 +51,7 @@ Formato obligatorio:
 
 - [x] T017 — Catálogo de permisos y guard `requirePermission` — `packages/shared/src/domain/permissions.ts`, `apps/api/src/core/rbac.ts` — RF-CORE-003 — permisos desconocidos fallan en typecheck
 - [x] T018 — Guards de vínculo: apoderado–alumno, docente–curso/sección, alumno propio — `apps/api/src/core/auth/vinculo.ts`, `apps/api/test/core/vinculo.test.ts` — RF-CORE-003, RF-CORE-011, RF-CORE-014 — acceso ajeno devuelve 403
-- [ ] T019 — Pruebas de RBAC por rol y de vínculos — `apps/api/test/core/rbac.test.ts` — RF-CORE-003, RF-CORE-011, RF-CORE-014 — matriz cubierta en casos feliz y prohibido
+- [x] T019 — Pruebas de RBAC por rol y de vínculos — `apps/api/test/core/rbac.test.ts`, `apps/api/test/core/vinculo.test.ts` — RF-CORE-003, RF-CORE-011, RF-CORE-014 — matriz cubierta en casos feliz y prohibido
 
 ## Fase 4 — Estructura académica y personas
 
