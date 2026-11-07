@@ -5,6 +5,7 @@ import {
   type PaginationInput,
 } from '@intranet/shared'
 import type { PrismaClient } from '../../../generated/prisma/client.js'
+import { aFechaISO, aFechaUTC } from './fechas.js'
 
 /**
  * Fila interna: incluye `institucionId` para operar dentro de la transacción
@@ -27,16 +28,6 @@ const CAMPOS = {
   fechaFin: true,
   estado: true,
 } as const
-
-/** Convierte `YYYY-MM-DD` a la medianoche UTC que espera `@db.Date`. */
-function aFecha(valor: string): Date {
-  return new Date(`${valor}T00:00:00.000Z`)
-}
-
-/** Convierte el `DATE` de MySQL a `YYYY-MM-DD` sin desplazamiento de zona. */
-function aFechaISO(valor: Date): string {
-  return valor.toISOString().slice(0, 10)
-}
 
 /** Proyecta la fila interna al contrato público. */
 export function toAnioAcademicoResponse(
@@ -137,8 +128,8 @@ export async function createAnioAcademico(
     data: {
       institucionId: datos.institucionId,
       nombre: datos.nombre,
-      fechaInicio: aFecha(datos.fechaInicio),
-      fechaFin: aFecha(datos.fechaFin),
+      fechaInicio: aFechaUTC(datos.fechaInicio),
+      fechaFin: aFechaUTC(datos.fechaFin),
       estado: 'PLANIFICADO',
       createdBy: datos.createdBy,
     },
@@ -166,10 +157,10 @@ export async function updateAnioAcademico(
     data: {
       ...(datos.nombre !== undefined ? { nombre: datos.nombre } : {}),
       ...(datos.fechaInicio !== undefined
-        ? { fechaInicio: aFecha(datos.fechaInicio) }
+        ? { fechaInicio: aFechaUTC(datos.fechaInicio) }
         : {}),
       ...(datos.fechaFin !== undefined
-        ? { fechaFin: aFecha(datos.fechaFin) }
+        ? { fechaFin: aFechaUTC(datos.fechaFin) }
         : {}),
       updatedBy: datos.updatedBy,
     },

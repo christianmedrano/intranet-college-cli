@@ -7,6 +7,7 @@ import { AppError, registerErrorHandler } from './core/errors.js'
 import { authRoutes } from './modules/core/auth/auth.routes.js'
 import { anioAcademicoRoutes } from './modules/core/estructura/anio-academico.routes.js'
 import { institucionRoutes } from './modules/core/estructura/institucion.routes.js'
+import { periodoAcademicoRoutes } from './modules/core/estructura/periodo-academico.routes.js'
 import { healthRoutes } from './routes/health.js'
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -48,6 +49,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(authRoutes, { prefix: '/api/v1' })
   await app.register(institucionRoutes, { prefix: '/api/v1' })
   await app.register(anioAcademicoRoutes, { prefix: '/api/v1' })
+  await app.register(periodoAcademicoRoutes, { prefix: '/api/v1' })
 
   return app
 }

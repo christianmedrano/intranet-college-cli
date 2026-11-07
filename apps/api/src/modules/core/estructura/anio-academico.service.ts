@@ -7,7 +7,8 @@ import type {
 } from '@intranet/shared'
 import { getPrisma } from '../../../core/db.js'
 import { AppError } from '../../../core/errors.js'
-import { Prisma, type PrismaClient } from '../../../generated/prisma/client.js'
+import { esConflictoDeUnicidad } from '../../../core/prisma-errors.js'
+import type { PrismaClient } from '../../../generated/prisma/client.js'
 import {
   activarAnioAcademicoRecord,
   countAniosAcademicos,
@@ -17,6 +18,7 @@ import {
   toAnioAcademicoResponse,
   updateAnioAcademico,
 } from './anio-academico.repository.js'
+import { assertRangoDeFechas } from './fechas.js'
 import { findInstitucionVigente } from './institucion.repository.js'
 
 /** Resuelve la institución del despliegue o falla con 404. */
@@ -31,23 +33,6 @@ async function institucionActual(prisma: PrismaClient) {
   }
 
   return institucion
-}
-
-/** Rechaza un rango de fechas invertido antes de tocar la base. */
-function assertRangoDeFechas(inicio: string, fin: string): void {
-  if (fin < inicio) {
-    throw new AppError('VALIDATION_ERROR', undefined, [
-      'fechaFin: debe ser igual o posterior a fechaInicio',
-    ])
-  }
-}
-
-/** Detecta la violación del único `(institucionId, nombre)`. */
-function esConflictoDeUnicidad(error: unknown): boolean {
-  return (
-    error instanceof Prisma.PrismaClientKnownRequestError &&
-    error.code === 'P2002'
-  )
 }
 
 /**
