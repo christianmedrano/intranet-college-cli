@@ -56,7 +56,7 @@ Formato obligatorio:
 ## Fase 4 — Estructura académica y personas
 
 - [x] T020 — Endpoints `GET` y `PATCH /institucion` — `apps/api/src/modules/core/estructura/`, `packages/shared/src/schemas/institucion.ts`, `packages/shared/src/contracts/institucion.ts`, `apps/api/test/core/institucion.test.ts` — RF-CORE-001 — solo SA/DI; docente recibe 403
-- [ ] T021 — CRUD de años académicos y activación única transaccional — `apps/api/src/modules/core/estructura/` — RF-CORE-008 — activar uno cierra el anterior
+- [x] T021 — CRUD de años académicos y activación única transaccional — `apps/api/src/modules/core/estructura/`, `packages/shared/src/schemas/anio-academico.ts`, `packages/shared/src/contracts/anio-academico.ts`, `apps/api/test/core/anio-academico.test.ts` — RF-CORE-008 — activar uno cierra el anterior; DELETE diferido a T042
 - [ ] T022 — CRUD de períodos, cierre y bloqueo de edición — `apps/api/src/modules/core/estructura/` — RF-CORE-009 — soporta N períodos; cerrado no se elimina
 - [ ] T023 — CRUD de niveles, grados y secciones — `apps/api/src/modules/core/estructura/` — RF-CORE-010 — únicos por grado/año
 - [ ] T024 — CRUD de cursos — `apps/api/src/modules/core/estructura/` — RF-CORE-011 — únicos por nivel
@@ -88,6 +88,7 @@ Formato obligatorio:
 
 - [x] T040 — Definir la estrategia de empaquetado y consumo de `packages/shared` — `packages/shared/`, `apps/api/tsconfig.json`, `apps/web/tsconfig.app.json`, `package.json` — infra — `npm run build` produce un `dist` de la API ejecutable con Node y sin referencias a TypeScript en tiempo de ejecución
 - [ ] T041 — Estabilizar el gate: fijar `testTimeout` de Vitest por encima del valor por defecto para tolerar la contención de CPU que hace fallar intermitentemente `test/core/password.test.ts` (Argon2) — `apps/api/vitest.config.ts` — infra — `npm test` pasa de forma consecutiva con el equipo cargado, sin fallos intermitentes
+- [ ] T042 — Borrado lógico de años académicos, bloqueado cuando el año tenga períodos con calificaciones — `apps/api/src/modules/core/estructura/` — RF-CORE-008 — requiere que el módulo académico exponga si un período tiene calificaciones; la tabla de endpoints de la spec §7 aún no define `DELETE /anios-academicos`
 
 ## Definition of Done
 
@@ -107,3 +108,4 @@ Se aplica el anexo A de `docs/constitution.md`:
 |---|---|---|---|
 | 2026-11-05 | Todas | Spec en revisión: Q1–Q4 sin resolver | resuelto |
 | 2026-11-05 | — | Spec aprobada v1.0.0; sin bloqueos | — |
+| 2026-11-06 | T042 | Requiere el modelo de calificaciones del módulo académico y un contrato `DELETE` en la spec §7 | bloqueado |
