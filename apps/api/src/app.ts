@@ -12,6 +12,9 @@ import { institucionRoutes } from './modules/core/estructura/institucion.routes.
 import { nivelRoutes } from './modules/core/estructura/nivel.routes.js'
 import { periodoAcademicoRoutes } from './modules/core/estructura/periodo-academico.routes.js'
 import { seccionRoutes } from './modules/core/estructura/seccion.routes.js'
+import { alumnoRoutes } from './modules/core/personas/alumno.routes.js'
+import { apoderadoRoutes } from './modules/core/personas/apoderado.routes.js'
+import { docenteRoutes } from './modules/core/personas/docente.routes.js'
 import { healthRoutes } from './routes/health.js'
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -44,7 +47,10 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(cors, { origin: config.CORS_ORIGIN })
   await app.register(cookie)
   await app.register(rateLimit, {
-    max: 100,
+    // En pruebas la suite completa supera las 100 peticiones por minuto desde
+    // la misma IP. El throttle específico de login (RF-CORE-004) se mantiene y
+    // se prueba por separado.
+    max: config.NODE_ENV === 'test' ? 10_000 : 100,
     timeWindow: '1 minute',
     // Mantiene el sobre de error estándar también en los 429 del plugin.
     errorResponseBuilder: () => new AppError('RATE_LIMITED'),
@@ -58,6 +64,9 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(gradoRoutes, { prefix: '/api/v1' })
   await app.register(seccionRoutes, { prefix: '/api/v1' })
   await app.register(cursoRoutes, { prefix: '/api/v1' })
+  await app.register(alumnoRoutes, { prefix: '/api/v1' })
+  await app.register(docenteRoutes, { prefix: '/api/v1' })
+  await app.register(apoderadoRoutes, { prefix: '/api/v1' })
 
   return app
 }
