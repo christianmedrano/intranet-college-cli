@@ -5,7 +5,6 @@ import {
   uuidParamSchema,
 } from '@intranet/shared'
 import type { FastifyReply, FastifyRequest } from 'fastify'
-import type { ZodType } from 'zod'
 import {
   clearRefreshCookie,
   REFRESH_COOKIE,
@@ -18,6 +17,7 @@ import {
   recordLoginFailure,
 } from '../../../core/auth/login-throttle.js'
 import { AppError } from '../../../core/errors.js'
+import { parseOrThrow } from '../../../core/validation.js'
 import {
   forgotPassword,
   getPerfil,
@@ -27,28 +27,6 @@ import {
   refreshSession,
   resetPassword,
 } from './auth.service.js'
-
-/**
- * Valida el cuerpo o los parámetros con un schema compartido.
- *
- * Convierte los problemas de Zod en detalles del sobre de error, sin exponer
- * los valores recibidos.
- */
-function parseOrThrow<T>(schema: ZodType<T>, datos: unknown): T {
-  const parsed = schema.safeParse(datos)
-
-  if (!parsed.success) {
-    throw new AppError(
-      'VALIDATION_ERROR',
-      undefined,
-      parsed.error.issues.map(
-        (issue) => `${issue.path.join('.') || 'cuerpo'}: ${issue.message}`,
-      ),
-    )
-  }
-
-  return parsed.data
-}
 
 /**
  * `POST /auth/login`

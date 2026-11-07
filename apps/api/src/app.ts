@@ -5,6 +5,7 @@ import Fastify, { type FastifyInstance } from 'fastify'
 import { loadConfig } from './core/config.js'
 import { AppError, registerErrorHandler } from './core/errors.js'
 import { authRoutes } from './modules/core/auth/auth.routes.js'
+import { institucionRoutes } from './modules/core/estructura/institucion.routes.js'
 import { healthRoutes } from './routes/health.js'
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -44,6 +45,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   })
   await app.register(healthRoutes)
   await app.register(authRoutes, { prefix: '/api/v1' })
+  await app.register(institucionRoutes, { prefix: '/api/v1' })
 
   return app
 }

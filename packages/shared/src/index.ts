@@ -3,6 +3,8 @@
 
 export * from './schemas/base.js'
 export * from './schemas/auth.js'
+export * from './schemas/institucion.js'
 export * from './contracts/base.js'
 export * from './contracts/auth.js'
+export * from './contracts/institucion.js'
 export * from './domain/permissions.js'
