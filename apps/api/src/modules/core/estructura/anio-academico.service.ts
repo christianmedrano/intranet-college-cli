@@ -19,21 +19,7 @@ import {
   updateAnioAcademico,
 } from './anio-academico.repository.js'
 import { assertRangoDeFechas } from './fechas.js'
-import { findInstitucionVigente } from './institucion.repository.js'
-
-/** Resuelve la institución del despliegue o falla con 404. */
-async function institucionActual(prisma: PrismaClient) {
-  const institucion = await findInstitucionVigente(prisma)
-
-  if (!institucion) {
-    throw new AppError(
-      'NOT_FOUND',
-      'La institución no está configurada en este despliegue.',
-    )
-  }
-
-  return institucion
-}
+import { institucionActual } from './institucion-actual.js'
 
 /**
  * Lista los años académicos vigentes de la institución (RF-CORE-008).
