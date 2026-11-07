@@ -12,6 +12,7 @@ import { institucionRoutes } from './modules/core/estructura/institucion.routes.
 import { nivelRoutes } from './modules/core/estructura/nivel.routes.js'
 import { periodoAcademicoRoutes } from './modules/core/estructura/periodo-academico.routes.js'
 import { seccionRoutes } from './modules/core/estructura/seccion.routes.js'
+import { matriculaRoutes } from './modules/core/matriculas/matricula.routes.js'
 import { alumnoRoutes } from './modules/core/personas/alumno.routes.js'
 import { apoderadoRoutes } from './modules/core/personas/apoderado.routes.js'
 import { docenteRoutes } from './modules/core/personas/docente.routes.js'
@@ -67,6 +68,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(alumnoRoutes, { prefix: '/api/v1' })
   await app.register(docenteRoutes, { prefix: '/api/v1' })
   await app.register(apoderadoRoutes, { prefix: '/api/v1' })
+  await app.register(matriculaRoutes, { prefix: '/api/v1' })
 
   return app
 }
