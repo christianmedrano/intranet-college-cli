@@ -67,6 +67,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
           username: opciones.username ?? 'ana.perez',
           email: opciones.email ?? 'ana@ejemplo.edu.pe',
           passwordHash: hash,
+          debeCambiarPassword: false,
           activo: opciones.activo ?? true,
         },
       })

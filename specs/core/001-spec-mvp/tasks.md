@@ -82,7 +82,7 @@ Formato obligatorio:
 - [x] T036 — Pantalla de recuperación de contraseña — `apps/web/src/features/auth/ForgotPasswordPage.tsx`, `apps/web/src/features/auth/ForgotPasswordPage.test.tsx`, `apps/web/src/app/routes.tsx` — RF-CORE-007 — mensaje neutro que no revela si el correo existe
 - [x] T037 — Guard de rutas y redirección por rol — `apps/web/src/app/guards/RequireAuth.tsx`, `apps/web/src/app/guards/RequireAuth.test.tsx`, `apps/web/src/app/routes.tsx`, `apps/web/src/App.test.tsx` — RF-CORE-005 — sin sesión redirige a `/login`; con rol no admitido redirige al panel
 - [x] T038 — Pruebas de login, recuperación y guard — `apps/web/src/features/auth/auth-flow.test.tsx` — RF-CORE-004, RF-CORE-005, RF-CORE-007 — navegación login↔recuperación, login feliz, credenciales inválidas y guard con ruta de origen en verde
-- [ ] T039 — Cambio obligatorio de contraseña, PIN temporal y política mínima — `apps/api/src/modules/core/auth/`, `apps/web/src/features/auth/ChangePasswordPage.tsx` — RF-CORE-017 — PIN temporal, bloqueo hasta cambio y revocación de sesiones
+- [x] T039 — Cambio obligatorio de contraseña, PIN temporal y política mínima — `apps/api/src/modules/core/auth/`, `packages/shared/src/schemas/auth.ts`, `packages/shared/src/contracts/auth.ts`, `apps/web/src/features/auth/ChangePasswordPage.tsx`, `apps/web/src/features/auth/ChangePasswordPage.test.tsx`, `apps/api/test/core/change-password.test.ts`, `apps/api/test/core/pin.test.ts` — RF-CORE-017 — PIN temporal, bloqueo hasta cambio y revocación de sesiones
 
 ## Fase 7 — Deuda técnica identificada
 

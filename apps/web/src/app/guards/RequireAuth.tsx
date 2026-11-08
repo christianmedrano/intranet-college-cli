@@ -17,6 +17,9 @@ interface RequireAuthProps {
  *
  * El backend siempre revalida el token y los permisos: este guard solo evita
  * renderizar pantallas privadas y mejora la experiencia de navegación.
+ *
+ * Si el usuario aún tiene una contraseña temporal, se le envía a la pantalla de
+ * cambio obligatorio (RF-CORE-017).
  */
 export function RequireAuth({ roles }: RequireAuthProps) {
   const { usuario, cargando } = useAuth()
@@ -34,6 +37,13 @@ export function RequireAuth({ roles }: RequireAuthProps) {
     return (
       <Navigate to="/login" replace state={{ desde: ubicacion.pathname }} />
     )
+  }
+
+  if (
+    usuario.debeCambiarPassword &&
+    ubicacion.pathname !== '/cambiar-password'
+  ) {
+    return <Navigate to="/cambiar-password" replace />
   }
 
   if (roles && !roles.some((rol) => usuario.roles.includes(rol))) {

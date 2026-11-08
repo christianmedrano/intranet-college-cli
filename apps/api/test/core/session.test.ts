@@ -61,6 +61,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('sesión', () => {
         username: 'ana.perez',
         email: 'ana@ejemplo.edu.pe',
         passwordHash: hash,
+        debeCambiarPassword: false,
         activo,
       },
     })

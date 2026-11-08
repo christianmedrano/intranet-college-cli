@@ -1,4 +1,5 @@
 import type {
+  ChangePasswordInput,
   ForgotPasswordInput,
   LoginInput,
   LoginResponse,
@@ -23,6 +24,7 @@ import { AppError } from '../../../core/errors.js'
 import { getEffectivePermissions, normalizeRoleCodes } from '../../../core/rbac.js'
 import type { PrismaClient } from '../../../generated/prisma/client.js'
 import {
+  actualizarPasswordYRevocarSesiones,
   consumirTokenRecuperacion,
   emitirTokenRecuperacion,
   findSesionPorHash,
@@ -342,5 +344,53 @@ export async function issueRecoveryToken(
   return {
     token: token.token,
     expiresAt: token.expiraEn.toISOString(),
+  }
+}
+
+/**
+ * Cambia la contraseña del usuario autenticado (RF-CORE-017).
+ *
+ * Sirve para el cambio obligatorio tras el primer acceso con PIN temporal y
+ * para el cambio voluntario. Aplica la política de RN-CORE-017 y, al completar,
+ * desmarca `debeCambiarPassword` y revoca todas las sesiones, incluida la
+ * actual: el usuario debe volver a iniciar sesión con la contraseña nueva.
+ *
+ * @param usuarioId Usuario autenticado por el guard.
+ * @param input Contraseña actual y nueva.
+ * @param prisma Cliente inyectable para las pruebas.
+ * @throws AppError `UNAUTHORIZED` si la contraseña actual no es correcta o el
+ * usuario dejó de estar vigente; `VALIDATION_ERROR` si la nueva incumple la
+ * política.
+ */
+export async function changePassword(
+  usuarioId: string,
+  input: ChangePasswordInput,
+  prisma: PrismaClient = getPrisma(),
+): Promise<void> {
+  const usuario = await findUsuarioConRoles(prisma, usuarioId)
+
+  if (!usuario || !usuario.activo) {
+    throw new AppError('UNAUTHORIZED', 'La sesión no es válida.')
+  }
+
+  if (!(await verifyPassword(usuario.passwordHash, input.currentPassword))) {
+    throw new AppError('UNAUTHORIZED', 'La contraseña actual no es correcta.')
+  }
+
+  assertPasswordPolicy(input.newPassword, [
+    usuario.username,
+    usuario.email,
+    usuario.persona.numeroDocumento,
+  ])
+
+  const passwordHash = await hashPassword(input.newPassword)
+  const actualizado = await actualizarPasswordYRevocarSesiones(prisma, {
+    usuarioId,
+    passwordHash,
+    ahora: new Date(),
+  })
+
+  if (!actualizado) {
+    throw new AppError('UNAUTHORIZED', 'La sesión no es válida.')
   }
 }

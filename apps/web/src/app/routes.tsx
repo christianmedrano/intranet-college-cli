@@ -1,4 +1,5 @@
 import type { RouteObject } from 'react-router'
+import { ChangePasswordPage } from '../features/auth/ChangePasswordPage'
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage'
 import { LoginPage } from '../features/auth/LoginPage'
 import { RequireAuth } from './guards/RequireAuth'
@@ -17,7 +18,10 @@ export const routes: RouteObject[] = [
     children: [
       {
         element: <RequireAuth />,
-        children: [{ path: '/', element: <HomePage /> }],
+        children: [
+          { path: '/', element: <HomePage /> },
+          { path: '/cambiar-password', element: <ChangePasswordPage /> },
+        ],
       },
       { path: '/login', element: <LoginPage /> },
       { path: '/recuperar-password', element: <ForgotPasswordPage /> },

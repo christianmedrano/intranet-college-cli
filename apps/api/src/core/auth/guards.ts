@@ -49,6 +49,7 @@ export async function requireAuth(request: FastifyRequest): Promise<void> {
     where: { id: usuarioId, activo: true, deletedAt: null },
     select: {
       id: true,
+      debeCambiarPassword: true,
       roles: { select: { rol: { select: { codigo: true } } } },
     },
   })
@@ -60,5 +61,6 @@ export async function requireAuth(request: FastifyRequest): Promise<void> {
   request.authUser = {
     id: usuario.id,
     roles: normalizeRoleCodes(usuario.roles.map((fila) => fila.rol.codigo)),
+    debeCambiarPassword: usuario.debeCambiarPassword,
   }
 }

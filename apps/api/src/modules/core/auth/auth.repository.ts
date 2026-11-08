@@ -314,3 +314,44 @@ export async function consumirTokenRecuperacion(
     return true
   })
 }
+
+export interface CambioDePassword {
+  usuarioId: string
+  passwordHash: string
+  ahora: Date
+}
+
+/**
+ * Aplica la nueva contraseña y revoca todas las sesiones (RF-CORE-017).
+ *
+ * La actualización es condicional a que el usuario siga activo y vigente, así
+ * que una desactivación concurrente no deja una contraseña aplicada a una
+ * cuenta inhabilitada.
+ *
+ * @returns `false` si el usuario ya no está vigente.
+ */
+export async function actualizarPasswordYRevocarSesiones(
+  prisma: PrismaClient,
+  datos: CambioDePassword,
+): Promise<boolean> {
+  return prisma.$transaction(async (tx) => {
+    const actualizado = await tx.usuario.updateMany({
+      where: { id: datos.usuarioId, activo: true, deletedAt: null },
+      data: {
+        passwordHash: datos.passwordHash,
+        debeCambiarPassword: false,
+      },
+    })
+
+    if (actualizado.count !== 1) {
+      return false
+    }
+
+    await tx.sesionRefresh.updateMany({
+      where: { usuarioId: datos.usuarioId, revocadoEn: null },
+      data: { revocadoEn: datos.ahora },
+    })
+
+    return true
+  })
+}

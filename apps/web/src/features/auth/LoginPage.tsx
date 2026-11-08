@@ -60,8 +60,11 @@ export function LoginPage() {
     setEnviando(true)
 
     try {
-      await iniciarSesion(validacion.data)
-      navegar('/', { replace: true })
+      const perfil = await iniciarSesion(validacion.data)
+
+      navegar(perfil.debeCambiarPassword ? '/cambiar-password' : '/', {
+        replace: true,
+      })
     } catch (error) {
       setErrorGeneral(mensajeGeneral(error))
     } finally {

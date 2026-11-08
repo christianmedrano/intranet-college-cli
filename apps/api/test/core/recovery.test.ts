@@ -40,6 +40,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('recuperación de contraseña', 
     email?: string
     documento?: string
     activo?: boolean
+    debeCambiarPassword?: boolean
   }
 
   async function crearUsuario(opciones: OpcionesUsuario = {}) {
@@ -58,7 +59,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('recuperación de contraseña', 
         username: opciones.username ?? 'ana.perez',
         email: opciones.email ?? 'ana@ejemplo.edu.pe',
         passwordHash: hashInicial,
-        debeCambiarPassword: true,
+        debeCambiarPassword: opciones.debeCambiarPassword ?? true,
         activo: opciones.activo ?? true,
       },
     })
@@ -105,6 +106,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('recuperación de contraseña', 
       username: 'root.admin',
       email: 'root@ejemplo.edu.pe',
       documento: '00000000',
+      debeCambiarPassword: false,
     })
     const { token } = await signAccessToken(admin.id)
 

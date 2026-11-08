@@ -47,6 +47,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('integridad del modelo', () => {
         username: datos.username,
         email: datos.email,
         passwordHash: '$argon2id$hash-de-prueba',
+        debeCambiarPassword: false,
       },
     })
   }

@@ -55,6 +55,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('auditoría', () => {
         username: `usuario.${secuencia}`,
         email: `usuario.${secuencia}@ejemplo.edu.pe`,
         passwordHash: '$argon2id$hash-de-prueba',
+        debeCambiarPassword: false,
       },
     })
 

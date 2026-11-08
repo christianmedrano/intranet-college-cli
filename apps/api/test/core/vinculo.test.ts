@@ -54,6 +54,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('guards de vínculo', () => {
         username: `usuario.${n}`,
         email: `usuario.${n}@ejemplo.edu.pe`,
         passwordHash: '$argon2id$hash-de-prueba',
+        debeCambiarPassword: false,
         activo,
       },
     })

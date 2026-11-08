@@ -118,6 +118,25 @@ describe('flujo de autenticación', () => {
     expect(fetchMock.mock.calls[2]![0]).toBe('/api/v1/me')
   })
 
+  it('lleva al cambio obligatorio cuando el perfil tiene PIN temporal', async () => {
+    fetchMock
+      .mockResolvedValueOnce(new Response(null, { status: 401 }))
+      .mockResolvedValueOnce(respuestaJson(SESION))
+      .mockResolvedValueOnce(
+        respuestaJson({ ...PERFIL, debeCambiarPassword: true }),
+      )
+    const usuario = userEvent.setup()
+    renderEn('/login')
+
+    await screen.findByRole('heading', { name: /iniciar sesión/i })
+    await completarCredenciales(usuario)
+    await usuario.click(screen.getByRole('button', { name: 'Ingresar' }))
+
+    expect(
+      await screen.findByRole('heading', { name: /cambiar contraseña/i }),
+    ).toBeInTheDocument()
+  })
+
   it('muestra el error cuando las credenciales son inválidas', async () => {
     fetchMock
       .mockResolvedValueOnce(new Response(null, { status: 401 }))

@@ -39,7 +39,10 @@ function montar(ruta: string, roles?: readonly RoleCode[]) {
     [
       {
         element: <RequireAuth />,
-        children: [{ path: '/', element: <h1>Panel</h1> }],
+        children: [
+          { path: '/', element: <h1>Panel</h1> },
+          { path: '/cambiar-password', element: <h1>Cambiar contraseña</h1> },
+        ],
       },
       {
         element: <RequireAuth roles={roles} />,
@@ -109,6 +112,27 @@ describe('RequireAuth', () => {
 
     expect(
       await screen.findByRole('heading', { name: 'Administración' }),
+    ).toBeInTheDocument()
+  })
+
+  it('redirige al cambio de contraseña mientras el PIN temporal siga activo', async () => {
+    estado.usuario = { ...PERFIL, debeCambiarPassword: true }
+
+    const router = montar('/')
+
+    expect(
+      await screen.findByRole('heading', { name: 'Cambiar contraseña' }),
+    ).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/cambiar-password')
+  })
+
+  it('no redirige si el usuario ya está en el cambio de contraseña', async () => {
+    estado.usuario = { ...PERFIL, debeCambiarPassword: true }
+
+    montar('/cambiar-password')
+
+    expect(
+      await screen.findByRole('heading', { name: 'Cambiar contraseña' }),
     ).toBeInTheDocument()
   })
 })

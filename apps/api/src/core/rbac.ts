@@ -11,6 +11,13 @@ import { AppError } from './errors.js'
 export interface AuthActor {
   id: string
   roles: RoleCode[]
+  /**
+   * `true` mientras el usuario siga con el PIN temporal (RF-CORE-017).
+   *
+   * Mientras esté activo solo se permiten los endpoints de autenticación; el
+   * guard de permisos bloquea el resto de recursos.
+   */
+  debeCambiarPassword: boolean
 }
 
 declare module 'fastify' {
@@ -55,7 +62,8 @@ export function hasPermission(
 /**
  * Crea un `preHandler` que exige un permiso concreto.
  *
- * Rechaza con 401 si no hay identidad y con 403 si el permiso no está
+ * Rechaza con 401 si no hay identidad, con 403 si el usuario aún debe cambiar
+ * su contraseña temporal (RF-CORE-017) y con 403 si el permiso no está
  * otorgado. Requiere que un guard previo haya hidratado `request.authUser`.
  *
  * @param permission Permiso del catálogo compartido.
@@ -66,6 +74,13 @@ export function requirePermission(permission: Permission) {
   ): Promise<void> {
     if (!request.authUser) {
       throw new AppError('UNAUTHORIZED')
+    }
+
+    if (request.authUser.debeCambiarPassword) {
+      throw new AppError(
+        'FORBIDDEN',
+        'Debes cambiar tu contraseña antes de continuar.',
+      )
     }
 
     if (!hasPermission(request.authUser.roles, permission)) {

@@ -1,4 +1,5 @@
 import {
+  changePasswordSchema,
   forgotPasswordSchema,
   loginSchema,
   resetPasswordSchema,
@@ -19,6 +20,7 @@ import {
 import { AppError } from '../../../core/errors.js'
 import { parseOrThrow } from '../../../core/validation.js'
 import {
+  changePassword,
   forgotPassword,
   getPerfil,
   issueRecoveryToken,
@@ -184,6 +186,32 @@ export async function resetPasswordController(
   const input = parseOrThrow(resetPasswordSchema, request.body)
 
   await resetPassword(input)
+
+  reply.code(200).send({ message: 'Contraseña actualizada correctamente.' })
+}
+
+/**
+ * `POST /auth/change-password`
+ *
+ * Cambio obligatorio tras el PIN temporal o voluntario. Requiere `requireAuth`.
+ * Al completarse se revocan todas las sesiones y se limpia la cookie de
+ * refresh; el usuario debe volver a iniciar sesión (RF-CORE-017).
+ */
+export async function changePasswordController(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
+  const actor = request.authUser
+
+  if (!actor) {
+    throw new AppError('UNAUTHORIZED')
+  }
+
+  const input = parseOrThrow(changePasswordSchema, request.body)
+
+  await changePassword(actor.id, input)
+
+  clearRefreshCookie(reply)
 
   reply.code(200).send({ message: 'Contraseña actualizada correctamente.' })
 }

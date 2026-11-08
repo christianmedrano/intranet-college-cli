@@ -42,7 +42,8 @@ const SESION = {
 }
 
 function Consumidor() {
-  const { usuario, cargando, iniciarSesion, cerrarSesion } = useAuth()
+  const { usuario, cargando, iniciarSesion, cambiarPassword, cerrarSesion } =
+    useAuth()
 
   return (
     <div>
@@ -59,6 +60,16 @@ function Consumidor() {
         }
       >
         Entrar
+      </button>
+      <button
+        onClick={() =>
+          void cambiarPassword({
+            currentPassword: 'secreto123',
+            newPassword: 'ClaveDefinitiva456',
+          })
+        }
+      >
+        Cambiar clave
       </button>
       <button onClick={() => void cerrarSesion()}>Salir</button>
     </div>
@@ -142,6 +153,25 @@ describe('AuthProvider', () => {
 
     expect(await screen.findByText('Sin sesión')).toBeInTheDocument()
     expect(fetchMock.mock.calls[2]![0]).toBe('/api/v1/auth/logout')
+    expect(getAccessToken()).toBeNull()
+  })
+
+  it('cambia la contraseña y limpia la sesión local', async () => {
+    fetchMock
+      .mockResolvedValueOnce(respuestaJson(SESION))
+      .mockResolvedValueOnce(respuestaJson(PERFIL))
+      .mockResolvedValueOnce(
+        respuestaJson({ message: 'Contraseña actualizada correctamente.' }),
+      )
+
+    const usuario = userEvent.setup()
+    montar()
+
+    await screen.findByText('Hola Ana')
+    await usuario.click(screen.getByRole('button', { name: 'Cambiar clave' }))
+
+    expect(await screen.findByText('Sin sesión')).toBeInTheDocument()
+    expect(fetchMock.mock.calls[2]![0]).toBe('/api/v1/auth/change-password')
     expect(getAccessToken()).toBeNull()
   })
 })

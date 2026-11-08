@@ -59,6 +59,26 @@ export const resetPasswordSchema = z.object({
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>
 
 /**
+ * Cambio de contraseña autenticado (RF-CORE-017).
+ *
+ * Permite el cambio obligatorio tras el primer acceso con PIN temporal y el
+ * cambio voluntario. La longitud mínima se valida aquí; la comparación con el
+ * identificador y el documento (RN-CORE-017) la hace el servicio.
+ */
+export const changePasswordSchema = z.object({
+  currentPassword: z
+    .string()
+    .min(1, 'La contraseña actual es obligatoria')
+    .max(200, 'La contraseña actual es demasiado larga'),
+  newPassword: z
+    .string()
+    .min(10, 'La contraseña debe tener al menos 10 caracteres')
+    .max(200, 'La contraseña es demasiado larga'),
+})
+
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>
+
+/**
  * Respuesta de `POST /auth/login` y `POST /auth/refresh`.
  *
  * El refresh token no aparece aquí: viaja en una cookie `HttpOnly`.
@@ -99,6 +119,11 @@ export const forgotPasswordResponseSchema = z.object({
 
 /** Respuesta de `POST /auth/reset-password`. */
 export const resetPasswordResponseSchema = z.object({
+  message: z.string().min(1),
+})
+
+/** Respuesta de `POST /auth/change-password`. */
+export const changePasswordResponseSchema = z.object({
   message: z.string().min(1),
 })
 

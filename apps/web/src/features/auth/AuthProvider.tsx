@@ -1,6 +1,8 @@
 import {
+  changePasswordResponseSchema,
   loginResponseSchema,
   meResponseSchema,
+  type ChangePasswordInput,
   type LoginInput,
   type MeResponse,
 } from '@intranet/shared'
@@ -65,24 +67,47 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [])
 
-  const iniciarSesion = useCallback(async (input: LoginInput) => {
-    const sesion = await apiRequest('/auth/login', loginResponseSchema, {
-      method: 'POST',
-      body: input,
-      sinRefresh: true,
-    })
+  const iniciarSesion = useCallback(
+    async (input: LoginInput): Promise<MeResponse> => {
+      const sesion = await apiRequest('/auth/login', loginResponseSchema, {
+        method: 'POST',
+        body: input,
+        sinRefresh: true,
+      })
 
-    setAccessToken(sesion.accessToken)
+      setAccessToken(sesion.accessToken)
 
-    try {
-      const perfil = await apiRequest('/me', meResponseSchema)
-      setUsuario(perfil)
-    } catch (error) {
+      try {
+        const perfil = await apiRequest('/me', meResponseSchema)
+        setUsuario(perfil)
+
+        return perfil
+      } catch (error) {
+        setAccessToken(null)
+        setUsuario(null)
+        throw error
+      }
+    },
+    [],
+  )
+
+  const cambiarPassword = useCallback(
+    async (input: ChangePasswordInput) => {
+      await apiRequest(
+        '/auth/change-password',
+        changePasswordResponseSchema,
+        {
+          method: 'POST',
+          body: input,
+        },
+      )
+
+      // El servidor revocó todas las sesiones y limpió la cookie.
       setAccessToken(null)
       setUsuario(null)
-      throw error
-    }
-  }, [])
+    },
+    [],
+  )
 
   const cerrarSesion = useCallback(async () => {
     try {
@@ -97,8 +122,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [])
 
   const valor = useMemo<AuthContextValue>(
-    () => ({ usuario, cargando, iniciarSesion, cerrarSesion }),
-    [usuario, cargando, iniciarSesion, cerrarSesion],
+    () => ({
+      usuario,
+      cargando,
+      iniciarSesion,
+      cambiarPassword,
+      cerrarSesion,
+    }),
+    [usuario, cargando, iniciarSesion, cambiarPassword, cerrarSesion],
   )
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>

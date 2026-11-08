@@ -48,6 +48,16 @@ export interface ResetPasswordResponse {
 }
 
 /**
+ * Respuesta de `POST /auth/change-password` (RF-CORE-017).
+ *
+ * El cambio revoca todas las sesiones, incluida la actual, así que el cliente
+ * debe volver a iniciar sesión.
+ */
+export interface ChangePasswordResponse {
+  message: string
+}
+
+/**
  * Respuesta de `POST /usuarios/:id/token-recuperacion`.
  *
  * El token en claro se devuelve una única vez; la base solo conserva su hash.
