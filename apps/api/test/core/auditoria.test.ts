@@ -288,4 +288,83 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('auditoría (endpoint)', () => {
     })
     expect(JSON.stringify(respuesta.body)).not.toContain('12345678')
   })
+
+  describe('inmutabilidad (RF-CORE-016, RN-CORE-012)', () => {
+    /**
+     * Envía la misma operación de escritura sobre la colección y sobre un
+     * registro concreto. Ninguna ruta existe: la auditoría es de solo
+     * inserción y no se edita ni se borra desde la API.
+     */
+    function mutar(
+      metodo: 'post' | 'patch' | 'put' | 'delete',
+      ruta: string,
+      token: string,
+    ) {
+      const peticion = request(app.server)[metodo](ruta).set(
+        'Authorization',
+        `Bearer ${token}`,
+      )
+
+      return metodo === 'delete'
+        ? peticion
+        : peticion.send({ accion: 'BORRAR', entidad: 'ALUMNO' })
+    }
+
+    it('no expone escritura sobre la colección', async () => {
+      const token = await tokenDe(['SUPER_ADMIN'])
+
+      for (const metodo of ['post', 'patch', 'put', 'delete'] as const) {
+        const respuesta = await mutar(metodo, '/api/v1/auditoria', token)
+
+        expect(respuesta.status).toBe(404)
+      }
+
+      expect(await prisma.auditoria.count()).toBe(0)
+    })
+
+    it('no expone escritura sobre un registro concreto', async () => {
+      const registro = await insertarAuditoria({
+        accion: 'CREAR',
+        entidad: 'ALUMNO',
+        datos: { codigoAlumno: 'AL-001' },
+      })
+      const token = await tokenDe(['SUPER_ADMIN'])
+
+      for (const metodo of ['post', 'patch', 'put', 'delete'] as const) {
+        const respuesta = await mutar(
+          metodo,
+          `/api/v1/auditoria/${registro.id}`,
+          token,
+        )
+
+        expect(respuesta.status).toBe(404)
+      }
+
+      const persistido = await prisma.auditoria.findUniqueOrThrow({
+        where: { id: registro.id },
+      })
+
+      expect(persistido.accion).toBe('CREAR')
+      expect(persistido.entidad).toBe('ALUMNO')
+      expect(persistido.datos).toEqual({ codigoAlumno: 'AL-001' })
+      expect(await prisma.auditoria.count()).toBe(1)
+    })
+
+    it('no permite escritura anónima sobre la auditoría', async () => {
+      const registro = await insertarAuditoria()
+
+      const respuestas = await Promise.all([
+        request(app.server).post('/api/v1/auditoria').send({ accion: 'CREAR' }),
+        request(app.server).patch(`/api/v1/auditoria/${registro.id}`).send({}),
+        request(app.server).put(`/api/v1/auditoria/${registro.id}`).send({}),
+        request(app.server).delete(`/api/v1/auditoria/${registro.id}`),
+      ])
+
+      for (const respuesta of respuestas) {
+        expect([401, 404]).toContain(respuesta.status)
+      }
+
+      expect(await prisma.auditoria.count()).toBe(1)
+    })
+  })
 })

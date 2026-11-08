@@ -69,7 +69,7 @@ Formato obligatorio:
 
 - [x] T029 — Servicio de auditoría transaccional con redacción de PII — `apps/api/src/core/audit.ts`, `apps/api/src/modules/core/personas/`, `apps/api/src/modules/core/matriculas/`, `apps/api/test/core/audit.test.ts` — RF-CORE-016 — operaciones sensibles registran usuario, entidad, acción e IP; credenciales y PII se redactan
 - [x] T030 — Endpoint `GET /auditoria` para SA/DI con paginación y filtros — `apps/api/src/modules/core/auditoria/`, `packages/shared/src/schemas/auditoria.ts`, `packages/shared/src/contracts/auditoria.ts`, `apps/api/test/core/auditoria.test.ts` — RF-CORE-016 — docentes, apoderados y alumnos reciben 403
-- [ ] T031 — Pruebas de auditoría inmutable — `apps/api/test/core/auditoria.test.ts` — RF-CORE-016 — no existe endpoint de edición o borrado
+- [x] T031 — Pruebas de auditoría inmutable — `apps/api/test/core/auditoria.test.ts` — RF-CORE-016 — `POST`/`PATCH`/`PUT`/`DELETE` sobre `/auditoria` y `/auditoria/:id` devuelven 404 y el registro no cambia
 - [ ] T032 — Actualizar `docs/architecture.md` y marcar la spec como implementada — `docs/architecture.md`, `specs/core/001-spec-mvp/` — cierre — estado real documentado
 
 ## Fase 6 — Frontend de autenticación
