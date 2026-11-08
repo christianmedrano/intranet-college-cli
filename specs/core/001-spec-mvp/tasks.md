@@ -76,7 +76,7 @@ Formato obligatorio:
 
 ## Fase 6 — Frontend de autenticación
 
-- [ ] T033 — Instalar `react-router` y crear router, providers y layout base — `apps/web/src/app/` — UX — la app monta con rutas `/login` y `/`
+- [x] T033 — Instalar `react-router` y crear router, providers y layout base — `apps/web/src/app/`, `apps/web/src/features/auth/LoginPage.tsx`, `apps/web/src/App.tsx`, `apps/web/src/index.css`, `apps/web/src/App.test.tsx` — UX — la app monta con rutas `/login` y `/`
 - [ ] T034 — Cliente HTTP con token en memoria y refresh automático — `apps/web/src/shared/api/client.ts`, `apps/web/src/features/auth/AuthProvider.tsx` — RF-CORE-004, RF-CORE-006 — al recargar se restaura la sesión vía refresh
 - [ ] T035 — Pantalla de login con validación, estados y accesibilidad — `apps/web/src/features/auth/LoginPage.tsx` — RF-CORE-004 — errores visibles, foco y etiquetas correctas
 - [ ] T036 — Pantalla de recuperación de contraseña — `apps/web/src/features/auth/ForgotPasswordPage.tsx` — RF-CORE-007 — mensaje neutro que no revela si el correo existe

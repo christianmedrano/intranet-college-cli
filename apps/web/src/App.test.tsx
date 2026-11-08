@@ -1,13 +1,33 @@
 import { render, screen } from '@testing-library/react'
+import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it } from 'vitest'
-import App from './App'
+import { AppProviders } from './app/providers'
+import { routes } from './app/routes'
 
-describe('App', () => {
-  it('renderiza el título de inicio', () => {
-    render(<App />)
+function renderEn(ruta: string) {
+  const router = createMemoryRouter(routes, { initialEntries: [ruta] })
+
+  return render(
+    <AppProviders>
+      <RouterProvider router={router} />
+    </AppProviders>,
+  )
+}
+
+describe('router', () => {
+  it('monta la ruta /login', async () => {
+    renderEn('/login')
 
     expect(
-      screen.getByRole('heading', { name: /get started/i }),
+      await screen.findByRole('heading', { name: /iniciar sesión/i }),
+    ).toBeInTheDocument()
+  })
+
+  it('monta la ruta /', async () => {
+    renderEn('/')
+
+    expect(
+      await screen.findByRole('heading', { name: /^panel$/i }),
     ).toBeInTheDocument()
   })
 })
