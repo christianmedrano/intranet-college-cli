@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { permissionSchema, roleCodeSchema } from '../domain/permissions.js'
 
 /**
  * Credenciales de acceso.
@@ -56,3 +57,38 @@ export const resetPasswordSchema = z.object({
 })
 
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>
+
+/**
+ * Respuesta de `POST /auth/login` y `POST /auth/refresh`.
+ *
+ * El refresh token no aparece aquí: viaja en una cookie `HttpOnly`.
+ */
+export const loginResponseSchema = z.object({
+  accessToken: z.string().min(1),
+  tokenType: z.literal('Bearer'),
+  expiresIn: z.number().int().positive(),
+})
+
+export type LoginResponsePayload = z.infer<typeof loginResponseSchema>
+
+/** Datos mínimos de la persona que viajan en `GET /me`. */
+export const personaResumenSchema = z.object({
+  nombres: z.string().min(1),
+  apellidos: z.string().min(1),
+  tipoDocumento: z.string().min(1),
+  numeroDocumento: z.string().min(1),
+})
+
+/** Respuesta de `GET /me` (RF-CORE-005). */
+export const meResponseSchema = z.object({
+  id: z.uuid(),
+  username: z.string().nullable(),
+  email: z.string().nullable(),
+  debeCambiarPassword: z.boolean(),
+  persona: personaResumenSchema,
+  roles: z.array(roleCodeSchema),
+  permissions: z.array(permissionSchema),
+})
+
+export type MeResponsePayload = z.infer<typeof meResponseSchema>
+
