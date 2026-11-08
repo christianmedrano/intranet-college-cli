@@ -1,4 +1,5 @@
 import type { RouteObject } from 'react-router'
+import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage'
 import { LoginPage } from '../features/auth/LoginPage'
 import { AppLayout } from './layouts/AppLayout'
 import { HomePage } from './pages/HomePage'
@@ -15,6 +16,7 @@ export const routes: RouteObject[] = [
     children: [
       { path: '/', element: <HomePage /> },
       { path: '/login', element: <LoginPage /> },
+      { path: '/recuperar-password', element: <ForgotPasswordPage /> },
     ],
   },
 ]

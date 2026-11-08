@@ -1,6 +1,6 @@
 import { loginSchema, type LoginInput } from '@intranet/shared'
 import { useState, type ChangeEvent, type FormEvent } from 'react'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { ApiClientError } from '../../shared/api/client'
 import { useAuth } from './useAuth'
 
@@ -157,6 +157,15 @@ export function LoginPage() {
           {enviando ? 'Ingresando…' : 'Ingresar'}
         </button>
       </form>
+
+      <p className="mt-4 text-center text-sm">
+        <Link
+          to="/recuperar-password"
+          className="font-medium text-slate-900 underline underline-offset-4"
+        >
+          ¿Olvidaste tu contraseña?
+        </Link>
+      </p>
     </section>
   )
 }

@@ -92,3 +92,13 @@ export const meResponseSchema = z.object({
 
 export type MeResponsePayload = z.infer<typeof meResponseSchema>
 
+/** Respuesta de `POST /auth/forgot-password`. Nunca revela si el correo existe. */
+export const forgotPasswordResponseSchema = z.object({
+  message: z.string().min(1),
+})
+
+/** Respuesta de `POST /auth/reset-password`. */
+export const resetPasswordResponseSchema = z.object({
+  message: z.string().min(1),
+})
+
