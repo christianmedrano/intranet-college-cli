@@ -1,18 +1,18 @@
 # Arquitectura del Proyecto
 
 > Documento técnico de referencia. Las reglas normativas están en `docs/constitution.md`.
-> Última actualización: 2026-11-05.
+> Última actualización: 2026-11-07.
 
 ## 1. Estado actual vs. objetivo
 
 | Área | Estado actual | Pendiente |
 |---|---|---|
 | Repositorio | Monorepo con workspaces (`apps/web`, `apps/api`, `packages/shared`) | — |
-| Frontend | React 19 + Vite 8 + TypeScript 6 + Tailwind 4; aún renderiza la plantilla de Vite | Reemplazar por la app real según specs |
-| Backend | Fastify 5 con `GET /api/v1/health`, CORS y rate limit | Módulos de dominio, auth y RBAC |
-| Base de datos | No configurada | Prisma + MySQL 8 en `specs/core` |
-| Pruebas | Vitest 5 en web y api; Testing Library configurada | Playwright y pruebas de dominio |
-| Specs | `specs/core/001-spec-mvp/` aprobada v1.0.0; 4 módulos vacíos | Implementar `core` |
+| Frontend | React 19 + Vite 8 + TypeScript 6 + Tailwind 4; aún renderiza la plantilla de Vite | Router, sesión, login y guards de autenticación (T033–T039) |
+| Backend | Fastify 5 con el módulo `core` implementado bajo `/api/v1`: auth, RBAC, institución, años y períodos, niveles/grados/secciones/cursos, personas, matrículas, asignaciones y auditoría. `GET /health` fuera de `/api/v1` | Cambio obligatorio de contraseña (RF-CORE-017); CRUD de usuarios (T043); borrado lógico de años (T042) |
+| Base de datos | MySQL 8 con Prisma 7, migración `core_init` y seed idempotente de roles, institución y SuperAdmin | Migraciones de los módulos restantes |
+| Pruebas | Vitest 5 en web y api. API: 22 suites y 334 pruebas; web: 1 prueba. Cobertura de la API: 92,54 % de sentencias (umbral 70 %) | Playwright y pruebas del frontend de autenticación |
+| Specs | `specs/core/001-spec-mvp/` aprobada v1.1.0; API implementada (T001–T031) | Cierre de la spec tras T033–T039 y RF-CORE-017; 4 módulos vacíos |
 | Gobernanza | Constitución v2, plantillas, matriz RBAC y ADRs | Mantener sincronizada |
 
 Comandos desde la raíz:
@@ -44,20 +44,22 @@ intranet-college-cli/
 │  │  └─ index.html
 │  └─ api/
 │     ├─ src/
-│     │  ├─ core/               # config, db, auth, rbac, audit, errors
+│     │  ├─ core/               # config, db, auth, rbac, audit, errors, validación
 │     │  ├─ modules/
+│     │  │  ├─ core/            # auth, estructura, personas, matrículas, auditoría
 │     │  │  ├─ academic/
 │     │  │  ├─ administrative/
 │     │  │  ├─ communication/
 │     │  │  └─ virtual-classroom/
 │     │  └─ server.ts
-│     └─ prisma/
-│        ├─ schema.prisma
-│        └─ migrations/
+│     ├─ prisma/
+│     │  ├─ schema.prisma
+│     │  └─ migrations/
+│     └─ test/core/             # pruebas de API con Vitest + Supertest
 ├─ packages/
 │  └─ shared/
 │     └─ src/
-│        ├─ domain/             # tipos de entidades
+│        ├─ domain/             # permisos y tipos de dominio
 │        ├─ schemas/            # Zod
 │        └─ contracts/          # DTOs de API
 ├─ specs/
@@ -83,13 +85,13 @@ apps/web  ──imports──▶  packages/shared  ◀──imports──  apps/
 ## 4. Flujo de una petición
 
 1. El cliente envía la petición con el token de acceso.
-2. Fastify valida el token y resuelve el usuario y su rol.
+2. Fastify valida el token y resuelve el usuario y sus roles; los permisos de todos los roles se unen.
 3. El guard de RBAC verifica el permiso y el vínculo con el recurso.
 4. El controller valida la entrada con Zod.
 5. El service aplica las reglas de negocio.
 6. El repository accede a MySQL vía Prisma.
 7. La respuesta usa el sobre estándar de error o el DTO de `packages/shared`.
-8. Se registra auditoría si la operación toca notas, pagos o datos personales.
+8. Si la operación toca datos personales, matrículas o usuarios, el service abre una transacción y `registrarAuditoria` inserta el registro dentro de ella. Credenciales y PII se sustituyen por `[REDACTADO]`; si la operación falla, la auditoría también se revierte.
 
 ## 5. Convenciones de API
 
@@ -130,9 +132,11 @@ Restricciones que MySQL no cubre igual que PostgreSQL:
 
 ## 7. Autenticación y autorización
 
-- Login con correo y contraseña; hash `Argon2id`.
-- Token de acceso de corta duración; refresh en cookie `httpOnly`.
-- Guard de autenticación + guard de rol + verificación de vínculo con el recurso.
+- Login multicampo con usuario, correo o número de documento; hash `Argon2id`.
+- Token de acceso JWT firmado con `jose`; refresh opaco con hash SHA-256 en `SesionRefresh` y cookie `httpOnly`, `SameSite=Lax`, path `/api/v1/auth`, `Secure` en producción.
+- El login limita los intentos fallidos por `IP + identificador` (ventana fija de 15 minutos, máximo 5); un acceso correcto reinicia el contador.
+- La recuperación de contraseña usa un token de un solo uso emitido por administración; no hay envío de correo en el MVP.
+- Guard de autenticación + guard de permiso + verificación de vínculo con el recurso (`vinculo.ts`, no como `preHandler`).
 - La matriz de permisos está en `docs/rbac-matrix.md`.
 - El frontend usa guards solo para UX; el backend siempre revalida.
 
@@ -155,16 +159,19 @@ Restricciones que MySQL no cubre igual que PostgreSQL:
 
 Los tests de dominio no dependen de la base de datos. Los de API usan una base de datos de prueba aislada.
 
+Estado actual de la API: 22 suites y 334 pruebas en verde; cobertura de sentencias 92,54 %, ramas 82,78 % (umbral mínimo 70 %). Las pruebas corren en serie (`fileParallelism: false`) para no saturar MySQL. El frontend mantiene 1 prueba de humo hasta que se implemente T033.
+
 ## 10. Decisiones pendientes
 
 | Tema | Estado | Dónde se resuelve |
 |---|---|---|
-| Framework HTTP definitivo (Fastify) | Propuesto | ADR-0001 |
+| Framework HTTP definitivo (Fastify) | Adoptado e implementado | `docs/stack.md` |
 | Modelo de competencias vs. cursos | Abierto | `specs/academic/001-spec-mvp/` |
 | Fórmula de nota final | Abierto | `specs/academic/001-spec-mvp/` |
 | Umbral de alerta de inasistencias | Abierto | `specs/academic/001-spec-mvp/` |
 | Almacenamiento de archivos en producción | Abierto | ADR antes de implementar aula virtual |
 | Roles administrativos adicionales | Abierto | `specs/administrative/001-spec-mvp/` |
 | Participación de alumnos en mensajería | Abierto | `specs/communication/001-spec-mvp/` |
-| Prisma + MySQL | Pendiente | `specs/core/001-spec-mvp/` |
+| Prisma + MySQL | Resuelto e implementado | ADR-0002 y `specs/core/001-spec-mvp/` |
 | Playwright y pruebas E2E | Pendiente | Primera feature con flujo completo |
+| Cierre de la spec `core` | Pendiente | Tras T033–T039 y RF-CORE-017 |

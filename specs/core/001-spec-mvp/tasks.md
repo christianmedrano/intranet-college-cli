@@ -4,7 +4,7 @@
 |---|---|
 | Spec | `specs/core/001-spec-mvp/spec.md` |
 | Plan | `specs/core/001-spec-mvp/plan.md` |
-| Estado | `lista para ejecutar` |
+| Estado | `en progreso` |
 | Fecha | 2026-11-05 |
 
 > Spec aprobada v1.0.0. Ejecutar las tareas en orden; no iniciar una sin el gate de la anterior en verde.
@@ -72,6 +72,8 @@ Formato obligatorio:
 - [x] T031 — Pruebas de auditoría inmutable — `apps/api/test/core/auditoria.test.ts` — RF-CORE-016 — `POST`/`PATCH`/`PUT`/`DELETE` sobre `/auditoria` y `/auditoria/:id` devuelven 404 y el registro no cambia
 - [ ] T032 — Actualizar `docs/architecture.md` y marcar la spec como implementada — `docs/architecture.md`, `specs/core/001-spec-mvp/` — cierre — estado real documentado
 
+> **T032 parcial (2026-11-07):** `docs/architecture.md` ya refleja el estado real de la API. El cierre de la spec queda pendiente hasta completar T033–T039 (frontend de autenticación) y RF-CORE-017.
+
 ## Fase 6 — Frontend de autenticación
 
 - [ ] T033 — Instalar `react-router` y crear router, providers y layout base — `apps/web/src/app/` — UX — la app monta con rutas `/login` y `/`
@@ -110,3 +112,4 @@ Se aplica el anexo A de `docs/constitution.md`:
 | 2026-11-05 | Todas | Spec en revisión: Q1–Q4 sin resolver | resuelto |
 | 2026-11-05 | — | Spec aprobada v1.0.0; sin bloqueos | — |
 | 2026-11-06 | T042 | Requiere el modelo de calificaciones del módulo académico y un contrato `DELETE` en la spec §7 | bloqueado |
+| 2026-11-07 | T032 | El cierre de la spec espera T033–T039 y RF-CORE-017; `docs/architecture.md` ya está actualizado | en espera |
