@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router'
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage'
 import { LoginPage } from '../features/auth/LoginPage'
+import { RequireAuth } from './guards/RequireAuth'
 import { AppLayout } from './layouts/AppLayout'
 import { HomePage } from './pages/HomePage'
 
@@ -14,7 +15,10 @@ export const routes: RouteObject[] = [
   {
     element: <AppLayout />,
     children: [
-      { path: '/', element: <HomePage /> },
+      {
+        element: <RequireAuth />,
+        children: [{ path: '/', element: <HomePage /> }],
+      },
       { path: '/login', element: <LoginPage /> },
       { path: '/recuperar-password', element: <ForgotPasswordPage /> },
     ],
