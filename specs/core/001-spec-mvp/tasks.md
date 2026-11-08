@@ -63,7 +63,7 @@ Formato obligatorio:
 - [x] T025 — CRUD de alumnos, docentes, apoderados y vínculos — `apps/api/src/modules/core/personas/`, `packages/shared/src/schemas/persona.ts`, `packages/shared/src/schemas/alumno.ts`, `packages/shared/src/schemas/docente.ts`, `packages/shared/src/schemas/apoderado.ts`, `packages/shared/src/contracts/persona.ts`, `packages/shared/src/contracts/alumno.ts`, `packages/shared/src/contracts/docente.ts`, `packages/shared/src/contracts/apoderado.ts`, `apps/api/test/core/personas.test.ts` — RF-CORE-012, RF-CORE-013, RF-CORE-014 — un principal por alumno; documento único; sin cuenta de usuario
 - [x] T026 — Matrículas con unicidad por alumno y año — `apps/api/src/modules/core/matriculas/`, `packages/shared/src/schemas/matricula.ts`, `packages/shared/src/contracts/matricula.ts`, `apps/api/test/core/matricula.test.ts` — RF-CORE-015 — duplicado devuelve 409; retirada se conserva y no se reabre; aprobación exige un apoderado principal
 - [x] T027 — Asignaciones docente–curso–sección–año — `apps/api/src/modules/core/estructura/`, `packages/shared/src/schemas/asignacion-docente.ts`, `packages/shared/src/contracts/asignacion-docente.ts`, `apps/api/test/core/asignacion-docente.test.ts` — RF-CORE-011 — duplicado devuelve 409; curso y sección deben ser coherentes con el nivel y el año
-- [ ] T028 — Pruebas de estructura: 3 y 4 períodos, año activo único, cierre y matrícula — `apps/api/test/core/estructura.test.ts` — RF-CORE-008 a RF-CORE-011, RF-CORE-015 — todos los casos en verde
+- [x] T028 — Pruebas de estructura: 3 y 4 períodos, año activo único, cierre y matrícula — `apps/api/test/core/estructura.test.ts` — RF-CORE-008 a RF-CORE-011, RF-CORE-015 — flujo integrado en verde
 
 ## Fase 5 — Auditoría y cierre
 
