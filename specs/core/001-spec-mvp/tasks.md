@@ -78,7 +78,7 @@ Formato obligatorio:
 
 - [x] T033 — Instalar `react-router` y crear router, providers y layout base — `apps/web/src/app/`, `apps/web/src/features/auth/LoginPage.tsx`, `apps/web/src/App.tsx`, `apps/web/src/index.css`, `apps/web/src/App.test.tsx` — UX — la app monta con rutas `/login` y `/`
 - [x] T034 — Cliente HTTP con token en memoria y refresh automático — `apps/web/src/shared/api/client.ts`, `apps/web/src/features/auth/AuthProvider.tsx`, `apps/web/src/features/auth/auth-context.ts`, `apps/web/src/features/auth/useAuth.ts`, `packages/shared/src/schemas/auth.ts`, `apps/web/src/shared/api/client.test.ts`, `apps/web/src/features/auth/AuthProvider.test.tsx` — RF-CORE-004, RF-CORE-006 — al recargar se restaura la sesión vía refresh; un `401` renueva y reintenta una sola vez
-- [ ] T035 — Pantalla de login con validación, estados y accesibilidad — `apps/web/src/features/auth/LoginPage.tsx` — RF-CORE-004 — errores visibles, foco y etiquetas correctas
+- [x] T035 — Pantalla de login con validación, estados y accesibilidad — `apps/web/src/features/auth/LoginPage.tsx`, `apps/web/src/features/auth/LoginPage.test.tsx` — RF-CORE-004 — errores visibles, foco y etiquetas correctas
 - [ ] T036 — Pantalla de recuperación de contraseña — `apps/web/src/features/auth/ForgotPasswordPage.tsx` — RF-CORE-007 — mensaje neutro que no revela si el correo existe
 - [ ] T037 — Guard de rutas y redirección por rol — `apps/web/src/app/guards/RequireAuth.tsx` — RF-CORE-005 — sin sesión redirige a `/login`
 - [ ] T038 — Pruebas de login, recuperación y guard — `apps/web/src/features/auth/*.test.tsx` — RF-CORE-004, RF-CORE-005, RF-CORE-007 — casos feliz y error en verde
