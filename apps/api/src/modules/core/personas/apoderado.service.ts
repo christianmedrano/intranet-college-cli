@@ -6,6 +6,10 @@ import type {
   PaginationInput,
   VincularAlumnoInput,
 } from '@intranet/shared'
+import {
+  registrarAuditoria,
+  type ContextoAuditoria,
+} from '../../../core/audit.js'
 import { getPrisma } from '../../../core/db.js'
 import { AppError } from '../../../core/errors.js'
 import { esConflictoDeUnicidad } from '../../../core/prisma-errors.js'
@@ -61,6 +65,7 @@ export async function listarApoderados(
 export async function crearApoderado(
   input: CrearApoderadoInput,
   usuarioId: string,
+  contexto: ContextoAuditoria = {},
   prisma: PrismaClient = getPrisma(),
 ): Promise<ApoderadoResponse> {
   try {
@@ -74,6 +79,15 @@ export async function crearApoderado(
         personaId: persona.id,
         ocupacion: input.ocupacion,
         createdBy: usuarioId,
+      })
+
+      await registrarAuditoria(tx, {
+        usuarioId,
+        accion: 'CREAR',
+        entidad: 'APODERADO',
+        entidadId: fila.id,
+        datos: { personaId: persona.id },
+        ...contexto,
       })
 
       return toApoderadoResponse(fila)
@@ -97,6 +111,7 @@ export async function actualizarApoderado(
   id: string,
   input: ActualizarApoderadoInput,
   usuarioId: string,
+  contexto: ContextoAuditoria = {},
   prisma: PrismaClient = getPrisma(),
 ): Promise<ApoderadoResponse> {
   const actual = await findApoderadoPorId(prisma, id)
@@ -117,6 +132,20 @@ export async function actualizarApoderado(
       const fila = await updateApoderadoRecord(tx, id, {
         ocupacion: input.ocupacion,
         updatedBy: usuarioId,
+      })
+
+      await registrarAuditoria(tx, {
+        usuarioId,
+        accion: 'ACTUALIZAR',
+        entidad: 'APODERADO',
+        entidadId: id,
+        datos: {
+          camposActualizados: Object.keys(input),
+          ...(input.persona
+            ? { camposPersona: Object.keys(input.persona) }
+            : {}),
+        },
+        ...contexto,
       })
 
       return toApoderadoResponse(fila)
@@ -140,6 +169,7 @@ export async function vincularAlumno(
   apoderadoId: string,
   input: VincularAlumnoInput,
   usuarioId: string,
+  contexto: ContextoAuditoria = {},
   prisma: PrismaClient = getPrisma(),
 ): Promise<ResultadoVinculo> {
   const apoderado = await findApoderadoPorId(prisma, apoderadoId)
@@ -149,12 +179,30 @@ export async function vincularAlumno(
   }
 
   try {
-    return await vincularAlumnoRecord(prisma, {
-      apoderadoId,
-      alumnoId: input.alumnoId,
-      parentesco: input.parentesco,
-      esPrincipal: input.esPrincipal,
-      createdBy: usuarioId,
+    return await prisma.$transaction(async (tx) => {
+      const resultado = await vincularAlumnoRecord(tx, {
+        apoderadoId,
+        alumnoId: input.alumnoId,
+        parentesco: input.parentesco,
+        esPrincipal: input.esPrincipal,
+        createdBy: usuarioId,
+      })
+
+      await registrarAuditoria(tx, {
+        usuarioId,
+        accion: 'VINCULAR',
+        entidad: 'APODERADO',
+        entidadId: apoderadoId,
+        datos: {
+          alumnoId: input.alumnoId,
+          parentesco: input.parentesco,
+          esPrincipal: input.esPrincipal,
+          creado: resultado.creado,
+        },
+        ...contexto,
+      })
+
+      return resultado
     })
   } catch (error) {
     if (esConflictoDeUnicidad(error)) {

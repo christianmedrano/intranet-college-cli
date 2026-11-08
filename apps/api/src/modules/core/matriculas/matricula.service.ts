@@ -5,6 +5,10 @@ import type {
   Paginated,
   PaginationInput,
 } from '@intranet/shared'
+import {
+  registrarAuditoria,
+  type ContextoAuditoria,
+} from '../../../core/audit.js'
 import { getPrisma } from '../../../core/db.js'
 import { AppError } from '../../../core/errors.js'
 import { esConflictoDeUnicidad } from '../../../core/prisma-errors.js'
@@ -81,6 +85,7 @@ export async function listarMatriculas(
 export async function crearMatricula(
   input: CrearMatriculaInput,
   usuarioId: string,
+  contexto: ContextoAuditoria = {},
   prisma: PrismaClient = getPrisma(),
 ): Promise<MatriculaResponse> {
   const alumno = await findAlumnoPorId(prisma, input.alumnoId)
@@ -113,11 +118,28 @@ export async function crearMatricula(
   }
 
   try {
-    return await createMatricula(prisma, {
-      alumnoId: input.alumnoId,
-      seccionId: input.seccionId,
-      anioId: input.anioId,
-      createdBy: usuarioId,
+    return await prisma.$transaction(async (tx) => {
+      const creada = await createMatricula(tx, {
+        alumnoId: input.alumnoId,
+        seccionId: input.seccionId,
+        anioId: input.anioId,
+        createdBy: usuarioId,
+      })
+
+      await registrarAuditoria(tx, {
+        usuarioId,
+        accion: 'CREAR',
+        entidad: 'MATRICULA',
+        entidadId: creada.id,
+        datos: {
+          alumnoId: input.alumnoId,
+          seccionId: input.seccionId,
+          anioId: input.anioId,
+        },
+        ...contexto,
+      })
+
+      return creada
     })
   } catch (error) {
     if (esConflictoDeUnicidad(error)) {
@@ -147,6 +169,7 @@ export async function actualizarEstadoMatricula(
   id: string,
   input: ActualizarMatriculaInput,
   usuarioId: string,
+  contexto: ContextoAuditoria = {},
   prisma: PrismaClient = getPrisma(),
 ): Promise<MatriculaResponse> {
   const actual = await findMatriculaPorId(prisma, id)
@@ -187,5 +210,23 @@ export async function actualizarEstadoMatricula(
     }
   }
 
-  return updateEstadoMatricula(prisma, id, input.estado, usuarioId)
+  return prisma.$transaction(async (tx) => {
+    const actualizada = await updateEstadoMatricula(
+      tx,
+      id,
+      input.estado,
+      usuarioId,
+    )
+
+    await registrarAuditoria(tx, {
+      usuarioId,
+      accion: input.estado === 'APROBADA' ? 'APROBAR' : 'RETIRAR',
+      entidad: 'MATRICULA',
+      entidadId: id,
+      datos: { estadoAnterior: actual.estado, estado: input.estado },
+      ...contexto,
+    })
+
+    return actualizada
+  })
 }

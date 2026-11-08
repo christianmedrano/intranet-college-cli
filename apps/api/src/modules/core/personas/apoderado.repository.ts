@@ -4,7 +4,7 @@ import type {
   VinculoAlumnoResponse,
 } from '@intranet/shared'
 import { AppError } from '../../../core/errors.js'
-import type { Prisma, PrismaClient } from '../../../generated/prisma/client.js'
+import type { Prisma } from '../../../generated/prisma/client.js'
 import {
   CAMPOS_PERSONA,
   toPersonaResponse,
@@ -191,66 +191,64 @@ export interface ResultadoVinculo {
  * @throws AppError `NOT_FOUND` si el alumno no existe o tiene borrado lógico.
  */
 export async function vincularAlumnoRecord(
-  prisma: PrismaClient,
+  tx: Prisma.TransactionClient,
   datos: VincularAlumnoData,
 ): Promise<ResultadoVinculo> {
-  return prisma.$transaction(async (tx) => {
-    const filas = await tx.$queryRaw<Array<{ id: string }>>`
-      SELECT id FROM alumno
-      WHERE id = ${datos.alumnoId} AND deleted_at IS NULL
-      FOR UPDATE
-    `
+  const filas = await tx.$queryRaw<Array<{ id: string }>>`
+    SELECT id FROM alumno
+    WHERE id = ${datos.alumnoId} AND deleted_at IS NULL
+    FOR UPDATE
+  `
 
-    if (filas.length === 0) {
-      throw new AppError('NOT_FOUND', 'El alumno no existe.')
-    }
+  if (filas.length === 0) {
+    throw new AppError('NOT_FOUND', 'El alumno no existe.')
+  }
 
-    if (datos.esPrincipal) {
-      await tx.apoderadoAlumno.updateMany({
-        where: {
-          alumnoId: datos.alumnoId,
-          apoderadoId: { not: datos.apoderadoId },
-        },
-        data: { esPrincipal: false },
-      })
-    }
-
-    const clave = {
-      apoderadoId_alumnoId: {
-        apoderadoId: datos.apoderadoId,
+  if (datos.esPrincipal) {
+    await tx.apoderadoAlumno.updateMany({
+      where: {
         alumnoId: datos.alumnoId,
+        apoderadoId: { not: datos.apoderadoId },
       },
-    }
-
-    const existente = await tx.apoderadoAlumno.findUnique({
-      where: clave,
-      select: { esPrincipal: true },
+      data: { esPrincipal: false },
     })
+  }
 
-    if (existente) {
-      const vinculo = await tx.apoderadoAlumno.update({
-        where: clave,
-        data: {
-          parentesco: datos.parentesco,
-          ...(datos.esPrincipal ? { esPrincipal: true } : {}),
-        },
-        select: CAMPOS_VINCULO,
-      })
+  const clave = {
+    apoderadoId_alumnoId: {
+      apoderadoId: datos.apoderadoId,
+      alumnoId: datos.alumnoId,
+    },
+  }
 
-      return { vinculo, creado: false }
-    }
+  const existente = await tx.apoderadoAlumno.findUnique({
+    where: clave,
+    select: { esPrincipal: true },
+  })
 
-    const vinculo = await tx.apoderadoAlumno.create({
+  if (existente) {
+    const vinculo = await tx.apoderadoAlumno.update({
+      where: clave,
       data: {
-        apoderadoId: datos.apoderadoId,
-        alumnoId: datos.alumnoId,
         parentesco: datos.parentesco,
-        esPrincipal: datos.esPrincipal,
-        createdBy: datos.createdBy,
+        ...(datos.esPrincipal ? { esPrincipal: true } : {}),
       },
       select: CAMPOS_VINCULO,
     })
 
-    return { vinculo, creado: true }
+    return { vinculo, creado: false }
+  }
+
+  const vinculo = await tx.apoderadoAlumno.create({
+    data: {
+      apoderadoId: datos.apoderadoId,
+      alumnoId: datos.alumnoId,
+      parentesco: datos.parentesco,
+      esPrincipal: datos.esPrincipal,
+      createdBy: datos.createdBy,
+    },
+    select: CAMPOS_VINCULO,
   })
+
+  return { vinculo, creado: true }
 }

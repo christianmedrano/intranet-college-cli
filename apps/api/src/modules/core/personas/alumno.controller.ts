@@ -5,6 +5,7 @@ import {
   uuidParamSchema,
 } from '@intranet/shared'
 import type { FastifyReply, FastifyRequest } from 'fastify'
+import { contextoDePeticion } from '../../../core/audit.js'
 import { AppError } from '../../../core/errors.js'
 import { parseOrThrow } from '../../../core/validation.js'
 import {
@@ -36,7 +37,7 @@ export async function crearAlumnoController(
 
   const input = parseOrThrow(crearAlumnoSchema, request.body)
 
-  reply.code(201).send(await crearAlumno(input, actor.id))
+  reply.code(201).send(await crearAlumno(input, actor.id, contextoDePeticion(request)))
 }
 
 /** `PATCH /api/v1/alumnos/:id` — edición parcial del alumno y su persona. */
@@ -53,5 +54,7 @@ export async function actualizarAlumnoController(
   const { id } = parseOrThrow(uuidParamSchema, request.params)
   const input = parseOrThrow(actualizarAlumnoSchema, request.body)
 
-  reply.code(200).send(await actualizarAlumno(id, input, actor.id))
+  reply
+    .code(200)
+    .send(await actualizarAlumno(id, input, actor.id, contextoDePeticion(request)))
 }

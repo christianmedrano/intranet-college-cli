@@ -187,7 +187,7 @@ export interface CrearMatriculaData {
  * la violación a `409 CONFLICT`.
  */
 export async function createMatricula(
-  prisma: PrismaClient,
+  prisma: Prisma.TransactionClient,
   datos: CrearMatriculaData,
 ): Promise<MatriculaResponse> {
   const fila = await prisma.matricula.create({
@@ -206,7 +206,7 @@ export async function createMatricula(
 
 /** Actualiza el estado de una matrícula y devuelve la fila resultante. */
 export async function updateEstadoMatricula(
-  prisma: PrismaClient,
+  prisma: Prisma.TransactionClient,
   id: string,
   estado: EstadoMatricula,
   usuarioId: string,

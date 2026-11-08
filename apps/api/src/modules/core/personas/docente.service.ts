@@ -5,6 +5,10 @@ import type {
   Paginated,
   PaginationInput,
 } from '@intranet/shared'
+import {
+  registrarAuditoria,
+  type ContextoAuditoria,
+} from '../../../core/audit.js'
 import { getPrisma } from '../../../core/db.js'
 import { AppError } from '../../../core/errors.js'
 import { esConflictoDeUnicidad } from '../../../core/prisma-errors.js'
@@ -61,6 +65,7 @@ export async function listarDocentes(
 export async function crearDocente(
   input: CrearDocenteInput,
   usuarioId: string,
+  contexto: ContextoAuditoria = {},
   prisma: PrismaClient = getPrisma(),
 ): Promise<DocenteResponse> {
   try {
@@ -75,6 +80,18 @@ export async function crearDocente(
         codigoDocente: input.codigoDocente,
         especialidad: input.especialidad,
         createdBy: usuarioId,
+      })
+
+      await registrarAuditoria(tx, {
+        usuarioId,
+        accion: 'CREAR',
+        entidad: 'DOCENTE',
+        entidadId: fila.id,
+        datos: {
+          personaId: persona.id,
+          codigoDocente: input.codigoDocente,
+        },
+        ...contexto,
       })
 
       return toDocenteResponse(fila)
@@ -98,6 +115,7 @@ export async function actualizarDocente(
   id: string,
   input: ActualizarDocenteInput,
   usuarioId: string,
+  contexto: ContextoAuditoria = {},
   prisma: PrismaClient = getPrisma(),
 ): Promise<DocenteResponse> {
   const actual = await findDocentePorId(prisma, id)
@@ -119,6 +137,20 @@ export async function actualizarDocente(
         codigoDocente: input.codigoDocente,
         especialidad: input.especialidad,
         updatedBy: usuarioId,
+      })
+
+      await registrarAuditoria(tx, {
+        usuarioId,
+        accion: 'ACTUALIZAR',
+        entidad: 'DOCENTE',
+        entidadId: id,
+        datos: {
+          camposActualizados: Object.keys(input),
+          ...(input.persona
+            ? { camposPersona: Object.keys(input.persona) }
+            : {}),
+        },
+        ...contexto,
       })
 
       return toDocenteResponse(fila)

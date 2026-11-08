@@ -5,6 +5,7 @@ import {
   uuidParamSchema,
 } from '@intranet/shared'
 import type { FastifyReply, FastifyRequest } from 'fastify'
+import { contextoDePeticion } from '../../../core/audit.js'
 import { AppError } from '../../../core/errors.js'
 import { parseOrThrow } from '../../../core/validation.js'
 import {
@@ -36,7 +37,7 @@ export async function crearDocenteController(
 
   const input = parseOrThrow(crearDocenteSchema, request.body)
 
-  reply.code(201).send(await crearDocente(input, actor.id))
+  reply.code(201).send(await crearDocente(input, actor.id, contextoDePeticion(request)))
 }
 
 /** `PATCH /api/v1/docentes/:id` — edición parcial del docente y su persona. */
@@ -53,5 +54,7 @@ export async function actualizarDocenteController(
   const { id } = parseOrThrow(uuidParamSchema, request.params)
   const input = parseOrThrow(actualizarDocenteSchema, request.body)
 
-  reply.code(200).send(await actualizarDocente(id, input, actor.id))
+  reply
+    .code(200)
+    .send(await actualizarDocente(id, input, actor.id, contextoDePeticion(request)))
 }

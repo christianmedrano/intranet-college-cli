@@ -5,6 +5,7 @@ import {
   uuidParamSchema,
 } from '@intranet/shared'
 import type { FastifyReply, FastifyRequest } from 'fastify'
+import { contextoDePeticion } from '../../../core/audit.js'
 import { AppError } from '../../../core/errors.js'
 import { parseOrThrow } from '../../../core/validation.js'
 import {
@@ -46,7 +47,9 @@ export async function crearMatriculaController(
 
   const input = parseOrThrow(crearMatriculaSchema, request.body)
 
-  reply.code(201).send(await crearMatricula(input, actor.id))
+  reply
+    .code(201)
+    .send(await crearMatricula(input, actor.id, contextoDePeticion(request)))
 }
 
 /** `PATCH /api/v1/matriculas/:id` — cambia el estado de la matrícula. */
@@ -63,5 +66,14 @@ export async function actualizarMatriculaController(
   const { id } = parseOrThrow(uuidParamSchema, request.params)
   const input = parseOrThrow(actualizarMatriculaSchema, request.body)
 
-  reply.code(200).send(await actualizarEstadoMatricula(id, input, actor.id))
+  reply
+    .code(200)
+    .send(
+      await actualizarEstadoMatricula(
+        id,
+        input,
+        actor.id,
+        contextoDePeticion(request),
+      ),
+    )
 }

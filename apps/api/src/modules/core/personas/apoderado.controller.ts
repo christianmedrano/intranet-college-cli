@@ -6,6 +6,7 @@ import {
   vincularAlumnoSchema,
 } from '@intranet/shared'
 import type { FastifyReply, FastifyRequest } from 'fastify'
+import { contextoDePeticion } from '../../../core/audit.js'
 import { AppError } from '../../../core/errors.js'
 import { parseOrThrow } from '../../../core/validation.js'
 import {
@@ -38,7 +39,9 @@ export async function crearApoderadoController(
 
   const input = parseOrThrow(crearApoderadoSchema, request.body)
 
-  reply.code(201).send(await crearApoderado(input, actor.id))
+  reply
+    .code(201)
+    .send(await crearApoderado(input, actor.id, contextoDePeticion(request)))
 }
 
 /** `PATCH /api/v1/apoderados/:id` — edición parcial y su persona. */
@@ -55,7 +58,11 @@ export async function actualizarApoderadoController(
   const { id } = parseOrThrow(uuidParamSchema, request.params)
   const input = parseOrThrow(actualizarApoderadoSchema, request.body)
 
-  reply.code(200).send(await actualizarApoderado(id, input, actor.id))
+  reply
+    .code(200)
+    .send(
+      await actualizarApoderado(id, input, actor.id, contextoDePeticion(request)),
+    )
 }
 
 /**
@@ -76,7 +83,12 @@ export async function vincularAlumnoController(
   const { id } = parseOrThrow(uuidParamSchema, request.params)
   const input = parseOrThrow(vincularAlumnoSchema, request.body)
 
-  const resultado = await vincularAlumno(id, input, actor.id)
+  const resultado = await vincularAlumno(
+    id,
+    input,
+    actor.id,
+    contextoDePeticion(request),
+  )
 
   reply
     .code(resultado.creado ? 201 : 200)
