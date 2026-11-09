@@ -1,18 +1,18 @@
 # Arquitectura del Proyecto
 
 > Documento técnico de referencia. Las reglas normativas están en `docs/constitution.md`.
-> Última actualización: 2026-11-07.
+> Última actualización: 2026-11-08.
 
 ## 1. Estado actual vs. objetivo
 
 | Área | Estado actual | Pendiente |
 |---|---|---|
 | Repositorio | Monorepo con workspaces (`apps/web`, `apps/api`, `packages/shared`) | — |
-| Frontend | React 19 + Vite 8 + TypeScript 6 + Tailwind 4; aún renderiza la plantilla de Vite | Router, sesión, login y guards de autenticación (T033–T039) |
-| Backend | Fastify 5 con el módulo `core` implementado bajo `/api/v1`: auth, RBAC, institución, años y períodos, niveles/grados/secciones/cursos, personas, matrículas, asignaciones y auditoría. `GET /health` fuera de `/api/v1` | Cambio obligatorio de contraseña (RF-CORE-017); CRUD de usuarios (T043); borrado lógico de años (T042) |
+| Frontend | React 19 + Vite 8 + TypeScript 6 + Tailwind 4; router, sesión en memoria con refresh, login, recuperación, guard por rol y cambio de contraseña (T033–T039) | Pantallas por rol y módulos restantes |
+| Backend | Fastify 5 con el módulo `core` implementado bajo `/api/v1`: auth (incluido el cambio obligatorio de contraseña, RF-CORE-017), RBAC, institución, años y períodos, niveles/grados/secciones/cursos, personas, matrículas, asignaciones y auditoría. `GET /health` fuera de `/api/v1` | CRUD de usuarios (T043); borrado lógico de años (T042) |
 | Base de datos | MySQL 8 con Prisma 7, migración `core_init` y seed idempotente de roles, institución y SuperAdmin | Migraciones de los módulos restantes |
-| Pruebas | Vitest 5 en web y api. API: 22 suites y 334 pruebas; web: 1 prueba. Cobertura de la API: 92,54 % de sentencias (umbral 70 %) | Playwright y pruebas del frontend de autenticación |
-| Specs | `specs/core/001-spec-mvp/` aprobada v1.1.0; API implementada (T001–T031) | Cierre de la spec tras T033–T039 y RF-CORE-017; 4 módulos vacíos |
+| Pruebas | Vitest 5 en web y api. API: 25 suites y 343 pruebas; web: 8 suites y 39 pruebas. Cobertura de la API: 92,54 % de sentencias (última medición tras T030, umbral 70 %) | Playwright y pruebas E2E |
+| Specs | `specs/core/001-spec-mvp/` aprobada v1.1.0; API y frontend de autenticación implementados (T001–T039) | T041–T043 (deuda técnica) y 4 módulos vacíos |
 | Gobernanza | Constitución v2, plantillas, matriz RBAC y ADRs | Mantener sincronizada |
 
 Comandos desde la raíz:
@@ -136,6 +136,7 @@ Restricciones que MySQL no cubre igual que PostgreSQL:
 - Token de acceso JWT firmado con `jose`; refresh opaco con hash SHA-256 en `SesionRefresh` y cookie `httpOnly`, `SameSite=Lax`, path `/api/v1/auth`, `Secure` en producción.
 - El login limita los intentos fallidos por `IP + identificador` (ventana fija de 15 minutos, máximo 5); un acceso correcto reinicia el contador.
 - La recuperación de contraseña usa un token de un solo uso emitido por administración; no hay envío de correo en el MVP.
+- Mientras `debeCambiarPassword` esté activo, `requirePermission` responde `403` en todo recurso de negocio; solo quedan disponibles los endpoints de autenticación. El cambio de contraseña aplica la política mínima y revoca todas las sesiones (RF-CORE-017).
 - Guard de autenticación + guard de permiso + verificación de vínculo con el recurso (`vinculo.ts`, no como `preHandler`).
 - La matriz de permisos está en `docs/rbac-matrix.md`.
 - El frontend usa guards solo para UX; el backend siempre revalida.
@@ -159,7 +160,7 @@ Restricciones que MySQL no cubre igual que PostgreSQL:
 
 Los tests de dominio no dependen de la base de datos. Los de API usan una base de datos de prueba aislada.
 
-Estado actual de la API: 22 suites y 334 pruebas en verde; cobertura de sentencias 92,54 %, ramas 82,78 % (umbral mínimo 70 %). Las pruebas corren en serie (`fileParallelism: false`) para no saturar MySQL. El frontend mantiene 1 prueba de humo hasta que se implemente T033.
+Estado actual: 25 suites y 343 pruebas de API en verde, más 8 suites y 39 pruebas de frontend. Cobertura de sentencias de la API 92,54 %, ramas 82,78 % (última medición tras T030; umbral mínimo 70 %). Las pruebas corren en serie (`fileParallelism: false`) para no saturar MySQL.
 
 ## 10. Decisiones pendientes
 
@@ -174,4 +175,4 @@ Estado actual de la API: 22 suites y 334 pruebas en verde; cobertura de sentenci
 | Participación de alumnos en mensajería | Abierto | `specs/communication/001-spec-mvp/` |
 | Prisma + MySQL | Resuelto e implementado | ADR-0002 y `specs/core/001-spec-mvp/` |
 | Playwright y pruebas E2E | Pendiente | Primera feature con flujo completo |
-| Cierre de la spec `core` | Pendiente | Tras T033–T039 y RF-CORE-017 |
+| Cierre de la spec `core` | Resuelto (2026-11-08) | `specs/core/001-spec-mvp/` |

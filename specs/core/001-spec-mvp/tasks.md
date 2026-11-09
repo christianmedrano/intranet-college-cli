@@ -7,7 +7,7 @@
 | Estado | `en progreso` |
 | Fecha | 2026-11-05 |
 
-> Spec aprobada v1.0.0. Ejecutar las tareas en orden; no iniciar una sin el gate de la anterior en verde.
+> Spec aprobada v1.1.0. Ejecutar las tareas en orden; no iniciar una sin el gate de la anterior en verde. El alcance planificado (T001–T039) está completado; la Fase 7 permanece como deuda técnica registrada.
 
 ## Convenciones
 
@@ -70,9 +70,9 @@ Formato obligatorio:
 - [x] T029 — Servicio de auditoría transaccional con redacción de PII — `apps/api/src/core/audit.ts`, `apps/api/src/modules/core/personas/`, `apps/api/src/modules/core/matriculas/`, `apps/api/test/core/audit.test.ts` — RF-CORE-016 — operaciones sensibles registran usuario, entidad, acción e IP; credenciales y PII se redactan
 - [x] T030 — Endpoint `GET /auditoria` para SA/DI con paginación y filtros — `apps/api/src/modules/core/auditoria/`, `packages/shared/src/schemas/auditoria.ts`, `packages/shared/src/contracts/auditoria.ts`, `apps/api/test/core/auditoria.test.ts` — RF-CORE-016 — docentes, apoderados y alumnos reciben 403
 - [x] T031 — Pruebas de auditoría inmutable — `apps/api/test/core/auditoria.test.ts` — RF-CORE-016 — `POST`/`PATCH`/`PUT`/`DELETE` sobre `/auditoria` y `/auditoria/:id` devuelven 404 y el registro no cambia
-- [ ] T032 — Actualizar `docs/architecture.md` y marcar la spec como implementada — `docs/architecture.md`, `specs/core/001-spec-mvp/` — cierre — estado real documentado
+- [x] T032 — Actualizar `docs/architecture.md` y marcar la spec como implementada — `docs/architecture.md`, `specs/core/001-spec-mvp/` — cierre — estado real documentado
 
-> **T032 parcial (2026-11-07):** `docs/architecture.md` ya refleja el estado real de la API. El cierre de la spec queda pendiente hasta completar T033–T039 (frontend de autenticación) y RF-CORE-017.
+> **T032 cerrada (2026-11-08):** `docs/architecture.md` refleja el frontend de autenticación, RF-CORE-017 y las cifras reales de pruebas; `spec.md` indica el alcance implementado. La Fase 7 queda como deuda técnica.
 
 ## Fase 6 — Frontend de autenticación
 

@@ -8,6 +8,8 @@
 | Estado | `aprobada` |
 | Fecha | 2026-11-05 |
 
+> **Implementación:** alcance planificado completado el 2026-11-08 (T001–T039, incluido RF-CORE-017). La Fase 7 de `tasks.md` permanece como deuda técnica registrada (T041–T043).
+
 ## 1. Contexto
 
 Todos los módulos del sistema (académico, administrativo, comunicación y aula virtual) necesitan las mismas entidades base: personas, usuarios, roles, estructura escolar, años y períodos académicos, matrículas y asignaciones docentes.
