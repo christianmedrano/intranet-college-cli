@@ -12,7 +12,7 @@
 | Backend | Fastify 5 con el módulo `core` implementado bajo `/api/v1`: auth (incluido el cambio obligatorio de contraseña, RF-CORE-017), gestión de usuarios y roles (RF-CORE-002), RBAC, institución, años y períodos, niveles/grados/secciones/cursos, personas, matrículas, asignaciones y auditoría. `GET /health` fuera de `/api/v1` | Borrado lógico de años (T042) |
 | Base de datos | MySQL 8 con Prisma 7, migración `core_init` y seed idempotente de roles, institución y SuperAdmin | Migraciones de los módulos restantes |
 | Pruebas | Vitest 5 en web y api. API: 26 suites y 356 pruebas; web: 8 suites y 39 pruebas. Cobertura de la API: 92,54 % de sentencias (última medición tras T030, umbral 70 %) | Playwright y pruebas E2E |
-| Specs | `specs/core/001-spec-mvp/` aprobada v1.1.0; API y frontend de autenticación implementados (T001–T039, T043) | T042 (deuda técnica) y 4 módulos vacíos |
+| Specs | `specs/core/001-spec-mvp/` aprobada v1.2.0; API y frontend de autenticación implementados (T001–T039, T043). `specs/academic/001-spec-mvp/` aprobada v1.0.0 con plan y tareas listos (T001–T021, más `T044` de core) | Implementación académica, T042 (deuda técnica) y 3 módulos vacíos |
 | Gobernanza | Constitución v2, plantillas, matriz RBAC y ADRs | Mantener sincronizada |
 
 Comandos desde la raíz:
@@ -167,9 +167,9 @@ Estado actual: 26 suites y 356 pruebas de API en verde, más 8 suites y 39 prueb
 | Tema | Estado | Dónde se resuelve |
 |---|---|---|
 | Framework HTTP definitivo (Fastify) | Adoptado e implementado | `docs/stack.md` |
-| Modelo de competencias vs. cursos | Abierto | `specs/academic/001-spec-mvp/` |
-| Fórmula de nota final | Abierto | `specs/academic/001-spec-mvp/` |
-| Umbral de alerta de inasistencias | Abierto | `specs/academic/001-spec-mvp/` |
+| Modelo de competencias vs. cursos | Resuelto (2026-11-08): calificación literal por curso | `specs/academic/001-spec-mvp/` |
+| Fórmula de nota final | Resuelto (2026-11-08): registro manual del docente, sin cálculo | `specs/academic/001-spec-mvp/` |
+| Umbral de alerta de inasistencias | Resuelto (2026-11-08): configurable por año, sin valor por defecto | `specs/academic/001-spec-mvp/` |
 | Almacenamiento de archivos en producción | Abierto | ADR antes de implementar aula virtual |
 | Roles administrativos adicionales | Abierto | `specs/administrative/001-spec-mvp/` |
 | Participación de alumnos en mensajería | Abierto | `specs/communication/001-spec-mvp/` |

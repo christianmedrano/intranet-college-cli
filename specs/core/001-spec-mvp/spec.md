@@ -4,11 +4,13 @@
 |---|---|
 | ID | `CORE-001` |
 | Módulo | `core` |
-| Versión | `1.1.0` |
+| Versión | `1.2.0` |
 | Estado | `aprobada` |
 | Fecha | 2026-11-05 |
 
 > **Implementación:** alcance planificado completado el 2026-11-08 (T001–T039, incluido RF-CORE-017), más la gestión de usuarios de T043 (RF-CORE-002). La Fase 7 de `tasks.md` conserva la deuda técnica T042.
+>
+> **Versión 1.2.0 (2026-11-08):** `AsignacionDocente` se amplía con `es_tutor` para identificar al docente tutor de una sección, requerido por `RF-ACAD-006` del módulo académico (decisión autorizada el 2026-11-08).
 
 ## 1. Contexto
 
@@ -162,6 +164,7 @@ La matriz normativa está en `docs/rbac-matrix.md`. Los permisos se expresan com
 **Criterios de aceptación:**
 
 - **Dado** un curso y una sección, **cuando** se asigna un docente, **entonces** se crea la asignación para el año.
+- **Dado** un curso y una sección, **cuando** se marca una asignación como tutor, **entonces** queda como máximo un tutor vigente por sección y año.
 - **Dado** un docente sin asignación, **cuando** intenta registrar notas de esa sección, **entonces** recibe `403 FORBIDDEN`.
 
 ### RF-CORE-012 — Alumnos
@@ -266,7 +269,7 @@ La matriz normativa está en `docs/rbac-matrix.md`. Los permisos se expresan com
 | `Seccion` | id, grado_id, anio_id, nombre, capacidad | Único (grado_id, anio_id, nombre) |
 | `Curso` | id, nivel_id, nombre, area, orden | Único (nivel_id, nombre) |
 | `Matricula` | id, alumno_id, seccion_id, anio_id, estado, fecha_matricula | Único (alumno_id, anio_id) |
-| `AsignacionDocente` | id, docente_id, curso_id, seccion_id, anio_id | Único (docente_id, curso_id, seccion_id, anio_id) |
+| `AsignacionDocente` | id, docente_id, curso_id, seccion_id, anio_id, es_tutor | Único (docente_id, curso_id, seccion_id, anio_id); máximo un tutor vigente por sección y año |
 | `Auditoria` | id, usuario_id, accion, entidad, entidad_id, datos, ip, user_agent, created_at | Solo inserción |
 
 ### Estados
@@ -383,7 +386,7 @@ Prefijo `/api/v1`. Errores con el sobre estándar de `docs/architecture.md`.
 | RF-CORE-008 | T021 |
 | RF-CORE-009 | T022, T028 |
 | RF-CORE-010 | T023 |
-| RF-CORE-011 | T024, T027 |
+| RF-CORE-011 | T024, T027, T044 |
 | RF-CORE-012 | T025 |
 | RF-CORE-013 | T025 |
 | RF-CORE-014 | T025 |

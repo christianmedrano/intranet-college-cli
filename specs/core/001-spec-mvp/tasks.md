@@ -94,6 +94,9 @@ Formato obligatorio:
 
 > **T042 pospuesta (2026-11-08):** decisión del usuario. Permanece como deuda técnica hasta que exista el modelo de calificaciones del módulo académico y se autorice el contrato `DELETE /anios-academicos/:id` en la spec §7. El resto del alcance de `core` (T001–T043) queda cerrado.
 - [x] T043 — CRUD de cuentas de usuario y asignación de roles — `apps/api/src/modules/core/usuarios/`, `packages/shared/src/schemas/usuario.ts`, `packages/shared/src/contracts/usuario.ts`, `apps/api/test/core/usuarios.test.ts` — RF-CORE-002 — alta con PIN temporal, baja lógica, activación y roles múltiples; el Director no puede crear SuperAdmins; fuera del alcance de T025
+- [ ] T044 — Añadir `es_tutor` a `AsignacionDocente`, garantizar un solo tutor vigente por sección y año, y exponerlo en `/asignaciones-docente` — `apps/api/prisma/schema.prisma`, `apps/api/src/modules/core/estructura/`, `packages/shared/src/schemas/asignacion-docente.ts`, `packages/shared/src/contracts/asignacion-docente.ts`, `apps/api/test/core/` — RF-CORE-011 — requerido por `RF-ACAD-006`; máximo un tutor por sección y año
+
+> **T044 (2026-11-08):** extensión del núcleo autorizada para que el módulo académico identifique al docente tutor. Se implementará con la migración del módulo académico.
 
 ## Definition of Done
 

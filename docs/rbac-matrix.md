@@ -47,8 +47,26 @@
 ⁵ El SuperAdmin accede para soporte técnico; todo acceso queda auditado.
 ⁶ Limitado a los alumnos de los que es apoderado.
 ⁷ Limitado al propio alumno.
-⁸ Solo como tutor de la sección.
-⁹ El apoderado puede solicitar la justificación; la aprobación es del docente o director.
+⁸ Solo el docente tutor de la sección (`AsignacionDocente.es_tutor`) o el Director.
+⁹ El apoderado puede solicitar la justificación; la aprobación es del docente tutor o director.
+
+**Códigos de permiso académicos**
+
+Los códigos siguientes son la implementación normativa de la tabla anterior y se registran en `packages/shared`:
+
+| Código | SA | DI | DO | PA | AL | Restricción |
+|---|---|---|---|---|---|---|
+| `academic.calificaciones.gestionar` | ✖ | ✖ | ✔ | ✖ | ✖ | Solo cursos y secciones asignados; período no cerrado |
+| `academic.calificaciones.corregir` | ✖ | ✔ | ✖ | ✖ | ✖ | Solo tras el cierre, con motivo y auditoría |
+| `academic.calificaciones.leer` | ✔ | ✔ | ✔ | ✔ | ✔ | SA auditado; DO asignado; PA vinculado; AL propio |
+| `academic.asistencias.gestionar` | ✖ | ✔ | ✔ | ✖ | ✖ | DO solo en sus secciones |
+| `academic.asistencias.leer` | ✖ | ✔ | ✔ | ✔ | ✔ | DO asignado; PA vinculado; AL propio |
+| `academic.asistencias.solicitar` | ✖ | ✖ | ✖ | ✔ | ✖ | Solo alumnos vinculados |
+| `academic.asistencias.justificar` | ✖ | ✔ | ✔ | ✖ | ✖ | DO solo como tutor de la sección |
+| `academic.horarios.gestionar` | ✔ | ✔ | ✖ | ✖ | ✖ | — |
+| `academic.horarios.leer` | ✔ | ✔ | ✔ | ✔ | ✔ | DO asignado; PA vinculado; AL propio |
+
+La configuración del umbral de inasistencias reutiliza `core.estructura.gestionar` (SA y DI); las alertas se consultan con `academic.asistencias.leer`.
 
 ### Administrativo
 

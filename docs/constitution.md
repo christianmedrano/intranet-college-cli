@@ -1,7 +1,8 @@
 # Constitución del Proyecto: Intranet Escolar (MVP)
 
-> **Versión:** 2.0.0
+> **Versión:** 2.1.0
 > **Ratificada:** 2026-11-05
+> **Actualizada:** 2026-11-08
 > **Ámbito:** repositorio `intranet-college-cli`
 > **Autoridad:** este documento prevalece sobre `spec.md`, `plan.md`, `tasks.md` y el código.
 
@@ -215,6 +216,12 @@ Cambiar cualquiera de estas piezas requiere una enmienda a la constitución y un
 - Todo acceso o modificación de calificaciones, pagos y datos personales se registra con usuario, fecha, recurso y acción.
 - La auditoría no se puede desactivar por configuración de feature.
 
+### 5.6 Catálogo de permisos
+
+- Los permisos se nombran `modulo.recurso.accion` y su catálogo tipado vive en `packages/shared`.
+- `docs/rbac-matrix.md` es la fuente normativa de la asignación rol–permiso y registra el código concreto de cada acción.
+- Un permiso que no esté registrado en la matriz no puede implementarse.
+
 ---
 
 ## §VI. Privacidad y cumplimiento
@@ -327,3 +334,4 @@ Una tarea solo se marca como completada si cumple **todo** lo siguiente:
 |---|---|---|
 | 1.0.0 | — | Versión inicial del proyecto |
 | 2.0.0 | 2026-11-05 | Reescritura: precedencia, monorepo, MySQL 8, política de dependencias, períodos configurables, escala literal CNEB, tests como puerta, privacidad y Definition of Done |
+| 2.1.0 | 2026-11-08 | Se incorpora el catálogo de permisos (§5.6) y se registran en la matriz RBAC los códigos académicos, incluido el docente tutor (`es_tutor`) |
