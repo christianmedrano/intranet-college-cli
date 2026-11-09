@@ -411,6 +411,8 @@ model AsignacionDocente {
   cursoId   String @map("curso_id") @db.Char(36)
   seccionId String @map("seccion_id") @db.Char(36)
   anioId    String @map("anio_id") @db.Char(36)
+  /// Docente tutor de la sección; máximo uno vigente por sección y año.
+  esTutor   Boolean @default(false) @map("es_tutor")
 
   createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
@@ -425,6 +427,7 @@ model AsignacionDocente {
   @@unique([docenteId, cursoId, seccionId, anioId], map: "asignacion_docente_key")
   @@index([seccionId])
   @@index([anioId])
+  @@index([seccionId, anioId, esTutor])
   @@map("asignacion_docente")
 }
 

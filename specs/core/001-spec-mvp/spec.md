@@ -8,7 +8,7 @@
 | Estado | `aprobada` |
 | Fecha | 2026-11-05 |
 
-> **Implementación:** alcance planificado completado el 2026-11-08 (T001–T039, incluido RF-CORE-017), más la gestión de usuarios de T043 (RF-CORE-002). La Fase 7 de `tasks.md` conserva la deuda técnica T042.
+> **Implementación:** alcance planificado completado el 2026-11-08 (T001–T039, incluido RF-CORE-017), más la gestión de usuarios de T043 (RF-CORE-002) y el docente tutor de T044 (RF-CORE-011). La Fase 7 de `tasks.md` conserva la deuda técnica T042.
 >
 > **Versión 1.2.0 (2026-11-08):** `AsignacionDocente` se amplía con `es_tutor` para identificar al docente tutor de una sección, requerido por `RF-ACAD-006` del módulo académico (decisión autorizada el 2026-11-08).
 
@@ -332,7 +332,7 @@ Prefijo `/api/v1`. Errores con el sobre estándar de `docs/architecture.md`.
 | `GET` / `POST` / `PATCH` | `/apoderados` | `core.usuarios.gestionar` |
 | `POST` | `/apoderados/:id/alumnos` | `core.usuarios.gestionar` |
 | `GET` / `POST` / `PATCH` | `/matriculas` | `core.matriculas.gestionar` |
-| `GET` / `POST` | `/asignaciones-docente` | `core.estructura.gestionar` |
+| `GET` / `POST` / `PATCH` | `/asignaciones-docente` | `core.estructura.gestionar` |
 | `GET` | `/auditoria` | `core.auditoria.leer` |
 
 ## 8. Casos borde y errores

@@ -15,6 +15,7 @@ const CAMPOS_ASIGNACION = {
   cursoId: true,
   seccionId: true,
   anioId: true,
+  esTutor: true,
   docente: {
     select: {
       id: true,
@@ -50,6 +51,7 @@ interface FilaCruda {
   cursoId: string
   seccionId: string
   anioId: string
+  esTutor: boolean
   docente: {
     id: string
     codigoDocente: string
@@ -79,6 +81,7 @@ function mapear(fila: FilaCruda): AsignacionDocenteResponse {
     cursoId: fila.cursoId,
     seccionId: fila.seccionId,
     anioId: fila.anioId,
+    esTutor: fila.esTutor,
     docente: {
       id: fila.docente.id,
       codigoDocente: fila.docente.codigoDocente,
@@ -177,6 +180,7 @@ export interface CrearAsignacionDocenteData {
   cursoId: string
   seccionId: string
   anioId: string
+  esTutor: boolean
   createdBy: string
 }
 
@@ -187,7 +191,7 @@ export interface CrearAsignacionDocenteData {
  * traduce la violación a `409 CONFLICT`.
  */
 export async function createAsignacionDocente(
-  prisma: PrismaClient,
+  prisma: Prisma.TransactionClient,
   datos: CrearAsignacionDocenteData,
 ): Promise<AsignacionDocenteResponse> {
   const fila = await prisma.asignacionDocente.create({
@@ -196,8 +200,99 @@ export async function createAsignacionDocente(
       cursoId: datos.cursoId,
       seccionId: datos.seccionId,
       anioId: datos.anioId,
+      esTutor: datos.esTutor,
       createdBy: datos.createdBy,
     },
+    select: CAMPOS_ASIGNACION,
+  })
+
+  return mapear(fila)
+}
+
+/** Fila mínima para validar la marca de tutor. */
+export interface AsignacionTutorRow {
+  id: string
+  seccionId: string
+  anioId: string
+  esTutor: boolean
+}
+
+/** Busca una asignación por identificador dentro de la institución actual. */
+export async function findAsignacionDocentePorId(
+  prisma: Prisma.TransactionClient,
+  id: string,
+  institucionId: string,
+): Promise<AsignacionTutorRow | null> {
+  return prisma.asignacionDocente.findFirst({
+    where: { id, ...alcanceDeInstitucion(institucionId) },
+    select: { id: true, seccionId: true, anioId: true, esTutor: true },
+  })
+}
+
+/**
+ * Bloquea las asignaciones de una sección y año para serializar el cambio de
+ * tutor. MySQL no admite índices parciales, así que la unicidad se garantiza
+ * con esta lectura `FOR UPDATE` más la comprobación en el servicio.
+ */
+export async function bloquearAsignacionesDeSeccion(
+  prisma: Prisma.TransactionClient,
+  seccionId: string,
+  anioId: string,
+): Promise<void> {
+  await prisma.$queryRaw`
+    SELECT id FROM asignacion_docente
+    WHERE seccion_id = ${seccionId} AND anio_id = ${anioId}
+    FOR UPDATE
+  `
+}
+
+/**
+ * Devuelve el tutor vigente de la sección, excluyendo una asignación.
+ *
+ * Se usa una lectura bloqueante y no `findFirst` porque en `REPEATABLE READ`
+ * una lectura consistente devolvería el snapshot previo al bloqueo y dos
+ * `PATCH` concurrentes podrían marcar dos tutores. `FOR UPDATE` lee siempre la
+ * última versión confirmada.
+ */
+export async function findOtroTutorDeSeccion(
+  prisma: Prisma.TransactionClient,
+  seccionId: string,
+  anioId: string,
+  excluirId?: string,
+): Promise<{ id: string } | null> {
+  const filas = excluirId
+    ? await prisma.$queryRaw<Array<{ id: string }>>`
+        SELECT id FROM asignacion_docente
+        WHERE seccion_id = ${seccionId} AND anio_id = ${anioId}
+          AND es_tutor = true AND id <> ${excluirId}
+        LIMIT 1
+        FOR UPDATE
+      `
+    : await prisma.$queryRaw<Array<{ id: string }>>`
+        SELECT id FROM asignacion_docente
+        WHERE seccion_id = ${seccionId} AND anio_id = ${anioId}
+          AND es_tutor = true
+        LIMIT 1
+        FOR UPDATE
+      `
+
+  return filas[0] ?? null
+}
+
+export interface ActualizarAsignacionDocenteData {
+  id: string
+  esTutor: boolean
+  updatedBy: string
+}
+
+/** Actualiza la marca de tutor y devuelve la asignación completa. */
+export async function updateAsignacionDocente(
+  prisma: Prisma.TransactionClient,
+  datos: ActualizarAsignacionDocenteData,
+): Promise<AsignacionDocenteResponse> {
+  const fila = await prisma.asignacionDocente.update({
+    where: { id: datos.id },
+    data: { esTutor: datos.esTutor, updatedBy: datos.updatedBy },
     select: CAMPOS_ASIGNACION,
   })
 

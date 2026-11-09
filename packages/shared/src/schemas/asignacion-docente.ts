@@ -12,10 +12,25 @@ export const crearAsignacionDocenteSchema = z.object({
   cursoId: uuidSchema,
   seccionId: uuidSchema,
   anioId: uuidSchema,
+  esTutor: z.boolean().optional(),
 })
 
 export type CrearAsignacionDocenteInput = z.infer<
   typeof crearAsignacionDocenteSchema
+>
+
+/**
+ * Actualización de una asignación docente (RF-CORE-011).
+ *
+ * Solo se puede cambiar la marca de tutor: los identificadores de docente,
+ * curso, sección y año son inmutables una vez creada la asignación.
+ */
+export const actualizarAsignacionDocenteSchema = z.object({
+  esTutor: z.boolean(),
+})
+
+export type ActualizarAsignacionDocenteInput = z.infer<
+  typeof actualizarAsignacionDocenteSchema
 >
 
 /** Filtros opcionales del listado de asignaciones. */

@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import { requireAuth } from '../../../core/auth/guards.js'
 import { requirePermission } from '../../../core/rbac.js'
 import {
+  actualizarAsignacionDocenteController,
   crearAsignacionDocenteController,
   listarAsignacionesDocenteController,
 } from './asignacion-docente.controller.js'
@@ -29,5 +30,10 @@ export async function asignacionDocenteRoutes(
     '/asignaciones-docente',
     { preHandler },
     crearAsignacionDocenteController,
+  )
+  app.patch(
+    '/asignaciones-docente/:id',
+    { preHandler },
+    actualizarAsignacionDocenteController,
   )
 }

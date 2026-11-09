@@ -12,6 +12,7 @@ export interface AsignacionDocenteResponse {
   cursoId: string
   seccionId: string
   anioId: string
+  esTutor: boolean
   docente: {
     id: string
     codigoDocente: string
