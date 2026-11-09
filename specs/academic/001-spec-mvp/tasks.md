@@ -8,7 +8,7 @@
 | Fecha | 2026-11-08 |
 
 > Spec aprobada v1.0.0 y plan aprobado v1.0.0. Ejecutar en orden; no iniciar una tarea sin el gate de la anterior en verde.
-> **Prerrequisito:** cerrar `T044` de `specs/core/001-spec-mvp/tasks.md` (`es_tutor` en `AsignacionDocente`) antes de T003.
+> **Prerrequisito:** `T044` de `specs/core/001-spec-mvp/tasks.md` (`es_tutor` en `AsignacionDocente`) está cerrada el 2026-11-08; T003 queda habilitada.
 
 ## Convenciones
 
@@ -25,7 +25,7 @@ Formato obligatorio:
 
 ## Fase 1 — Datos y contratos
 
-- [ ] T001 — Incorporar los nueve códigos `academic.*` al catálogo y a `rolePermissions` según la matriz RBAC — `packages/shared/src/domain/permissions.ts`, `apps/api/test/core/permissions.test.ts` — RF-ACAD-003, RF-ACAD-007, RF-ACAD-011 — la unión de permisos por rol coincide con `docs/rbac-matrix.md` y las pruebas cubren los cinco roles
+- [x] T001 — Incorporar los nueve códigos `academic.*` al catálogo y a `rolePermissions` según la matriz RBAC — `packages/shared/src/domain/permissions.ts`, `apps/api/test/core/rbac.test.ts`, `apps/api/test/core/me.test.ts` — RF-ACAD-003, RF-ACAD-007, RF-ACAD-011 — la unión de permisos por rol coincide con `docs/rbac-matrix.md` y las pruebas cubren los cinco roles
 - [ ] T002 — Crear schemas Zod y DTOs de calificaciones, notas finales, asistencias, justificaciones, umbral, alertas y horarios — `packages/shared/src/schemas/academic/`, `packages/shared/src/contracts/academic/`, `packages/shared/src/index.ts`, `apps/api/test/academic/schemas.test.ts` — RF-ACAD-001 a RF-ACAD-011 — `AD/A/B/C`, estados, `diaSemana` 1–7 y `HH:MM` se validan; entradas inválidas devuelven `VALIDATION_ERROR`
 - [ ] T003 — Crear la migración `academic_init` con las siete tablas, índices, únicos y `CHECK`; actualizar la limpieza de la base de pruebas — `apps/api/prisma/schema.prisma`, `apps/api/prisma/migrations/`, `apps/api/test/helpers/test-db.ts`, `apps/api/test/academic/model.test.ts` — RF-ACAD-001, RF-ACAD-002, RF-ACAD-004, RF-ACAD-008, RF-ACAD-009, RF-ACAD-010 — `prisma migrate dev` aplica sin error y los duplicados de calificación, nota, asistencia, umbral, alerta y horario fallan por integridad
 
@@ -84,4 +84,4 @@ Se aplica el anexo A de `docs/constitution.md`:
 
 | Fecha | Tarea | Motivo | Estado |
 |---|---|---|---|
-| 2026-11-08 | T003 | Depende de `T044` de `core` (`es_tutor`) | pendiente |
+| 2026-11-08 | T003 | Dependía de `T044` de `core` (`es_tutor`) | resuelto: T044 cerrada el 2026-11-08 |

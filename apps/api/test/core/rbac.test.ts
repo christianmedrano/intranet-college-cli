@@ -28,6 +28,9 @@ const MATRIZ: Readonly<Record<RoleCode, readonly Permission[]>> = {
     'core.matriculas.gestionar',
     'core.auditoria.leer',
     'core.perfil.leer',
+    'academic.calificaciones.leer',
+    'academic.horarios.gestionar',
+    'academic.horarios.leer',
   ],
   DIRECTOR: [
     'core.institucion.editar',
@@ -36,10 +39,36 @@ const MATRIZ: Readonly<Record<RoleCode, readonly Permission[]>> = {
     'core.matriculas.gestionar',
     'core.auditoria.leer',
     'core.perfil.leer',
+    'academic.calificaciones.corregir',
+    'academic.calificaciones.leer',
+    'academic.asistencias.gestionar',
+    'academic.asistencias.leer',
+    'academic.asistencias.justificar',
+    'academic.horarios.gestionar',
+    'academic.horarios.leer',
   ],
-  DOCENTE: ['core.perfil.leer'],
-  APODERADO: ['core.perfil.leer'],
-  ALUMNO: ['core.perfil.leer'],
+  DOCENTE: [
+    'core.perfil.leer',
+    'academic.calificaciones.gestionar',
+    'academic.calificaciones.leer',
+    'academic.asistencias.gestionar',
+    'academic.asistencias.leer',
+    'academic.asistencias.justificar',
+    'academic.horarios.leer',
+  ],
+  APODERADO: [
+    'core.perfil.leer',
+    'academic.calificaciones.leer',
+    'academic.asistencias.leer',
+    'academic.asistencias.solicitar',
+    'academic.horarios.leer',
+  ],
+  ALUMNO: [
+    'core.perfil.leer',
+    'academic.calificaciones.leer',
+    'academic.asistencias.leer',
+    'academic.horarios.leer',
+  ],
 }
 
 describe('matriz RBAC', () => {
@@ -53,23 +82,49 @@ describe('matriz RBAC', () => {
   it('une los permisos de varios roles sin duplicados', () => {
     const union = permissionsForRoles(['DOCENTE', 'APODERADO'])
 
-    expect(union).toEqual(['core.perfil.leer'])
+    expect(union).toEqual(
+      permissionCodes.filter(
+        (permission) =>
+          MATRIZ.DOCENTE.includes(permission) ||
+          MATRIZ.APODERADO.includes(permission),
+      ),
+    )
     expect(union).toHaveLength(new Set(union).size)
   })
 
   it('la unión nunca supera el máximo de los roles implicados', () => {
     expect(permissionsForRoles(['DIRECTOR', 'DOCENTE'])).toEqual(
-      MATRIZ.DIRECTOR,
+      permissionCodes.filter(
+        (permission) =>
+          MATRIZ.DIRECTOR.includes(permission) ||
+          MATRIZ.DOCENTE.includes(permission),
+      ),
     )
-    expect(permissionsForRoles(['ALUMNO', 'APODERADO'])).toEqual([
-      'core.perfil.leer',
-    ])
+    expect(permissionsForRoles(['ALUMNO', 'APODERADO'])).toEqual(
+      permissionCodes.filter(
+        (permission) =>
+          MATRIZ.ALUMNO.includes(permission) ||
+          MATRIZ.APODERADO.includes(permission),
+      ),
+    )
   })
 
   it('responde por permiso concreto', () => {
     expect(hasPermission(['DIRECTOR'], 'core.usuarios.gestionar')).toBe(true)
     expect(hasPermission(['DOCENTE'], 'core.usuarios.gestionar')).toBe(false)
     expect(hasPermission([], 'core.perfil.leer')).toBe(false)
+    expect(
+      hasPermission(['DOCENTE'], 'academic.calificaciones.gestionar'),
+    ).toBe(true)
+    expect(
+      hasPermission(['DIRECTOR'], 'academic.calificaciones.gestionar'),
+    ).toBe(false)
+    expect(
+      hasPermission(['APODERADO'], 'academic.asistencias.justificar'),
+    ).toBe(false)
+    expect(hasPermission(['SUPER_ADMIN'], 'academic.asistencias.leer')).toBe(
+      false,
+    )
   })
 
   it('descarta roles desconocidos y normaliza el orden', () => {

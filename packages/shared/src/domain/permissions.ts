@@ -14,10 +14,11 @@ export type RoleCode = (typeof roleCodes)[number]
 export const roleCodeSchema = z.enum(roleCodes)
 
 /**
- * Catálogo de permisos del módulo core.
+ * Catálogo de permisos del sistema.
  *
  * Es la única fuente de verdad: un permiso que no esté aquí no compila.
- * Los módulos restantes agregan los suyos en su propia feature.
+ * Los códigos `academic.*` se registran en la versión 2.1.0 de la constitución
+ * y en `docs/rbac-matrix.md`.
  */
 export const permissionCodes = [
   'core.institucion.editar',
@@ -26,6 +27,15 @@ export const permissionCodes = [
   'core.matriculas.gestionar',
   'core.auditoria.leer',
   'core.perfil.leer',
+  'academic.calificaciones.gestionar',
+  'academic.calificaciones.corregir',
+  'academic.calificaciones.leer',
+  'academic.asistencias.gestionar',
+  'academic.asistencias.leer',
+  'academic.asistencias.solicitar',
+  'academic.asistencias.justificar',
+  'academic.horarios.gestionar',
+  'academic.horarios.leer',
 ] as const
 
 export type Permission = (typeof permissionCodes)[number]
@@ -48,6 +58,9 @@ export const rolePermissions: Readonly<
     'core.matriculas.gestionar',
     'core.auditoria.leer',
     'core.perfil.leer',
+    'academic.calificaciones.leer',
+    'academic.horarios.gestionar',
+    'academic.horarios.leer',
   ],
   DIRECTOR: [
     'core.institucion.editar',
@@ -56,10 +69,36 @@ export const rolePermissions: Readonly<
     'core.matriculas.gestionar',
     'core.auditoria.leer',
     'core.perfil.leer',
+    'academic.calificaciones.corregir',
+    'academic.calificaciones.leer',
+    'academic.asistencias.gestionar',
+    'academic.asistencias.leer',
+    'academic.asistencias.justificar',
+    'academic.horarios.gestionar',
+    'academic.horarios.leer',
   ],
-  DOCENTE: ['core.perfil.leer'],
-  APODERADO: ['core.perfil.leer'],
-  ALUMNO: ['core.perfil.leer'],
+  DOCENTE: [
+    'core.perfil.leer',
+    'academic.calificaciones.gestionar',
+    'academic.calificaciones.leer',
+    'academic.asistencias.gestionar',
+    'academic.asistencias.leer',
+    'academic.asistencias.justificar',
+    'academic.horarios.leer',
+  ],
+  APODERADO: [
+    'core.perfil.leer',
+    'academic.calificaciones.leer',
+    'academic.asistencias.leer',
+    'academic.asistencias.solicitar',
+    'academic.horarios.leer',
+  ],
+  ALUMNO: [
+    'core.perfil.leer',
+    'academic.calificaciones.leer',
+    'academic.asistencias.leer',
+    'academic.horarios.leer',
+  ],
 }
 
 /**

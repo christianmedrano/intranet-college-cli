@@ -180,7 +180,9 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('GET /api/v1/me', () => {
 
     expect(respuesta.status).toBe(200)
     expect(respuesta.body.roles).toEqual(['DOCENTE', 'APODERADO'])
-    expect(respuesta.body.permissions).toEqual(['core.perfil.leer'])
+    expect(respuesta.body.permissions).toEqual(
+      permissionsForRoles(['DOCENTE', 'APODERADO']),
+    )
   })
 
   it('revoca el acceso si el usuario se desactiva después de emitir el token', async () => {
