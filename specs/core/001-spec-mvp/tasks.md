@@ -89,7 +89,7 @@ Formato obligatorio:
 > Tareas descubiertas durante la implementación. No forman parte del alcance original de la spec.
 
 - [x] T040 — Definir la estrategia de empaquetado y consumo de `packages/shared` — `packages/shared/`, `apps/api/tsconfig.json`, `apps/web/tsconfig.app.json`, `package.json` — infra — `npm run build` produce un `dist` de la API ejecutable con Node y sin referencias a TypeScript en tiempo de ejecución
-- [ ] T041 — Estabilizar el gate: fijar `testTimeout` de Vitest por encima del valor por defecto para tolerar la contención de CPU que hace fallar intermitentemente `test/core/password.test.ts` (Argon2) — `apps/api/vitest.config.ts` — infra — `npm test` pasa de forma consecutiva con el equipo cargado, sin fallos intermitentes
+- [x] T041 — Estabilizar el gate: fijar `testTimeout` de Vitest por encima del valor por defecto para tolerar la contención de CPU que hace fallar intermitentemente `test/core/password.test.ts` (Argon2) — `apps/api/vitest.config.ts` — infra — `npm test` pasa de forma consecutiva con el equipo cargado, sin fallos intermitentes
 - [ ] T042 — Borrado lógico de años académicos, bloqueado cuando el año tenga períodos con calificaciones — `apps/api/src/modules/core/estructura/` — RF-CORE-008 — requiere que el módulo académico exponga si un período tiene calificaciones; la tabla de endpoints de la spec §7 aún no define `DELETE /anios-academicos`
 - [ ] T043 — CRUD de cuentas de usuario y asignación de roles — `apps/api/src/modules/core/usuarios/`, `packages/shared/src/schemas/usuario.ts`, `packages/shared/src/contracts/usuario.ts`, `apps/api/test/core/usuarios.test.ts` — RF-CORE-002 — alta con PIN temporal, baja lógica, activación y roles múltiples; el Director no puede crear SuperAdmins; fuera del alcance de T025
 

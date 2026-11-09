@@ -15,6 +15,11 @@ export default defineConfig({
     // Las pruebas de integración comparten `intranet_college_test` y limpian la
     // base entre casos: en paralelo se pisan entre sí.
     fileParallelism: false,
+    // Argon2 es intensivo en CPU: con el equipo cargado, un hash puede superar
+    // los 5 s por defecto y hacer fallar `password.test.ts` de forma
+    // intermitente. Un margen mayor solo afecta a pruebas lentas reales.
+    testTimeout: 20_000,
+    hookTimeout: 20_000,
     env: {
       NODE_ENV: 'test',
       DATABASE_URL:
