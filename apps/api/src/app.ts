@@ -18,6 +18,7 @@ import { matriculaRoutes } from './modules/core/matriculas/matricula.routes.js'
 import { alumnoRoutes } from './modules/core/personas/alumno.routes.js'
 import { apoderadoRoutes } from './modules/core/personas/apoderado.routes.js'
 import { docenteRoutes } from './modules/core/personas/docente.routes.js'
+import { usuarioRoutes } from './modules/core/usuarios/usuario.routes.js'
 import { healthRoutes } from './routes/health.js'
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -72,6 +73,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(alumnoRoutes, { prefix: '/api/v1' })
   await app.register(docenteRoutes, { prefix: '/api/v1' })
   await app.register(apoderadoRoutes, { prefix: '/api/v1' })
+  await app.register(usuarioRoutes, { prefix: '/api/v1' })
   await app.register(matriculaRoutes, { prefix: '/api/v1' })
 
   return app

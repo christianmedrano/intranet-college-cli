@@ -9,10 +9,10 @@
 |---|---|---|
 | Repositorio | Monorepo con workspaces (`apps/web`, `apps/api`, `packages/shared`) | — |
 | Frontend | React 19 + Vite 8 + TypeScript 6 + Tailwind 4; router, sesión en memoria con refresh, login, recuperación, guard por rol y cambio de contraseña (T033–T039) | Pantallas por rol y módulos restantes |
-| Backend | Fastify 5 con el módulo `core` implementado bajo `/api/v1`: auth (incluido el cambio obligatorio de contraseña, RF-CORE-017), RBAC, institución, años y períodos, niveles/grados/secciones/cursos, personas, matrículas, asignaciones y auditoría. `GET /health` fuera de `/api/v1` | CRUD de usuarios (T043); borrado lógico de años (T042) |
+| Backend | Fastify 5 con el módulo `core` implementado bajo `/api/v1`: auth (incluido el cambio obligatorio de contraseña, RF-CORE-017), gestión de usuarios y roles (RF-CORE-002), RBAC, institución, años y períodos, niveles/grados/secciones/cursos, personas, matrículas, asignaciones y auditoría. `GET /health` fuera de `/api/v1` | Borrado lógico de años (T042) |
 | Base de datos | MySQL 8 con Prisma 7, migración `core_init` y seed idempotente de roles, institución y SuperAdmin | Migraciones de los módulos restantes |
-| Pruebas | Vitest 5 en web y api. API: 25 suites y 343 pruebas; web: 8 suites y 39 pruebas. Cobertura de la API: 92,54 % de sentencias (última medición tras T030, umbral 70 %) | Playwright y pruebas E2E |
-| Specs | `specs/core/001-spec-mvp/` aprobada v1.1.0; API y frontend de autenticación implementados (T001–T039) | T041–T043 (deuda técnica) y 4 módulos vacíos |
+| Pruebas | Vitest 5 en web y api. API: 26 suites y 356 pruebas; web: 8 suites y 39 pruebas. Cobertura de la API: 92,54 % de sentencias (última medición tras T030, umbral 70 %) | Playwright y pruebas E2E |
+| Specs | `specs/core/001-spec-mvp/` aprobada v1.1.0; API y frontend de autenticación implementados (T001–T039, T043) | T042 (deuda técnica) y 4 módulos vacíos |
 | Gobernanza | Constitución v2, plantillas, matriz RBAC y ADRs | Mantener sincronizada |
 
 Comandos desde la raíz:
@@ -160,7 +160,7 @@ Restricciones que MySQL no cubre igual que PostgreSQL:
 
 Los tests de dominio no dependen de la base de datos. Los de API usan una base de datos de prueba aislada.
 
-Estado actual: 25 suites y 343 pruebas de API en verde, más 8 suites y 39 pruebas de frontend. Cobertura de sentencias de la API 92,54 %, ramas 82,78 % (última medición tras T030; umbral mínimo 70 %). Las pruebas corren en serie (`fileParallelism: false`) para no saturar MySQL.
+Estado actual: 26 suites y 356 pruebas de API en verde, más 8 suites y 39 pruebas de frontend. Cobertura de sentencias de la API 92,54 %, ramas 82,78 % (última medición tras T030; umbral mínimo 70 %). Las pruebas corren en serie (`fileParallelism: false`) para no saturar MySQL.
 
 ## 10. Decisiones pendientes
 
