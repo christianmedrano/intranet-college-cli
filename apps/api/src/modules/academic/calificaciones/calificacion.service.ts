@@ -2,6 +2,8 @@ import type {
   ActualizarCalificacionInput,
   CalificacionResponse,
   CrearCalificacionInput,
+  Paginated,
+  PaginationInput,
 } from '@intranet/shared'
 import {
   registrarAuditoria,
@@ -18,15 +20,20 @@ import { institucionActual } from '../../core/estructura/institucion-actual.js'
 import {
   assertDocenteDeCursoSeccion,
   assertPermiso,
+  construirAlcanceCalificaciones,
   resolverSeccionDeAlumnoEnAnio,
   type ActorAcademico,
+  type FiltrosConsultaCalificaciones,
 } from '../scope.js'
 import {
+  countCalificaciones,
   createCalificacion,
   findCalificacionPorId,
+  findCalificaciones,
   findPeriodoParaCalificar,
   updateCalificacion,
 } from './calificacion.repository.js'
+import { auditarAccesoAcademico } from './consulta-audit.js'
 
 const MENSAJE_DUPLICADO =
   'El alumno ya tiene una calificación para ese curso y período.'
@@ -35,6 +42,75 @@ const MENSAJE_PERIODO_CERRADO =
   'El período está cerrado; solo el Director puede corregir con motivo.'
 
 const MENSAJE_MOTIVO = 'motivo: es obligatorio para corregir tras el cierre'
+
+/**
+ * Lista las calificaciones de un período con el alcance del solicitante
+ * (RF-ACAD-003).
+ *
+ * El Director ve todo el período; el SuperAdmin también, y su acceso queda
+ * auditado; el docente solo sus cursos y secciones; el apoderado, sus alumnos
+ * vinculados; el alumno, lo propio.
+ *
+ * @param periodoId Período consultado.
+ * @param filtros Curso y/o sección opcionales.
+ * @param paginacion Página y tamaño ya validados por Zod.
+ * @param actor Usuario autenticado con sus roles.
+ * @param contexto IP y user-agent para la auditoría.
+ * @param prisma Cliente inyectable para las pruebas.
+ * @throws AppError `FORBIDDEN` si un filtro del docente está fuera de alcance;
+ * `NOT_FOUND` si el período no existe.
+ */
+export async function listarCalificaciones(
+  periodoId: string,
+  filtros: FiltrosConsultaCalificaciones,
+  paginacion: PaginationInput,
+  actor: ActorAcademico,
+  contexto: ContextoAuditoria = {},
+  prisma: PrismaClient = getPrisma(),
+): Promise<Paginated<CalificacionResponse>> {
+  assertPermiso(actor, 'academic.calificaciones.leer')
+
+  const institucion = await institucionActual(prisma)
+  const periodo = await findPeriodoParaCalificar(
+    prisma,
+    periodoId,
+    institucion.id,
+  )
+
+  if (!periodo) {
+    throw new AppError('NOT_FOUND', 'El período no existe.')
+  }
+
+  const { where, auditarAcceso } = await construirAlcanceCalificaciones(
+    actor,
+    periodoId,
+    periodo.anioId,
+    filtros,
+    prisma,
+  )
+
+  const total = await countCalificaciones(prisma, where)
+  const data = await findCalificaciones(prisma, where, paginacion)
+
+  if (auditarAcceso) {
+    await auditarAccesoAcademico(
+      prisma,
+      actor,
+      'CALIFICACION',
+      periodoId,
+      contexto,
+    )
+  }
+
+  return {
+    data,
+    meta: {
+      page: paginacion.page,
+      pageSize: paginacion.pageSize,
+      total,
+    },
+  }
+}
 
 /**
  * Registra una calificación literal de un alumno (RF-ACAD-001).

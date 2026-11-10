@@ -1,6 +1,7 @@
 import {
   valorLiteralSchema,
   type NotaFinalResponse,
+  type PaginationInput,
 } from '@intranet/shared'
 import type { Prisma } from '../../../generated/prisma/client.js'
 
@@ -81,6 +82,34 @@ export async function findNotaFinalPorId(
       observacion: true,
     },
   })
+}
+
+/** Cuenta las notas finales que cumplen la condición de alcance. */
+export async function countNotasFinales(
+  prisma: Prisma.TransactionClient,
+  where: Prisma.NotaFinalPeriodoWhereInput,
+): Promise<number> {
+  return prisma.notaFinalPeriodo.count({ where })
+}
+
+/**
+ * Lista las notas finales de la condición, de la más reciente a la más
+ * antigua. `id` desempata para que la paginación sea estable.
+ */
+export async function findNotasFinales(
+  prisma: Prisma.TransactionClient,
+  where: Prisma.NotaFinalPeriodoWhereInput,
+  paginacion: PaginationInput,
+): Promise<NotaFinalResponse[]> {
+  const filas = await prisma.notaFinalPeriodo.findMany({
+    where,
+    orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
+    skip: (paginacion.page - 1) * paginacion.pageSize,
+    take: paginacion.pageSize,
+    select: CAMPOS_NOTA_FINAL,
+  })
+
+  return filas.map(mapear)
 }
 
 export interface CrearNotaFinalData {

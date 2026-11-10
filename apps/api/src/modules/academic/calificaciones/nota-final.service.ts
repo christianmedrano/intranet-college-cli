@@ -2,6 +2,8 @@ import type {
   ActualizarNotaFinalInput,
   CrearNotaFinalInput,
   NotaFinalResponse,
+  Paginated,
+  PaginationInput,
 } from '@intranet/shared'
 import {
   registrarAuditoria,
@@ -18,13 +20,18 @@ import { findAlumnoPorId } from '../../core/personas/alumno.repository.js'
 import {
   assertDocenteDeCursoSeccion,
   assertPermiso,
+  construirAlcanceNotasFinales,
   resolverSeccionDeAlumnoEnAnio,
   type ActorAcademico,
+  type FiltrosConsultaCalificaciones,
 } from '../scope.js'
 import { findPeriodoParaCalificar } from './calificacion.repository.js'
+import { auditarAccesoAcademico } from './consulta-audit.js'
 import {
+  countNotasFinales,
   createNotaFinal,
   findNotaFinalPorId,
+  findNotasFinales,
   updateNotaFinal,
 } from './nota-final.repository.js'
 
@@ -35,6 +42,75 @@ const MENSAJE_PERIODO_CERRADO =
   'El período está cerrado; solo el Director puede corregir con motivo.'
 
 const MENSAJE_MOTIVO = 'motivo: es obligatorio para corregir tras el cierre'
+
+/**
+ * Lista las notas finales de un período con el alcance del solicitante
+ * (RF-ACAD-003).
+ *
+ * Aplica la misma resolución de vínculo que las calificaciones: Director y
+ * SuperAdmin ven todo (el segundo con auditoría), docente solo sus cursos y
+ * secciones, apoderado sus alumnos y alumno lo propio.
+ *
+ * @param periodoId Período consultado.
+ * @param filtros Curso y/o sección opcionales.
+ * @param paginacion Página y tamaño ya validados por Zod.
+ * @param actor Usuario autenticado con sus roles.
+ * @param contexto IP y user-agent para la auditoría.
+ * @param prisma Cliente inyectable para las pruebas.
+ * @throws AppError `FORBIDDEN` si un filtro del docente está fuera de alcance;
+ * `NOT_FOUND` si el período no existe.
+ */
+export async function listarNotasFinales(
+  periodoId: string,
+  filtros: FiltrosConsultaCalificaciones,
+  paginacion: PaginationInput,
+  actor: ActorAcademico,
+  contexto: ContextoAuditoria = {},
+  prisma: PrismaClient = getPrisma(),
+): Promise<Paginated<NotaFinalResponse>> {
+  assertPermiso(actor, 'academic.calificaciones.leer')
+
+  const institucion = await institucionActual(prisma)
+  const periodo = await findPeriodoParaCalificar(
+    prisma,
+    periodoId,
+    institucion.id,
+  )
+
+  if (!periodo) {
+    throw new AppError('NOT_FOUND', 'El período no existe.')
+  }
+
+  const { where, auditarAcceso } = await construirAlcanceNotasFinales(
+    actor,
+    periodoId,
+    periodo.anioId,
+    filtros,
+    prisma,
+  )
+
+  const total = await countNotasFinales(prisma, where)
+  const data = await findNotasFinales(prisma, where, paginacion)
+
+  if (auditarAcceso) {
+    await auditarAccesoAcademico(
+      prisma,
+      actor,
+      'NOTA_FINAL_PERIODO',
+      periodoId,
+      contexto,
+    )
+  }
+
+  return {
+    data,
+    meta: {
+      page: paginacion.page,
+      pageSize: paginacion.pageSize,
+      total,
+    },
+  }
+}
 
 /**
  * Registra la nota final manual de un alumno en un curso y período

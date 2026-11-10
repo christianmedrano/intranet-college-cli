@@ -1,4 +1,10 @@
 import { z } from 'zod'
+import { uuidSchema } from '../base.js'
+
+/** Parámetro de ruta con el identificador de un período académico. */
+export const periodoParamSchema = z.object({
+  periodoId: uuidSchema,
+})
 
 /**
  * Fecha escolar sin hora, en formato ISO `YYYY-MM-DD` (RN-ACAD-024).

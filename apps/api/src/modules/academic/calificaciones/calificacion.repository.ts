@@ -2,6 +2,7 @@ import {
   estadoPeriodoAcademicoSchema,
   valorLiteralSchema,
   type CalificacionResponse,
+  type PaginationInput,
 } from '@intranet/shared'
 import type { Prisma } from '../../../generated/prisma/client.js'
 
@@ -113,6 +114,34 @@ export async function findCalificacionPorId(
       observacion: true,
     },
   })
+}
+
+/** Cuenta las calificaciones que cumplen la condición de alcance. */
+export async function countCalificaciones(
+  prisma: Prisma.TransactionClient,
+  where: Prisma.CalificacionWhereInput,
+): Promise<number> {
+  return prisma.calificacion.count({ where })
+}
+
+/**
+ * Lista las calificaciones de la condición, de la más reciente a la más
+ * antigua. `id` desempata para que la paginación sea estable.
+ */
+export async function findCalificaciones(
+  prisma: Prisma.TransactionClient,
+  where: Prisma.CalificacionWhereInput,
+  paginacion: PaginationInput,
+): Promise<CalificacionResponse[]> {
+  const filas = await prisma.calificacion.findMany({
+    where,
+    orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
+    skip: (paginacion.page - 1) * paginacion.pageSize,
+    take: paginacion.pageSize,
+    select: CAMPOS_CALIFICACION,
+  })
+
+  return filas.map(mapear)
 }
 
 export interface CrearCalificacionData {
