@@ -1,6 +1,8 @@
 import type {
   CrearJustificacionInput,
   JustificacionResponse,
+  Paginated,
+  PaginationInput,
   RechazarJustificacionInput,
   ResolverJustificacionInput,
 } from '@intranet/shared'
@@ -17,19 +19,26 @@ import {
   findMatriculaAprobadaPorFecha,
   updateAsistencia,
 } from '../asistencias/asistencia.repository.js'
+import { auditarAccesoAcademico } from '../consulta-audit.js'
 import {
   assertPermiso,
   esAdministrativoAcademico,
   type ActorAcademico,
 } from '../scope.js'
 import {
+  countJustificaciones,
   createJustificacion,
   esTutorDeSeccion,
   existeSolicitudAbierta,
   findJustificacionPorId,
+  findJustificaciones,
   resolverJustificacion,
   type JustificacionRow,
 } from './justificacion.repository.js'
+import {
+  construirAlcanceJustificaciones,
+  type FiltrosConsultaJustificaciones,
+} from './justificacion.scope.js'
 
 const MENSAJE_NO_FALTA =
   'Solo se justifica una asistencia en estado de falta injustificada.'
@@ -46,6 +55,55 @@ const MENSAJE_TUTOR =
 
 const MENSAJE_MATRICULA =
   'El alumno no tiene matrícula aprobada en el año de la asistencia.'
+
+/**
+ * Lista las justificaciones con el alcance del solicitante (RF-ACAD-007).
+ *
+ * Reutiliza las reglas de vínculo de las asistencias: el Director y el
+ * SuperAdmin ven todo (el segundo con acceso auditado); el docente, solo sus
+ * secciones y años; el apoderado, sus alumnos; el alumno, lo propio.
+ *
+ * @param filtros Filtros validados por Zod.
+ * @param paginacion Página y tamaño ya validados por Zod.
+ * @param actor Usuario autenticado con sus roles.
+ * @param contexto IP y user-agent para la auditoría.
+ * @param prisma Cliente inyectable para las pruebas.
+ * @throws AppError `FORBIDDEN` si un filtro está fuera de alcance.
+ */
+export async function listarJustificaciones(
+  filtros: FiltrosConsultaJustificaciones,
+  paginacion: PaginationInput,
+  actor: ActorAcademico,
+  contexto: ContextoAuditoria = {},
+  prisma: PrismaClient = getPrisma(),
+): Promise<Paginated<JustificacionResponse>> {
+  assertPermiso(actor, 'academic.asistencias.leer')
+
+  const { where, datosAcceso, auditarAcceso } =
+    await construirAlcanceJustificaciones(actor, filtros, prisma)
+
+  const total = await countJustificaciones(prisma, where)
+  const data = await findJustificaciones(prisma, where, paginacion)
+
+  if (auditarAcceso) {
+    await auditarAccesoAcademico(
+      prisma,
+      actor,
+      'JUSTIFICACION_FALTA',
+      { entidadId: null, datos: datosAcceso },
+      contexto,
+    )
+  }
+
+  return {
+    data,
+    meta: {
+      page: paginacion.page,
+      pageSize: paginacion.pageSize,
+      total,
+    },
+  }
+}
 
 /**
  * Registra la solicitud de justificación de una falta (RF-ACAD-006).

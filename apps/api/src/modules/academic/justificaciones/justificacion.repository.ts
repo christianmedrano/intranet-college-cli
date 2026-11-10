@@ -1,6 +1,7 @@
 import {
   estadoJustificacionSchema,
   type JustificacionResponse,
+  type PaginationInput,
 } from '@intranet/shared'
 import type { Prisma } from '../../../generated/prisma/client.js'
 
@@ -44,6 +45,34 @@ function mapear(fila: FilaJustificacion): JustificacionResponse {
     createdAt: fila.createdAt.toISOString(),
     updatedAt: fila.updatedAt.toISOString(),
   }
+}
+
+/** Cuenta las justificaciones que cumplen la condición de alcance. */
+export async function countJustificaciones(
+  prisma: Prisma.TransactionClient,
+  where: Prisma.JustificacionFaltaWhereInput,
+): Promise<number> {
+  return prisma.justificacionFalta.count({ where })
+}
+
+/**
+ * Lista las justificaciones de la condición, de la más reciente a la más
+ * antigua. `id` desempata para que la paginación sea estable.
+ */
+export async function findJustificaciones(
+  prisma: Prisma.TransactionClient,
+  where: Prisma.JustificacionFaltaWhereInput,
+  paginacion: PaginationInput,
+): Promise<JustificacionResponse[]> {
+  const filas = await prisma.justificacionFalta.findMany({
+    where,
+    orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
+    skip: (paginacion.page - 1) * paginacion.pageSize,
+    take: paginacion.pageSize,
+    select: CAMPOS_JUSTIFICACION,
+  })
+
+  return filas.map(mapear)
 }
 
 /** Fila mínima de una justificación para validar su estado y alcance. */

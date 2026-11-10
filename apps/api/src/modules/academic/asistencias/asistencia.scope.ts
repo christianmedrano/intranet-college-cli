@@ -21,12 +21,14 @@ export interface AlcanceAsistencias {
   auditarAcceso: boolean
 }
 
-interface AsignacionVigente {
+/** Asignación vigente de un docente sobre una sección y año. */
+export interface AsignacionVigente {
   seccionId: string
   anioId: string
 }
 
-interface AlcanceResuelto {
+/** Alcance resuelto a partir de los roles y vínculos del actor. */
+export interface AlcanceResuelto {
   actorId: string
   todo: boolean
   docente: AsignacionVigente[] | null
@@ -141,7 +143,7 @@ async function assertAlumnoEnAlcance(
  *
  * @throws AppError `FORBIDDEN` sin rol con alcance o si un filtro queda fuera.
  */
-async function resolverAlcance(
+export async function resolverAlcanceAsistencias(
   actor: ActorAcademico,
   filtros: FiltrosConsultaAsistencias,
   prisma: PrismaClient,
@@ -319,7 +321,7 @@ export async function construirAlcanceAsistencias(
   filtros: FiltrosConsultaAsistencias,
   prisma: PrismaClient = getPrisma(),
 ): Promise<AlcanceAsistencias> {
-  const alcance = await resolverAlcance(actor, filtros, prisma)
+  const alcance = await resolverAlcanceAsistencias(actor, filtros, prisma)
 
   const datosAcceso: Prisma.InputJsonObject = {
     ...(filtros.alumnoId ? { alumnoId: filtros.alumnoId } : {}),

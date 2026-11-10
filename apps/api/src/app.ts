@@ -7,6 +7,7 @@ import { AppError, registerErrorHandler } from './core/errors.js'
 import { asistenciaRoutes } from './modules/academic/asistencias/asistencia.routes.js'
 import { calificacionRoutes } from './modules/academic/calificaciones/calificacion.routes.js'
 import { notaFinalRoutes } from './modules/academic/calificaciones/nota-final.routes.js'
+import { justificacionRoutes } from './modules/academic/justificaciones/justificacion.routes.js'
 import { authRoutes } from './modules/core/auth/auth.routes.js'
 import { auditoriaRoutes } from './modules/core/auditoria/auditoria.routes.js'
 import { anioAcademicoRoutes } from './modules/core/estructura/anio-academico.routes.js'
@@ -81,6 +82,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(calificacionRoutes, { prefix: '/api/v1' })
   await app.register(notaFinalRoutes, { prefix: '/api/v1' })
   await app.register(asistenciaRoutes, { prefix: '/api/v1' })
+  await app.register(justificacionRoutes, { prefix: '/api/v1' })
 
   return app
 }
