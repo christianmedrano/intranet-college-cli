@@ -1,7 +1,10 @@
 import type { FastifyInstance } from 'fastify'
 import { requireAuth } from '../../../core/auth/guards.js'
 import { requirePermission } from '../../../core/rbac.js'
-import { listarCalificacionesController } from './calificacion.controller.js'
+import {
+  listarCalificacionesController,
+  resumenCalificacionesController,
+} from './calificacion.controller.js'
 
 /**
  * Rutas de consulta de calificaciones. Se registran bajo `/api/v1`.
@@ -21,5 +24,11 @@ export async function calificacionRoutes(
     '/periodos/:periodoId/calificaciones',
     { preHandler },
     listarCalificacionesController,
+  )
+
+  app.get(
+    '/periodos/:periodoId/calificaciones/resumen',
+    { preHandler },
+    resumenCalificacionesController,
   )
 }

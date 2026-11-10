@@ -4,6 +4,7 @@ import type {
   CrearCalificacionInput,
   Paginated,
   PaginationInput,
+  ResumenCalificacionesResponse,
 } from '@intranet/shared'
 import {
   registrarAuditoria,
@@ -27,6 +28,7 @@ import {
 } from '../scope.js'
 import {
   countCalificaciones,
+  countRegistrosDelPeriodo,
   createCalificacion,
   findCalificacionPorId,
   findCalificaciones,
@@ -42,6 +44,45 @@ const MENSAJE_PERIODO_CERRADO =
   'El período está cerrado; solo el Director puede corregir con motivo.'
 
 const MENSAJE_MOTIVO = 'motivo: es obligatorio para corregir tras el cierre'
+
+/**
+ * Indica si un período tiene calificaciones o notas finales (RF-ACAD-012).
+ *
+ * `core` consume este resumen para bloquear el borrado de un año con notas.
+ * Cuenta solo registros vigentes: los borrados lógicamente no bloquean.
+ *
+ * @param periodoId Período consultado.
+ * @param actor Usuario autenticado con sus roles.
+ * @param prisma Cliente inyectable para las pruebas.
+ * @throws AppError `FORBIDDEN` sin `academic.calificaciones.leer`; `NOT_FOUND`
+ * si el período no existe o es de otra institución.
+ */
+export async function resumenCalificacionesPeriodo(
+  periodoId: string,
+  actor: ActorAcademico,
+  prisma: PrismaClient = getPrisma(),
+): Promise<ResumenCalificacionesResponse> {
+  assertPermiso(actor, 'academic.calificaciones.leer')
+
+  const institucion = await institucionActual(prisma)
+  const periodo = await findPeriodoParaCalificar(
+    prisma,
+    periodoId,
+    institucion.id,
+  )
+
+  if (!periodo) {
+    throw new AppError('NOT_FOUND', 'El período no existe.')
+  }
+
+  const conteo = await countRegistrosDelPeriodo(prisma, periodoId)
+
+  return {
+    ...conteo,
+    tieneCalificaciones:
+      conteo.totalCalificaciones > 0 || conteo.totalNotasFinales > 0,
+  }
+}
 
 /**
  * Lista las calificaciones de un período con el alcance del solicitante

@@ -116,6 +116,30 @@ export async function findCalificacionPorId(
   })
 }
 
+/** Conteo de registros vigentes de un período (RF-ACAD-012). */
+export interface ConteoPeriodo {
+  totalCalificaciones: number
+  totalNotasFinales: number
+}
+
+/**
+ * Cuenta las calificaciones y notas finales vigentes del período.
+ *
+ * Excluye los registros con borrado lógico para que el resumen refleje solo lo
+ * que sigue siendo válido.
+ */
+export async function countRegistrosDelPeriodo(
+  prisma: Prisma.TransactionClient,
+  periodoId: string,
+): Promise<ConteoPeriodo> {
+  const [totalCalificaciones, totalNotasFinales] = await Promise.all([
+    prisma.calificacion.count({ where: { periodoId, deletedAt: null } }),
+    prisma.notaFinalPeriodo.count({ where: { periodoId, deletedAt: null } }),
+  ])
+
+  return { totalCalificaciones, totalNotasFinales }
+}
+
 /** Cuenta las calificaciones que cumplen la condición de alcance. */
 export async function countCalificaciones(
   prisma: Prisma.TransactionClient,
