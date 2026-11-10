@@ -1,13 +1,18 @@
 import {
   corregirAsistenciaSchema,
   listarAsistenciasQuerySchema,
+  registrarAsistenciaLoteSchema,
   uuidParamSchema,
 } from '@intranet/shared'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { contextoDePeticion } from '../../../core/audit.js'
 import { AppError } from '../../../core/errors.js'
 import { parseOrThrow } from '../../../core/validation.js'
-import { corregirAsistencia, listarAsistencias } from './asistencia.service.js'
+import {
+  corregirAsistencia,
+  listarAsistencias,
+  registrarAsistenciaLote,
+} from './asistencia.service.js'
 
 /** `GET /api/v1/asistencias` — listado paginado y filtrable con alcance. */
 export async function listarAsistenciasController(
@@ -37,6 +42,31 @@ export async function listarAsistenciasController(
       contextoDePeticion(request),
     ),
   )
+}
+
+/**
+ * `POST /api/v1/asistencias/lote` — registra la asistencia diaria de una
+ * sección de forma atómica (RF-ACAD-004).
+ */
+export async function registrarAsistenciaLoteController(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
+  const actor = request.authUser
+
+  if (!actor) {
+    throw new AppError('UNAUTHORIZED')
+  }
+
+  const input = parseOrThrow(registrarAsistenciaLoteSchema, request.body)
+
+  const registros = await registrarAsistenciaLote(
+    input,
+    actor,
+    contextoDePeticion(request),
+  )
+
+  reply.code(201).send({ registros })
 }
 
 /**

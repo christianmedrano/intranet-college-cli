@@ -4,6 +4,7 @@ import { requirePermission } from '../../../core/rbac.js'
 import {
   corregirAsistenciaController,
   listarAsistenciasController,
+  registrarAsistenciaLoteController,
 } from './asistencia.controller.js'
 
 /**
@@ -24,6 +25,12 @@ export async function asistenciaRoutes(app: FastifyInstance): Promise<void> {
   ]
 
   app.get('/asistencias', { preHandler: lectura }, listarAsistenciasController)
+
+  app.post(
+    '/asistencias/lote',
+    { preHandler: gestion },
+    registrarAsistenciaLoteController,
+  )
 
   app.patch(
     '/asistencias/:id',
