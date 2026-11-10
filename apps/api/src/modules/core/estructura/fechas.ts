@@ -11,6 +11,21 @@ export function aFechaISO(valor: Date): string {
 }
 
 /**
+ * Fecha escolar de hoy en `America/Lima`, como `YYYY-MM-DD`.
+ *
+ * La zona se fija explícitamente para que la comparación de fechas escolares no
+ * cambie según la zona horaria del servidor (RN-ACAD-024).
+ */
+export function fechaEscolarHoy(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Lima',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date())
+}
+
+/**
  * Rechaza un rango de fechas invertido.
  *
  * Se compara sobre cadenas `YYYY-MM-DD`, que ordenan igual que las fechas.
