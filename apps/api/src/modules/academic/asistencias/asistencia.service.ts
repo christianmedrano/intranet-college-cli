@@ -1,6 +1,8 @@
 import type {
   AsistenciaResponse,
   CorregirAsistenciaInput,
+  Paginated,
+  PaginationInput,
   RegistrarAsistenciaLoteInput,
 } from '@intranet/shared'
 import {
@@ -16,19 +18,26 @@ import {
   fechaEscolarHoy,
 } from '../../core/estructura/fechas.js'
 import { institucionActual } from '../../core/estructura/institucion-actual.js'
+import { auditarAccesoAcademico } from '../consulta-audit.js'
 import {
   assertDocenteDeSeccion,
   assertPermiso,
   type ActorAcademico,
 } from '../scope.js'
 import {
+  countAsistencias,
   createAsistencias,
   findAlumnosMatriculados,
+  findAsistencias,
   findAsistenciaPorId,
   findMatriculaAprobadaPorFecha,
   findSeccionParaAsistencia,
   updateAsistencia,
 } from './asistencia.repository.js'
+import {
+  construirAlcanceAsistencias,
+  type FiltrosConsultaAsistencias,
+} from './asistencia.scope.js'
 
 const MENSAJE_DUPLICADO =
   'El alumno ya tiene asistencia registrada en esa fecha.'
@@ -40,6 +49,56 @@ const MENSAJE_FECHA =
   'fecha: debe estar dentro del año académico y no puede ser futura'
 
 const MENSAJE_MOTIVO = 'motivo: es obligatorio para corregir la asistencia'
+
+/**
+ * Lista las asistencias con el alcance del solicitante (RF-ACAD-007).
+ *
+ * El Director y el SuperAdmin ven todo (el segundo con acceso auditado); el
+ * docente, solo sus secciones y años; el apoderado, sus alumnos vinculados; el
+ * alumno, lo propio. Los filtros de sección, año o alumno ajenos devuelven
+ * `403`.
+ *
+ * @param filtros Filtros validados por Zod.
+ * @param paginacion Página y tamaño ya validados por Zod.
+ * @param actor Usuario autenticado con sus roles.
+ * @param contexto IP y user-agent para la auditoría.
+ * @param prisma Cliente inyectable para las pruebas.
+ * @throws AppError `FORBIDDEN` si un filtro está fuera de alcance.
+ */
+export async function listarAsistencias(
+  filtros: FiltrosConsultaAsistencias,
+  paginacion: PaginationInput,
+  actor: ActorAcademico,
+  contexto: ContextoAuditoria = {},
+  prisma: PrismaClient = getPrisma(),
+): Promise<Paginated<AsistenciaResponse>> {
+  assertPermiso(actor, 'academic.asistencias.leer')
+
+  const { where, datosAcceso, auditarAcceso } =
+    await construirAlcanceAsistencias(actor, filtros, prisma)
+
+  const total = await countAsistencias(prisma, where)
+  const data = await findAsistencias(prisma, where, paginacion)
+
+  if (auditarAcceso) {
+    await auditarAccesoAcademico(
+      prisma,
+      actor,
+      'ASISTENCIA',
+      { entidadId: null, datos: datosAcceso },
+      contexto,
+    )
+  }
+
+  return {
+    data,
+    meta: {
+      page: paginacion.page,
+      pageSize: paginacion.pageSize,
+      total,
+    },
+  }
+}
 
 /**
  * Registra la asistencia diaria de una sección (RF-ACAD-004).

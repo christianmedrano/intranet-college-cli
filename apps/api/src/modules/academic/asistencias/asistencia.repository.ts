@@ -1,6 +1,7 @@
 import {
   estadoAsistenciaSchema,
   type AsistenciaResponse,
+  type PaginationInput,
 } from '@intranet/shared'
 import type { Prisma } from '../../../generated/prisma/client.js'
 import { aFechaISO } from '../../core/estructura/fechas.js'
@@ -103,6 +104,34 @@ export async function findAlumnosMatriculados(
   })
 
   return new Set(filas.map((fila) => fila.alumnoId))
+}
+
+/** Cuenta las asistencias que cumplen la condición de alcance. */
+export async function countAsistencias(
+  prisma: Prisma.TransactionClient,
+  where: Prisma.AsistenciaWhereInput,
+): Promise<number> {
+  return prisma.asistencia.count({ where })
+}
+
+/**
+ * Lista las asistencias de la condición, de la más reciente a la más antigua.
+ * `id` desempata para que la paginación sea estable.
+ */
+export async function findAsistencias(
+  prisma: Prisma.TransactionClient,
+  where: Prisma.AsistenciaWhereInput,
+  paginacion: PaginationInput,
+): Promise<AsistenciaResponse[]> {
+  const filas = await prisma.asistencia.findMany({
+    where,
+    orderBy: [{ fecha: 'desc' }, { id: 'asc' }],
+    skip: (paginacion.page - 1) * paginacion.pageSize,
+    take: paginacion.pageSize,
+    select: CAMPOS_ASISTENCIA,
+  })
+
+  return filas.map(mapear)
 }
 
 export interface CrearAsistenciaData {

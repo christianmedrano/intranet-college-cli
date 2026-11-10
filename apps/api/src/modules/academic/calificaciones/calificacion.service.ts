@@ -35,7 +35,7 @@ import {
   findPeriodoParaCalificar,
   updateCalificacion,
 } from './calificacion.repository.js'
-import { auditarAccesoAcademico } from './consulta-audit.js'
+import { auditarAccesoAcademico } from '../consulta-audit.js'
 
 const MENSAJE_DUPLICADO =
   'El alumno ya tiene una calificación para ese curso y período.'
@@ -138,7 +138,7 @@ export async function listarCalificaciones(
       prisma,
       actor,
       'CALIFICACION',
-      periodoId,
+      { entidadId: periodoId, datos: { periodoId } },
       contexto,
     )
   }

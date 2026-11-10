@@ -26,7 +26,7 @@ import {
   type FiltrosConsultaCalificaciones,
 } from '../scope.js'
 import { findPeriodoParaCalificar } from './calificacion.repository.js'
-import { auditarAccesoAcademico } from './consulta-audit.js'
+import { auditarAccesoAcademico } from '../consulta-audit.js'
 import {
   countNotasFinales,
   createNotaFinal,
@@ -97,7 +97,7 @@ export async function listarNotasFinales(
       prisma,
       actor,
       'NOTA_FINAL_PERIODO',
-      periodoId,
+      { entidadId: periodoId, datos: { periodoId } },
       contexto,
     )
   }
