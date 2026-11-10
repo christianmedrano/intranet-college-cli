@@ -38,6 +38,7 @@ export type AccionAuditoria =
   | 'ACTUALIZAR'
   | 'VINCULAR'
   | 'APROBAR'
+  | 'RECHAZAR'
   | 'RETIRAR'
   | 'ACCEDER'
 
