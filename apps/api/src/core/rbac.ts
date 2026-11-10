@@ -88,3 +88,41 @@ export function requirePermission(permission: Permission) {
     }
   }
 }
+
+/**
+ * Crea un `preHandler` que exige al menos uno de los permisos indicados.
+ *
+ * Se usa en rutas cuya operación admite permisos alternativos según el estado
+ * del recurso; por ejemplo, editar una calificación exige `gestionar` con el
+ * período abierto y `corregir` con el período cerrado. El servicio sigue
+ * decidiendo cuál corresponde; este guard solo exige que el actor tenga alguno
+ * de los dos y evita revelar el estado del período a quien no puede operar.
+ *
+ * @param permissions Permisos alternativos del catálogo compartido.
+ */
+export function requireAnyPermission(permissions: readonly Permission[]) {
+  return async function anyPermissionGuard(
+    request: FastifyRequest,
+  ): Promise<void> {
+    const actor = request.authUser
+
+    if (!actor) {
+      throw new AppError('UNAUTHORIZED')
+    }
+
+    if (actor.debeCambiarPassword) {
+      throw new AppError(
+        'FORBIDDEN',
+        'Debes cambiar tu contraseña antes de continuar.',
+      )
+    }
+
+    if (
+      !permissions.some((permission) =>
+        hasPermission(actor.roles, permission),
+      )
+    ) {
+      throw new AppError('FORBIDDEN')
+    }
+  }
+}
