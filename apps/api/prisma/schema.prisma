@@ -81,11 +81,13 @@ model Usuario {
   updatedBy String?   @map("updated_by") @db.Char(36)
   deletedAt DateTime? @map("deleted_at") @db.DateTime(3)
 
-  persona            Persona             @relation(fields: [personaId], references: [id], onDelete: Restrict)
-  roles              UsuarioRol[]
-  sesiones           SesionRefresh[]
-  tokensRecuperacion TokenRecuperacion[]
-  auditorias         Auditoria[]
+  persona                    Persona              @relation(fields: [personaId], references: [id], onDelete: Restrict)
+  roles                      UsuarioRol[]
+  sesiones                   SesionRefresh[]
+  tokensRecuperacion         TokenRecuperacion[]
+  auditorias                 Auditoria[]
+  justificacionesSolicitadas JustificacionFalta[] @relation("JustificacionSolicitante")
+  justificacionesResueltas   JustificacionFalta[] @relation("JustificacionResolutor")
 
   @@map("usuario")
 }
@@ -182,6 +184,9 @@ model AnioAcademico {
   secciones    Seccion[]
   matriculas   Matricula[]
   asignaciones AsignacionDocente[]
+  umbral       UmbralAsistencia?
+  alertas      AlertaAsistencia[]
+  horarios     Horario[]
 
   @@unique([institucionId, nombre], map: "anio_academico_nombre_key")
   @@index([institucionId, estado])
@@ -205,6 +210,9 @@ model PeriodoAcademico {
   updatedBy String?  @map("updated_by") @db.Char(36)
 
   anio AnioAcademico @relation(fields: [anioId], references: [id], onDelete: Restrict)
+
+  calificaciones Calificacion[]
+  notasFinales   NotaFinalPeriodo[]
 
   @@unique([anioId, orden], map: "periodo_academico_orden_key")
   @@unique([anioId, nombre], map: "periodo_academico_nombre_key")
@@ -270,6 +278,7 @@ model Seccion {
   anio         AnioAcademico       @relation(fields: [anioId], references: [id], onDelete: Restrict)
   matriculas   Matricula[]
   asignaciones AsignacionDocente[]
+  horarios     Horario[]
 
   @@unique([gradoId, anioId, nombre], map: "seccion_nombre_key")
   @@index([anioId])
@@ -290,8 +299,11 @@ model Curso {
   updatedBy String?   @map("updated_by") @db.Char(36)
   deletedAt DateTime? @map("deleted_at") @db.DateTime(3)
 
-  nivel        Nivel               @relation(fields: [nivelId], references: [id], onDelete: Restrict)
-  asignaciones AsignacionDocente[]
+  nivel          Nivel               @relation(fields: [nivelId], references: [id], onDelete: Restrict)
+  asignaciones   AsignacionDocente[]
+  calificaciones Calificacion[]
+  notasFinales   NotaFinalPeriodo[]
+  horarios       Horario[]
 
   @@unique([nivelId, nombre], map: "curso_nombre_key")
   @@map("curso")
@@ -315,9 +327,13 @@ model Alumno {
   updatedBy String?   @map("updated_by") @db.Char(36)
   deletedAt DateTime? @map("deleted_at") @db.DateTime(3)
 
-  persona    Persona           @relation(fields: [personaId], references: [id], onDelete: Restrict)
-  matriculas Matricula[]
-  apoderados ApoderadoAlumno[]
+  persona           Persona            @relation(fields: [personaId], references: [id], onDelete: Restrict)
+  matriculas        Matricula[]
+  apoderados        ApoderadoAlumno[]
+  calificaciones    Calificacion[]
+  notasFinales      NotaFinalPeriodo[]
+  asistencias       Asistencia[]
+  alertasAsistencia AlertaAsistencia[]
 
   @@map("alumno")
 }
@@ -337,6 +353,7 @@ model Docente {
 
   persona      Persona             @relation(fields: [personaId], references: [id], onDelete: Restrict)
   asignaciones AsignacionDocente[]
+  horarios     Horario[]
 
   @@map("docente")
 }
@@ -406,11 +423,11 @@ model Matricula {
 
 /// Asignación de un docente a un curso y sección en un año (RF-CORE-011).
 model AsignacionDocente {
-  id        String @id @default(uuid()) @db.Char(36)
-  docenteId String @map("docente_id") @db.Char(36)
-  cursoId   String @map("curso_id") @db.Char(36)
-  seccionId String @map("seccion_id") @db.Char(36)
-  anioId    String @map("anio_id") @db.Char(36)
+  id        String  @id @default(uuid()) @db.Char(36)
+  docenteId String  @map("docente_id") @db.Char(36)
+  cursoId   String  @map("curso_id") @db.Char(36)
+  seccionId String  @map("seccion_id") @db.Char(36)
+  anioId    String  @map("anio_id") @db.Char(36)
   /// Docente tutor de la sección; máximo uno vigente por sección y año.
   esTutor   Boolean @default(false) @map("es_tutor")
 
@@ -449,4 +466,167 @@ model Auditoria {
   @@index([entidad, entidadId])
   @@index([usuarioId, createdAt])
   @@map("auditoria")
+}
+
+// ---------------------------------------------------------------------------
+// Módulo académico: calificaciones, asistencias, alertas y horarios
+// ---------------------------------------------------------------------------
+
+/// Calificación literal de un alumno en un curso y período (RF-ACAD-001).
+/// La escala válida es AD | A | B | C (RN-ACAD-001).
+model Calificacion {
+  id          String  @id @default(uuid()) @db.Char(36)
+  alumnoId    String  @map("alumno_id") @db.Char(36)
+  cursoId     String  @map("curso_id") @db.Char(36)
+  periodoId   String  @map("periodo_id") @db.Char(36)
+  valor       String  @db.Char(2)
+  observacion String? @db.VarChar(500)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.DateTime(3)
+  createdBy String?   @map("created_by") @db.Char(36)
+  updatedBy String?   @map("updated_by") @db.Char(36)
+  deletedAt DateTime? @map("deleted_at") @db.DateTime(3)
+
+  alumno  Alumno           @relation(fields: [alumnoId], references: [id], onDelete: Restrict)
+  curso   Curso            @relation(fields: [cursoId], references: [id], onDelete: Restrict)
+  periodo PeriodoAcademico @relation(fields: [periodoId], references: [id], onDelete: Restrict)
+
+  @@unique([alumnoId, cursoId, periodoId], map: "calificacion_key")
+  @@index([periodoId, cursoId])
+  @@map("calificacion")
+}
+
+/// Nota final manual del período (RF-ACAD-002). No se calcula ni se deriva de
+/// las calificaciones parciales (RN-ACAD-004).
+model NotaFinalPeriodo {
+  id          String  @id @default(uuid()) @db.Char(36)
+  alumnoId    String  @map("alumno_id") @db.Char(36)
+  cursoId     String  @map("curso_id") @db.Char(36)
+  periodoId   String  @map("periodo_id") @db.Char(36)
+  valor       String  @db.Char(2)
+  observacion String? @db.VarChar(500)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.DateTime(3)
+  createdBy String?   @map("created_by") @db.Char(36)
+  updatedBy String?   @map("updated_by") @db.Char(36)
+  deletedAt DateTime? @map("deleted_at") @db.DateTime(3)
+
+  alumno  Alumno           @relation(fields: [alumnoId], references: [id], onDelete: Restrict)
+  curso   Curso            @relation(fields: [cursoId], references: [id], onDelete: Restrict)
+  periodo PeriodoAcademico @relation(fields: [periodoId], references: [id], onDelete: Restrict)
+
+  @@unique([alumnoId, cursoId, periodoId], map: "nota_final_periodo_key")
+  @@index([periodoId, cursoId])
+  @@map("nota_final_periodo")
+}
+
+/// Asistencia diaria de un alumno; única por alumno y fecha (RN-ACAD-009).
+model Asistencia {
+  id          String   @id @default(uuid()) @db.Char(36)
+  alumnoId    String   @map("alumno_id") @db.Char(36)
+  fecha       DateTime @db.Date
+  estado      String   @db.VarChar(20)
+  observacion String?  @db.VarChar(500)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.DateTime(3)
+  createdBy String?   @map("created_by") @db.Char(36)
+  updatedBy String?   @map("updated_by") @db.Char(36)
+  deletedAt DateTime? @map("deleted_at") @db.DateTime(3)
+
+  alumno          Alumno               @relation(fields: [alumnoId], references: [id], onDelete: Restrict)
+  justificaciones JustificacionFalta[]
+
+  @@unique([alumnoId, fecha], map: "asistencia_key")
+  @@index([fecha])
+  @@map("asistencia")
+}
+
+/// Solicitud de justificación de una falta (RF-ACAD-006). Solo puede haber una
+/// `SOLICITADA` por asistencia; se garantiza en el servicio (RN-ACAD-026).
+model JustificacionFalta {
+  id                   String    @id @default(uuid()) @db.Char(36)
+  asistenciaId         String    @map("asistencia_id") @db.Char(36)
+  solicitanteUsuarioId String    @map("solicitante_usuario_id") @db.Char(36)
+  motivo               String    @db.VarChar(500)
+  estado               String    @default("SOLICITADA") @db.VarChar(20)
+  resueltoPor          String?   @map("resuelto_por") @db.Char(36)
+  resueltoEn           DateTime? @map("resuelto_en") @db.DateTime(3)
+  motivoResolucion     String?   @map("motivo_resolucion") @db.VarChar(500)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+
+  asistencia  Asistencia @relation(fields: [asistenciaId], references: [id], onDelete: Restrict)
+  solicitante Usuario    @relation("JustificacionSolicitante", fields: [solicitanteUsuarioId], references: [id], onDelete: Restrict)
+  resolutor   Usuario?   @relation("JustificacionResolutor", fields: [resueltoPor], references: [id], onDelete: Restrict)
+
+  @@index([asistenciaId, estado])
+  @@index([estado])
+  @@map("justificacion_falta")
+}
+
+/// Umbral de inasistencias por año; sin valor por defecto (RN-ACAD-013).
+model UmbralAsistencia {
+  id               String @id @default(uuid()) @db.Char(36)
+  anioId           String @unique @map("anio_id") @db.Char(36)
+  faltasParaAlerta Int    @map("faltas_para_alerta")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+  createdBy String?  @map("created_by") @db.Char(36)
+  updatedBy String?  @map("updated_by") @db.Char(36)
+
+  anio AnioAcademico @relation(fields: [anioId], references: [id], onDelete: Restrict)
+
+  @@map("umbral_asistencia")
+}
+
+/// Alerta de inasistencias única por alumno y año (RF-ACAD-009).
+model AlertaAsistencia {
+  id                   String @id @default(uuid()) @db.Char(36)
+  alumnoId             String @map("alumno_id") @db.Char(36)
+  anioId               String @map("anio_id") @db.Char(36)
+  faltasInjustificadas Int    @map("faltas_injustificadas")
+  umbral               Int
+
+  generadaEn    DateTime @default(now()) @map("generada_en") @db.DateTime(3)
+  actualizadaEn DateTime @updatedAt @map("actualizada_en") @db.DateTime(3)
+
+  alumno Alumno        @relation(fields: [alumnoId], references: [id], onDelete: Restrict)
+  anio   AnioAcademico @relation(fields: [anioId], references: [id], onDelete: Restrict)
+
+  @@unique([alumnoId, anioId], map: "alerta_asistencia_key")
+  @@index([anioId])
+  @@map("alerta_asistencia")
+}
+
+/// Bloque de horario semanal por sección (RF-ACAD-010).
+model Horario {
+  id         String  @id @default(uuid()) @db.Char(36)
+  anioId     String  @map("anio_id") @db.Char(36)
+  seccionId  String  @map("seccion_id") @db.Char(36)
+  cursoId    String  @map("curso_id") @db.Char(36)
+  docenteId  String? @map("docente_id") @db.Char(36)
+  diaSemana  Int     @map("dia_semana")
+  horaInicio String  @map("hora_inicio") @db.Char(5)
+  horaFin    String  @map("hora_fin") @db.Char(5)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.DateTime(3)
+  createdBy String?   @map("created_by") @db.Char(36)
+  updatedBy String?   @map("updated_by") @db.Char(36)
+  deletedAt DateTime? @map("deleted_at") @db.DateTime(3)
+
+  anio    AnioAcademico @relation(fields: [anioId], references: [id], onDelete: Restrict)
+  seccion Seccion       @relation(fields: [seccionId], references: [id], onDelete: Restrict)
+  curso   Curso         @relation(fields: [cursoId], references: [id], onDelete: Restrict)
+  docente Docente?      @relation(fields: [docenteId], references: [id], onDelete: Restrict)
+
+  @@unique([seccionId, diaSemana, horaInicio], map: "horario_bloque_key")
+  @@index([docenteId, diaSemana])
+  @@index([anioId, seccionId])
+  @@map("horario")
 }
