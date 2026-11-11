@@ -19,6 +19,7 @@ import {
 } from '../../core/estructura/fechas.js'
 import { institucionActual } from '../../core/estructura/institucion-actual.js'
 import { auditarAccesoAcademico } from '../consulta-audit.js'
+import { recalcularAlerta } from '../alertas/alerta.service.js'
 import {
   assertDocenteDeSeccion,
   assertPermiso,
@@ -182,6 +183,10 @@ export async function registrarAsistenciaLote(
           },
           ...contexto,
         })
+
+        if (fila.estado === 'FALTA_INJUSTIFICADA') {
+          await recalcularAlerta(tx, fila.alumnoId, seccion.anioId)
+        }
       }
 
       return filas
@@ -274,6 +279,8 @@ export async function corregirAsistencia(
       },
       ...contexto,
     })
+
+    await recalcularAlerta(tx, fila.alumnoId, matricula.anioId)
 
     return fila
   })

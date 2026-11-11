@@ -19,6 +19,8 @@ import {
   findMatriculaAprobadaPorFecha,
   updateAsistencia,
 } from '../asistencias/asistencia.repository.js'
+import { aFechaUTC } from '../../core/estructura/fechas.js'
+import { recalcularAlerta } from '../alertas/alerta.service.js'
 import { auditarAccesoAcademico } from '../consulta-audit.js'
 import {
   assertPermiso,
@@ -256,11 +258,21 @@ export async function aprobarJustificacion(
       motivoResolucion: input.comentario,
     })
 
-    await updateAsistencia(tx, {
+    const asistencia = await updateAsistencia(tx, {
       id: fila.asistenciaId,
       estado: 'FALTA_JUSTIFICADA',
       updatedBy: actor.id,
     })
+
+    const matricula = await findMatriculaAprobadaPorFecha(
+      tx,
+      asistencia.alumnoId,
+      aFechaUTC(asistencia.fecha),
+    )
+
+    if (matricula) {
+      await recalcularAlerta(tx, asistencia.alumnoId, matricula.anioId)
+    }
 
     await registrarAuditoria(tx, {
       usuarioId: actor.id,

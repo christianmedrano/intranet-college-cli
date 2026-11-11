@@ -11,6 +11,7 @@ export type EntidadAccesoAcademico =
   | 'NOTA_FINAL_PERIODO'
   | 'ASISTENCIA'
   | 'JUSTIFICACION_FALTA'
+  | 'ALERTA_ASISTENCIA'
 
 /** Recurso consultado y datos no personales que lo describen. */
 export interface AccesoAcademico {
