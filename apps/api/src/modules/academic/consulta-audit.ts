@@ -12,6 +12,7 @@ export type EntidadAccesoAcademico =
   | 'ASISTENCIA'
   | 'JUSTIFICACION_FALTA'
   | 'ALERTA_ASISTENCIA'
+  | 'HORARIO'
 
 /** Recurso consultado y datos no personales que lo describen. */
 export interface AccesoAcademico {

@@ -2,6 +2,8 @@ import type {
   ActualizarHorarioInput,
   CrearHorarioInput,
   HorarioResponse,
+  Paginated,
+  PaginationInput,
 } from '@intranet/shared'
 import {
   registrarAuditoria,
@@ -14,10 +16,12 @@ import type {
   Prisma,
   PrismaClient,
 } from '../../../generated/prisma/client.js'
+import { auditarAccesoAcademico } from '../consulta-audit.js'
 import { assertPermiso, type ActorAcademico } from '../scope.js'
 import {
   bloquearDocente,
   bloquearSeccion,
+  countHorarios,
   createHorario,
   existeAsignacionDocente,
   existeDocente,
@@ -25,11 +29,16 @@ import {
   existeSolapamientoSeccion,
   findCursoParaHorario,
   findHorarioPorId,
+  findHorarios,
   findSeccionParaHorario,
   softDeleteHorario,
   updateHorario,
   type HorarioRow,
 } from './horario.repository.js'
+import {
+  construirAlcanceHorarios,
+  type FiltrosConsultaHorarios,
+} from './horario.scope.js'
 
 const MENSAJE_SOLAPAMIENTO_SECCION =
   'La sección ya tiene un bloque de horario en ese rango.'
@@ -48,6 +57,59 @@ const MENSAJE_ASIGNACION =
 
 const MENSAJE_HORAS =
   'La hora de inicio debe ser anterior a la de fin.'
+
+/**
+ * Lista los horarios de un año con el alcance del solicitante (RF-ACAD-011).
+ *
+ * El Director y el SuperAdmin ven todo el año (el segundo con acceso
+ * auditado); el docente, sus cursos y secciones; el apoderado, las secciones de
+ * sus alumnos; el alumno, la propia. Los filtros fuera de alcance devuelven
+ * `403`.
+ *
+ * @param filtros Filtros validados por Zod.
+ * @param paginacion Página y tamaño ya validados por Zod.
+ * @param actor Usuario autenticado con sus roles.
+ * @param contexto IP y user-agent para la auditoría.
+ * @param prisma Cliente inyectable para las pruebas.
+ * @throws AppError `FORBIDDEN` si un filtro está fuera de alcance.
+ */
+export async function listarHorarios(
+  filtros: FiltrosConsultaHorarios,
+  paginacion: PaginationInput,
+  actor: ActorAcademico,
+  contexto: ContextoAuditoria = {},
+  prisma: PrismaClient = getPrisma(),
+): Promise<Paginated<HorarioResponse>> {
+  assertPermiso(actor, 'academic.horarios.leer')
+
+  const { where, datosAcceso, auditarAcceso } = await construirAlcanceHorarios(
+    actor,
+    filtros,
+    prisma,
+  )
+
+  const total = await countHorarios(prisma, where)
+  const data = await findHorarios(prisma, where, paginacion)
+
+  if (auditarAcceso) {
+    await auditarAccesoAcademico(
+      prisma,
+      actor,
+      'HORARIO',
+      { entidadId: null, datos: datosAcceso },
+      contexto,
+    )
+  }
+
+  return {
+    data,
+    meta: {
+      page: paginacion.page,
+      pageSize: paginacion.pageSize,
+      total,
+    },
+  }
+}
 
 /** Valores efectivos de un bloque, ya resueltos para crear o actualizar. */
 interface ValoresBloque {

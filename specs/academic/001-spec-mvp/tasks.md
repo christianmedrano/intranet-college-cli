@@ -53,7 +53,7 @@ Formato obligatorio:
 ## Fase 5 — Horarios
 
 - [x] T014 — Implementar repositorio y servicio de horarios: solapamiento por sección y por docente, curso del nivel correcto, docente con asignación vigente y borrado lógico — `apps/api/src/modules/academic/horarios/`, `apps/api/test/academic/horarios.test.ts` — RF-ACAD-010, RN-ACAD-017, RN-ACAD-018, RN-ACAD-019, RN-ACAD-020 — solapamiento `409`; curso de otro nivel `400`; docente sin asignación `400`; dos peticiones concurrentes no crean bloques solapados
-- [ ] T015 — Exponer `GET /horarios`, `POST /horarios`, `PATCH /horarios/:id` y `DELETE /horarios/:id` con scoping de consulta — `apps/api/src/modules/academic/horarios/*.routes.ts`, `*.controller.ts`, `apps/api/src/app.ts`, `apps/api/test/academic/api-horarios.test.ts` — RF-ACAD-010, RF-ACAD-011 — solo SA/DI gestionan; docente, apoderado y alumno consultan según vínculo; `DELETE` marca `deleted_at` y no borra físicamente
+- [x] T015 — Exponer `GET /horarios`, `POST /horarios`, `PATCH /horarios/:id` y `DELETE /horarios/:id` con scoping de consulta — `apps/api/src/modules/academic/horarios/*.routes.ts`, `*.controller.ts`, `apps/api/src/app.ts`, `apps/api/test/academic/api-horarios.test.ts` — RF-ACAD-010, RF-ACAD-011 — solo SA/DI gestionan; docente, apoderado y alumno consultan según vínculo; `DELETE` marca `deleted_at` y no borra físicamente
 
 ## Fase 6 — Auditoría
 

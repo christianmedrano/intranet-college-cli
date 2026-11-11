@@ -9,6 +9,7 @@ import { alertaRoutes } from './modules/academic/alertas/alerta.routes.js'
 import { calificacionRoutes } from './modules/academic/calificaciones/calificacion.routes.js'
 import { notaFinalRoutes } from './modules/academic/calificaciones/nota-final.routes.js'
 import { justificacionRoutes } from './modules/academic/justificaciones/justificacion.routes.js'
+import { horarioRoutes } from './modules/academic/horarios/horario.routes.js'
 import { umbralRoutes } from './modules/academic/umbral/umbral.routes.js'
 import { authRoutes } from './modules/core/auth/auth.routes.js'
 import { auditoriaRoutes } from './modules/core/auditoria/auditoria.routes.js'
@@ -87,6 +88,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(justificacionRoutes, { prefix: '/api/v1' })
   await app.register(umbralRoutes, { prefix: '/api/v1' })
   await app.register(alertaRoutes, { prefix: '/api/v1' })
+  await app.register(horarioRoutes, { prefix: '/api/v1' })
 
   return app
 }

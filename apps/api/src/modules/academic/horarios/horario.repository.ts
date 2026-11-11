@@ -1,6 +1,7 @@
 import {
   diaSemanaSchema,
   type HorarioResponse,
+  type PaginationInput,
 } from '@intranet/shared'
 import type { Prisma } from '../../../generated/prisma/client.js'
 
@@ -46,8 +47,7 @@ function mapear(fila: FilaHorario): HorarioResponse {
   }
 }
 
-/** Fila mínima de un horario para validar cambios. */
-export interface HorarioRow {
+/** Fila mínima de un horario para validar cambios. */export interface HorarioRow {
   id: string
   anioId: string
   seccionId: string
@@ -76,6 +76,34 @@ export async function findHorarioPorId(
       horaFin: true,
     },
   })
+}
+
+/** Cuenta los horarios que cumplen la condición de alcance. */
+export async function countHorarios(
+  prisma: Prisma.TransactionClient,
+  where: Prisma.HorarioWhereInput,
+): Promise<number> {
+  return prisma.horario.count({ where })
+}
+
+/**
+ * Lista los horarios de la condición, ordenados por día y hora de inicio.
+ * `id` desempata para que la paginación sea estable.
+ */
+export async function findHorarios(
+  prisma: Prisma.TransactionClient,
+  where: Prisma.HorarioWhereInput,
+  paginacion: PaginationInput,
+): Promise<HorarioResponse[]> {
+  const filas = await prisma.horario.findMany({
+    where,
+    orderBy: [{ diaSemana: 'asc' }, { horaInicio: 'asc' }, { id: 'asc' }],
+    skip: (paginacion.page - 1) * paginacion.pageSize,
+    take: paginacion.pageSize,
+    select: CAMPOS_HORARIO,
+  })
+
+  return filas.map(mapear)
 }
 
 /** Sección mínima para validar año y nivel (RN-ACAD-018). */
