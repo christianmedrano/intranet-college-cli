@@ -1,18 +1,18 @@
 # Arquitectura del Proyecto
 
 > Documento técnico de referencia. Las reglas normativas están en `docs/constitution.md`.
-> Última actualización: 2026-11-08.
+> Última actualización: 2026-11-11.
 
 ## 1. Estado actual vs. objetivo
 
 | Área | Estado actual | Pendiente |
 |---|---|---|
 | Repositorio | Monorepo con workspaces (`apps/web`, `apps/api`, `packages/shared`) | — |
-| Frontend | React 19 + Vite 8 + TypeScript 6 + Tailwind 4; router, sesión en memoria con refresh, login, recuperación, guard por rol y cambio de contraseña (T033–T039) | Pantallas por rol y módulos restantes |
-| Backend | Fastify 5 con el módulo `core` implementado bajo `/api/v1`: auth (incluido el cambio obligatorio de contraseña, RF-CORE-017), gestión de usuarios y roles (RF-CORE-002), RBAC, institución, años y períodos, niveles/grados/secciones/cursos, personas, matrículas, asignaciones y auditoría. `GET /health` fuera de `/api/v1` | Borrado lógico de años (T042) |
-| Base de datos | MySQL 8 con Prisma 7, migración `core_init` y seed idempotente de roles, institución y SuperAdmin | Migraciones de los módulos restantes |
-| Pruebas | Vitest 5 en web y api. API: 26 suites y 356 pruebas; web: 8 suites y 39 pruebas. Cobertura de la API: 92,54 % de sentencias (última medición tras T030, umbral 70 %) | Playwright y pruebas E2E |
-| Specs | `specs/core/001-spec-mvp/` aprobada v1.2.0; API y frontend de autenticación implementados (T001–T039, T043). `specs/academic/001-spec-mvp/` aprobada v1.0.0 con plan y tareas listos (T001–T021, más `T044` de core) | Implementación académica, T042 (deuda técnica) y 3 módulos vacíos |
+| Frontend | React 19 + Vite 8 + TypeScript 6 + Tailwind 4; router, sesión en memoria con refresh, login, recuperación, guard por rol y cambio de contraseña (T033–T039). Módulo académico: calificaciones/notas finales (T017), asistencias/justificaciones (T018), umbral/alertas/horarios (T019) | Playwright y pruebas E2E (T021) |
+| Backend | Fastify 5 con el módulo `core` implementado bajo `/api/v1`: auth (incluido el cambio obligatorio de contraseña, RF-CORE-017), gestión de usuarios y roles (RF-CORE-002), RBAC, institución, años y períodos, niveles/grados/secciones/cursos, personas, matrículas, asignaciones y auditoría. Módulo académico completo bajo `/api/v1`: calificaciones, notas finales, asistencias, justificaciones, umbral, alertas, horarios. `GET /health` fuera de `/api/v1` | Borrado lógico de años (T042) |
+| Base de datos | MySQL 8 con Prisma 7, migración `core_init` y seed idempotente de roles, institución y SuperAdmin. Esquema académico aplicado | Migraciones de los módulos restantes |
+| Pruebas | Vitest 5 en web y api. API: 43 suites y 541 pruebas; web: 10 suites y 60 pruebas. Cobertura de la API: 91,6 % de sentencias, 80,5 % de ramas (umbral 70 %) | Playwright y pruebas E2E (T021) |
+| Specs | `specs/core/001-spec-mvp/` aprobada v1.2.0; API y frontend de autenticación implementados (T001–T039, T043). `specs/academic/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T019). `T044` de core cerrada (`es_tutor`) | T020 (cierre), T021 (E2E), T042 (deuda técnica) y 3 módulos vacíos |
 | Gobernanza | Constitución v2, plantillas, matriz RBAC y ADRs | Mantener sincronizada |
 
 Comandos desde la raíz:
@@ -160,7 +160,7 @@ Restricciones que MySQL no cubre igual que PostgreSQL:
 
 Los tests de dominio no dependen de la base de datos. Los de API usan una base de datos de prueba aislada.
 
-Estado actual: 26 suites y 356 pruebas de API en verde, más 8 suites y 39 pruebas de frontend. Cobertura de sentencias de la API 92,54 %, ramas 82,78 % (última medición tras T030; umbral mínimo 70 %). Las pruebas corren en serie (`fileParallelism: false`) para no saturar MySQL.
+Estado actual: 43 suites y 541 pruebas de API en verde, más 10 suites y 60 pruebas de frontend. Cobertura de sentencias de la API 91,6 %, ramas 80,5 % (última medición tras T019; umbral mínimo 70 %). Las pruebas corren en serie (`fileParallelism: false`) para no saturar MySQL.
 
 ## 10. Decisiones pendientes
 
@@ -174,5 +174,6 @@ Estado actual: 26 suites y 356 pruebas de API en verde, más 8 suites y 39 prueb
 | Roles administrativos adicionales | Abierto | `specs/administrative/001-spec-mvp/` |
 | Participación de alumnos en mensajería | Abierto | `specs/communication/001-spec-mvp/` |
 | Prisma + MySQL | Resuelto e implementado | ADR-0002 y `specs/core/001-spec-mvp/` |
-| Playwright y pruebas E2E | Pendiente | Primera feature con flujo completo |
-| Cierre de la spec `core` | Resuelto (2026-11-08) | `specs/core/001-spec-mvp/` |
+| Playwright y pruebas E2E | Pendiente (T021) | Primera feature con flujo completo |
+| Cierre del módulo académico (T001–T019) | Resuelto (2026-11-11) | `specs/academic/001-spec-mvp/` |
+| Cierre de la spec `core` (T042) | Bloqueado (falta autorizar `DELETE /anios-academicos/:id` en spec §7) | `specs/core/001-spec-mvp/` |

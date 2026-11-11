@@ -67,7 +67,7 @@ Formato obligatorio:
 
 ## Fase 8 — Cierre
 
-- [ ] T020 — Cerrar cobertura, pruebas de 3 y 4 períodos, actualización de `docs/architecture.md` y verificación del gate completo — `apps/api/test/academic/`, `docs/architecture.md`, `specs/academic/001-spec-mvp/tasks.md` — RF-ACAD-001 a RF-ACAD-013 — cobertura de servicios ≥ 70 %; el flujo funciona con 3 y con 4 períodos; `lint + typecheck + test` en verde
+- [x] T020 — Cerrar cobertura, pruebas de 3 y 4 períodos, actualización de `docs/architecture.md` y verificación del gate completo — `apps/api/test/academic/`, `docs/architecture.md`, `specs/academic/001-spec-mvp/tasks.md` — RF-ACAD-001 a RF-ACAD-013 — cobertura de servicios ≥ 70 %; el flujo funciona con 3 y con 4 períodos; `lint + typecheck + test` en verde
 - [ ] T021 — Configurar Playwright y el flujo E2E: login docente, calificación, asistencia y consulta del apoderado — `playwright.config.ts`, `apps/web/e2e/`, `package.json` — RF-ACAD-001, RF-ACAD-004, RF-ACAD-007 — `npx playwright test` completa el flujo sin fallos
 
 ## Definition of Done
