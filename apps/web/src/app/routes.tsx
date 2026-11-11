@@ -3,6 +3,7 @@ import { AsistenciasPage } from '../features/academic/asistencias/AsistenciasPag
 import { CalificacionesPage } from '../features/academic/calificaciones/CalificacionesPage'
 import { ChangePasswordPage } from '../features/auth/ChangePasswordPage'
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage'
+import { HorariosIndexPage } from '../features/academic/horarios/HorariosIndexPage'
 import { LoginPage } from '../features/auth/LoginPage'
 import { RequireAuth } from './guards/RequireAuth'
 import { AppLayout } from './layouts/AppLayout'
@@ -24,6 +25,7 @@ export const routes: RouteObject[] = [
           { path: '/', element: <HomePage /> },
           { path: '/calificaciones', element: <CalificacionesPage /> },
           { path: '/asistencias', element: <AsistenciasPage /> },
+          { path: '/horarios', element: <HorariosIndexPage /> },
           { path: '/cambiar-password', element: <ChangePasswordPage /> },
         ],
       },

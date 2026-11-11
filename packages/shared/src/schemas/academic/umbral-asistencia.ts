@@ -13,4 +13,13 @@ export const umbralAsistenciaSchema = z.object({
     .positive('El umbral debe ser mayor que cero'),
 })
 
+/** Respuesta del umbral de un año (RF-ACAD-008). */
+export const umbralAsistenciaResponseSchema = z.object({
+  anioId: z.string().uuid(),
+  faltasParaAlerta: z.number().int().positive().nullable(),
+})
+
 export type UmbralAsistenciaInput = z.infer<typeof umbralAsistenciaSchema>
+export type UmbralAsistenciaResponsePayload = z.infer<
+  typeof umbralAsistenciaResponseSchema
+>

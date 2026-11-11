@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { diaSemanaSchema } from '../../domain/academic.js'
-import { paginationSchema, uuidSchema } from '../base.js'
+import { paginationMetaSchema, paginationSchema, uuidSchema } from '../base.js'
 import { horaSchema } from './base.js'
 
 const horarioBaseSchema = z.object({
@@ -62,3 +62,26 @@ export const listarHorariosQuerySchema = paginationSchema.extend({
 })
 
 export type ListarHorariosQuery = z.infer<typeof listarHorariosQuerySchema>
+
+/** Bloque de horario devuelto por la API (RF-ACAD-010). */
+export const horarioResponseSchema = z.object({
+  id: uuidSchema,
+  anioId: uuidSchema,
+  seccionId: uuidSchema,
+  cursoId: uuidSchema,
+  docenteId: uuidSchema.nullable(),
+  diaSemana: diaSemanaSchema,
+  horaInicio: horaSchema,
+  horaFin: horaSchema,
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
+/** Listado paginado de horarios. */
+export const paginatedHorariosSchema = z.object({
+  data: z.array(horarioResponseSchema),
+  meta: paginationMetaSchema,
+})
+
+export type HorarioResponsePayload = z.infer<typeof horarioResponseSchema>
+export type PaginatedHorariosPayload = z.infer<typeof paginatedHorariosSchema>
