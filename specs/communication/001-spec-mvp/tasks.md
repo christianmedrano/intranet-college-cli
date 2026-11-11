@@ -63,11 +63,11 @@
 
 ## Fase 5 — Backend: Adjuntos (compartido anuncios y mensajes)
 
-- [ ] T013 — Implementar `adjunto.service.ts` con validación tipos/tamaño — `apps/api/src/modules/communication/adjuntos/adjunto.service.ts` — RF-COM-006 — Lista blanca y tamaño máximo desde config institucional (`core.config`), almacenamiento local en desarrollo, nombre saneado, ruta no predecible; tests en verde
+- [x] T013 — Implementar `adjunto.service.ts` con validación tipos/tamaño — `apps/api/src/modules/communication/adjuntos/adjunto.service.ts` — RF-COM-006 — Lista blanca y tamaño máximo desde config institucional (`core.config`), almacenamiento local en desarrollo, nombre saneado, ruta no predecible; tests en verde
 
-- [ ] T014 — Implementar `adjunto.controller.ts` y rutas — `apps/api/src/modules/communication/adjuntos/adjunto.controller.ts`, `apps/api/src/modules/communication/adjuntos/adjunto.routes.ts` — RF-COM-006 — `POST /anuncios/:id/adjuntos`, `DELETE /anuncios/adjuntos/:id`, `POST /mensajes/:id/adjuntos`, `DELETE /mensajes/adjuntos/:id`; guards según recurso padre; tests en verde
+- [x] T014 — Implementar `adjunto.controller.ts` y rutas — `apps/api/src/modules/communication/adjuntos/adjunto.controller.ts`, `apps/api/src/modules/communication/adjuntos/adjunto.routes.ts` — RF-COM-006 — `POST /anuncios/:id/adjuntos`, `DELETE /anuncios/adjuntos/:id`, `POST /mensajes/:id/adjuntos`, `DELETE /mensajes/adjuntos/:id`; guards según recurso padre; tests en verde
 
-- [ ] T015 — Registrar rutas de adjuntos en `apps/api/src/server.ts` — `apps/api/src/server.ts` — RF-COM-006 — `app.register(adjuntoRoutes, { prefix: '/api/v1' })`; `npm run typecheck` en verde
+- [x] T015 — Registrar rutas de adjuntos en `apps/api/src/app.ts` — `apps/api/src/app.ts` — RF-COM-006 — `app.register(adjuntoRoutes, { prefix: '/api/v1' })`; `npm run typecheck` en verde
 
 ---
 

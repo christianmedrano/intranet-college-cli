@@ -1,6 +1,7 @@
 import cookie from '@fastify/cookie'
 import cors from '@fastify/cors'
 import rateLimit from '@fastify/rate-limit'
+import multipart from '@fastify/multipart'
 import Fastify, { type FastifyInstance } from 'fastify'
 import { loadConfig } from './core/config.js'
 import { AppError, registerErrorHandler } from './core/errors.js'
@@ -13,6 +14,7 @@ import { horarioRoutes } from './modules/academic/horarios/horario.routes.js'
 import { umbralRoutes } from './modules/academic/umbral/umbral.routes.js'
 import { anuncioRoutes } from './modules/communication/anuncios/anuncio.routes.js'
 import { mensajeRoutes } from './modules/communication/mensajeria/mensaje.routes.js'
+import { adjuntoRoutes } from './modules/communication/adjuntos/adjunto.routes.js'
 import { authRoutes } from './modules/core/auth/auth.routes.js'
 import { auditoriaRoutes } from './modules/core/auditoria/auditoria.routes.js'
 import { anioAcademicoRoutes } from './modules/core/estructura/anio-academico.routes.js'
@@ -59,6 +61,7 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   await app.register(cors, { origin: config.CORS_ORIGIN })
   await app.register(cookie)
+  await app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } })
   await app.register(rateLimit, {
     // En pruebas la suite completa supera las 100 peticiones por minuto desde
     // la misma IP. El throttle específico de login (RF-CORE-004) se mantiene y
@@ -93,6 +96,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(horarioRoutes, { prefix: '/api/v1' })
   await app.register(anuncioRoutes, { prefix: '/api/v1' })
   await app.register(mensajeRoutes, { prefix: '/api/v1' })
+await app.register(adjuntoRoutes, { prefix: '/api/v1' })
 
   return app
 }
