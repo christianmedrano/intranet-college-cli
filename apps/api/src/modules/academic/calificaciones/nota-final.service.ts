@@ -212,7 +212,7 @@ export async function crearNotaFinal(
  *
  * Con el período `CERRADO`, solo un actor con `academic.calificaciones.corregir`
  * puede modificarla y debe enviar `motivo`. Se auditan el valor anterior, el
- * nuevo y el motivo (RN-ACAD-005, RN-ACAD-006).
+ * nuevo y la presencia del motivo, nunca su texto (RN-ACAD-005, RN-ACAD-006).
  *
  * @param id Nota final a actualizar.
  * @param input Campos a cambiar y, si corresponde, el motivo.
@@ -281,7 +281,7 @@ export async function actualizarNotaFinal(
 
     await registrarAuditoria(tx, {
       usuarioId: actor.id,
-      accion: 'ACTUALIZAR',
+      accion: 'CORREGIR',
       entidad: 'NOTA_FINAL_PERIODO',
       entidadId: fila.id,
       datos: {
@@ -296,7 +296,7 @@ export async function actualizarNotaFinal(
               },
             }
           : {}),
-        ...(input.motivo ? { motivo: input.motivo } : {}),
+        ...(input.motivo ? { motivoPresente: true } : {}),
       },
       ...contexto,
     })

@@ -57,7 +57,7 @@ Formato obligatorio:
 
 ## Fase 6 — Auditoría
 
-- [ ] T016 — Ampliar `AccionAuditoria` con `CORREGIR`, `RECHAZAR` y `ACCEDER` y auditar accesos y cambios de calificaciones, asistencias, justificaciones y horarios sin PII — `apps/api/src/core/audit.ts`, `apps/api/src/modules/academic/`, `apps/api/test/academic/auditoria.test.ts` — RF-ACAD-013, RN-ACAD-022 — el SuperAdmin deja registro al consultar; la corrección guarda valor anterior y nuevo; el `datos` auditado no contiene nombres, documentos ni el motivo completo
+- [x] T016 — Ampliar `AccionAuditoria` con `CORREGIR`, `RECHAZAR` y `ACCEDER` y auditar accesos y cambios de calificaciones, asistencias, justificaciones y horarios sin PII — `apps/api/src/core/audit.ts`, `apps/api/src/modules/academic/`, `apps/api/test/academic/auditoria.test.ts` — RF-ACAD-013, RN-ACAD-022 — el SuperAdmin deja registro al consultar; la corrección guarda valor anterior y nuevo; el `datos` auditado no contiene nombres, documentos ni el motivo completo
 
 ## Fase 7 — Frontend
 

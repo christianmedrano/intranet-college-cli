@@ -36,6 +36,7 @@ export const CLAVES_SENSIBLES = [
 export type AccionAuditoria =
   | 'CREAR'
   | 'ACTUALIZAR'
+  | 'CORREGIR'
   | 'VINCULAR'
   | 'APROBAR'
   | 'RECHAZAR'

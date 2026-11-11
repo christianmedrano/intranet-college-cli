@@ -254,7 +254,7 @@ export async function crearCalificacion(
  *
  * Con el período `CERRADO`, solo un actor con `academic.calificaciones.corregir`
  * puede cambiarla y debe enviar `motivo`; se auditan el valor anterior, el nuevo
- * y el motivo (RN-ACAD-005, RN-ACAD-006).
+ * y la presencia del motivo, nunca su texto (RN-ACAD-005, RN-ACAD-006).
  *
  * @param id Calificación a actualizar.
  * @param input Campos a cambiar y, si corresponde, el motivo.
@@ -323,7 +323,7 @@ export async function actualizarCalificacion(
 
     await registrarAuditoria(tx, {
       usuarioId: actor.id,
-      accion: 'ACTUALIZAR',
+      accion: 'CORREGIR',
       entidad: 'CALIFICACION',
       entidadId: fila.id,
       datos: {
@@ -338,7 +338,7 @@ export async function actualizarCalificacion(
               },
             }
           : {}),
-        ...(input.motivo ? { motivo: input.motivo } : {}),
+        ...(input.motivo ? { motivoPresente: true } : {}),
       },
       ...contexto,
     })

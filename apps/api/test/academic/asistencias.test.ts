@@ -395,15 +395,18 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
         where: {
           entidad: 'ASISTENCIA',
           entidadId: asistencia.id,
-          accion: 'ACTUALIZAR',
+          accion: 'CORREGIR',
         },
       })
       expect(auditoria.usuarioId).toBe(docente.id)
       expect(auditoria.ip).toBe('127.0.0.1')
       expect(auditoria.datos).toMatchObject({
         estado: { anterior: 'FALTA_INJUSTIFICADA', nuevo: 'FALTA_JUSTIFICADA' },
-        motivo: 'Justificación presentada',
+        motivoPresente: true,
       })
+      expect(JSON.stringify(auditoria.datos)).not.toContain(
+        'Justificación presentada',
+      )
     })
 
     it('rechaza la corrección de un docente ajeno a la sección', async () => {

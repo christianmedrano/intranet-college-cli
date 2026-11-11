@@ -378,15 +378,16 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
         where: {
           entidad: 'NOTA_FINAL_PERIODO',
           entidadId: nota.id,
-          accion: 'ACTUALIZAR',
+          accion: 'CORREGIR',
         },
       })
       expect(auditoria.usuarioId).toBe(director.id)
       expect(auditoria.createdAt).toBeInstanceOf(Date)
       expect(auditoria.datos).toMatchObject({
         valor: { anterior: 'B', nuevo: 'AD' },
-        motivo: 'Revisión del acta',
+        motivoPresente: true,
       })
+      expect(JSON.stringify(auditoria.datos)).not.toContain('Revisión del acta')
     })
 
     it('devuelve 404 cuando la nota final no existe', async () => {

@@ -399,7 +399,8 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
           accion: 'RECHAZAR',
         },
       })
-      expect(auditoria.datos).toMatchObject({ motivo: 'Sin documentos' })
+      expect(auditoria.datos).toMatchObject({ motivoPresente: true })
+      expect(JSON.stringify(auditoria.datos)).not.toContain('Sin documentos')
     })
 
     it('no permite resolver dos veces la misma solicitud', async () => {

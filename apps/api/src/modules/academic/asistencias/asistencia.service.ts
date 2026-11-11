@@ -260,7 +260,7 @@ export async function corregirAsistencia(
 
     await registrarAuditoria(tx, {
       usuarioId: actor.id,
-      accion: 'ACTUALIZAR',
+      accion: 'CORREGIR',
       entidad: 'ASISTENCIA',
       entidadId: fila.id,
       datos: {
@@ -275,7 +275,7 @@ export async function corregirAsistencia(
               },
             }
           : {}),
-        motivo: input.motivo,
+        motivoPresente: true,
       },
       ...contexto,
     })

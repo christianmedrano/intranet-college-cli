@@ -322,7 +322,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
         where: {
           entidad: 'CALIFICACION',
           entidadId: creada.id,
-          accion: 'ACTUALIZAR',
+          accion: 'CORREGIR',
         },
       })
       expect(auditoria.datos).toMatchObject({
@@ -374,7 +374,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
       ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' })
     })
 
-    it('permite al Director corregir tras el cierre y audita el motivo', async () => {
+    it('permite al Director corregir tras el cierre sin guardar el motivo', async () => {
       const contexto = await crearContexto({ estadoPeriodo: 'CERRADO' })
       const director = await crearActor(['DIRECTOR'])
       const creada = await prisma.calificacion.create({
@@ -400,7 +400,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
         where: {
           entidad: 'CALIFICACION',
           entidadId: creada.id,
-          accion: 'ACTUALIZAR',
+          accion: 'CORREGIR',
         },
       })
       expect(auditoria.usuarioId).toBe(director.id)
@@ -408,8 +408,9 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
       expect(auditoria.createdAt).toBeInstanceOf(Date)
       expect(auditoria.datos).toMatchObject({
         valor: { anterior: 'B', nuevo: 'AD' },
-        motivo: 'Revisión del acta',
+        motivoPresente: true,
       })
+      expect(JSON.stringify(auditoria.datos)).not.toContain('Revisión del acta')
     })
 
     it('impide al docente corregir un período cerrado', async () => {

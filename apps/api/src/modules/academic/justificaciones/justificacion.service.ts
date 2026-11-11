@@ -337,7 +337,7 @@ export async function rechazarJustificacion(
       accion: 'RECHAZAR',
       entidad: 'JUSTIFICACION_FALTA',
       entidadId: fila.id,
-      datos: { asistenciaId: fila.asistenciaId, motivo: input.motivo },
+      datos: { asistenciaId: fila.asistenciaId, motivoPresente: true },
       ...contexto,
     })
 
