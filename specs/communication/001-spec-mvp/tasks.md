@@ -29,7 +29,7 @@
 
 ## Fase 2 — Migración y entidades base
 
-- [ ] T002 — Crear migración `communication_init` con modelos Anuncio, AdjuntoAnuncio, HiloMensajeria, MensajeSeccion, AdjuntoMensaje — `apps/api/prisma/schema.prisma`, `apps/api/prisma/migrations/` — RF-COM-001 a RF-COM-006 — `prisma migrate dev --name communication_init` aplica sin errores; tablas creadas con índices y enums
+- [x] T002 — Crear migración `communication_init` con modelos Anuncio, AdjuntoAnuncio, HiloMensajeria, MensajeSeccion, AdjuntoMensaje — `apps/api/prisma/schema.prisma`, `apps/api/prisma/migrations/` — RF-COM-001 a RF-COM-006 — `prisma migrate dev --name communication_init` aplica sin errores; tablas creadas con índices y enums
 
 ---
 

@@ -32,6 +32,7 @@ model Institucion {
 
   aniosAcademicos AnioAcademico[]
   niveles         Nivel[]
+  anuncios        Anuncio[]
 
   @@map("institucion")
 }
@@ -88,6 +89,8 @@ model Usuario {
   auditorias                 Auditoria[]
   justificacionesSolicitadas JustificacionFalta[] @relation("JustificacionSolicitante")
   justificacionesResueltas   JustificacionFalta[] @relation("JustificacionResolutor")
+  anunciosCreados            Anuncio[]            @relation("AnuncioAutor")
+  mensajesEnviados           MensajeSeccion[]     @relation("MensajeAutor")
 
   @@map("usuario")
 }
@@ -279,6 +282,7 @@ model Seccion {
   matriculas   Matricula[]
   asignaciones AsignacionDocente[]
   horarios     Horario[]
+  hiloMensajeria HiloMensajeria?
 
   @@unique([gradoId, anioId, nombre], map: "seccion_nombre_key")
   @@index([anioId])
@@ -629,4 +633,108 @@ model Horario {
   @@index([docenteId, diaSemana])
   @@index([anioId, seccionId])
   @@map("horario")
+}
+
+// ---------------------------------------------------------------------------
+// Módulo de comunicación: anuncios, mensajería y adjuntos
+// ---------------------------------------------------------------------------
+
+/// Anuncio institucional o de sección (RF-COM-001, RF-COM-002).
+model Anuncio {
+  id                  String   @id @default(uuid()) @db.Char(36)
+  institucionId       String   @map("institucion_id") @db.Char(36)
+  autorId             String   @map("autor_id") @db.Char(36)
+  titulo              String   @db.VarChar(200)
+  cuerpo              String   @db.Text
+  /// INSTITUCIONAL | SECCION
+  tipo                String   @db.VarChar(20)
+  /// BORRADOR | PUBLICADO | EXPIRADO | ARCHIVADO
+  estado              String   @default("BORRADOR") @db.VarChar(20)
+  /// Arrays almacenados como JSON (MySQL no soporta arrays de primitivas)
+  audienciaNiveles    Json     @default("[]") @map("audiencia_niveles")
+  audienciaGrados     Json     @default("[]") @map("audiencia_grados")
+  audienciaSecciones  Json     @default("[]") @map("audiencia_secciones")
+  audienciaRoles      Json     @default("[]") @map("audiencia_roles")
+  publicadoEn         DateTime? @map("publicado_en") @db.DateTime(3)
+  expiraEn            DateTime? @map("expira_en") @db.DateTime(3)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.DateTime(3)
+  createdBy String?   @map("created_by") @db.Char(36)
+  updatedBy String?   @map("updated_by") @db.Char(36)
+  deletedAt DateTime? @map("deleted_at") @db.DateTime(3)
+
+  institucion Institucion       @relation(fields: [institucionId], references: [id], onDelete: Restrict)
+  autor       Usuario           @relation("AnuncioAutor", fields: [autorId], references: [id], onDelete: Restrict)
+  adjuntos    AdjuntoAnuncio[]
+
+  @@index([institucionId, estado])
+  @@index([tipo, estado])
+  @@index([publicadoEn])
+  @@map("anuncios")
+}
+
+/// Adjunto de anuncio (RF-COM-006).
+model AdjuntoAnuncio {
+  id               String   @id @default(uuid()) @db.Char(36)
+  anuncioId        String   @map("anuncio_id") @db.Char(36)
+  nombreOriginal   String   @map("nombre_original") @db.VarChar(255)
+  nombreAlmacenado String   @map("nombre_almacenado") @db.VarChar(500)
+  tipoMime         String   @map("tipo_mime") @db.VarChar(100)
+  tamanoBytes      Int      @map("tamano_bytes")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  anuncio Anuncio @relation(fields: [anuncioId], references: [id], onDelete: Cascade)
+
+  @@map("adjuntos_anuncio")
+}
+
+/// Hilo de mensajería por sección (RF-COM-004). Uno por sección.
+model HiloMensajeria {
+  id        String   @id @default(uuid()) @db.Char(36)
+  seccionId String   @unique @map("seccion_id") @db.Char(36)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+
+  seccion  Seccion         @relation(fields: [seccionId], references: [id], onDelete: Restrict)
+  mensajes MensajeSeccion[]
+
+  @@map("hilos_mensajeria")
+}
+
+/// Mensaje en hilo de sección (RF-COM-004, RF-COM-005).
+model MensajeSeccion {
+  id        String   @id @default(uuid()) @db.Char(36)
+  hiloId    String   @map("hilo_id") @db.Char(36)
+  autorId   String   @map("autor_id") @db.Char(36)
+  cuerpo    String   @db.Text
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.DateTime(3)
+  deletedAt DateTime? @map("deleted_at") @db.DateTime(3)
+
+  hilo      HiloMensajeria   @relation(fields: [hiloId], references: [id], onDelete: Cascade)
+  autor     Usuario          @relation("MensajeAutor", fields: [autorId], references: [id], onDelete: Restrict)
+  adjuntos  AdjuntoMensaje[]
+
+  @@index([hiloId, createdAt])
+  @@map("mensajes_seccion")
+}
+
+/// Adjunto de mensaje (RF-COM-006).
+model AdjuntoMensaje {
+  id               String   @id @default(uuid()) @db.Char(36)
+  mensajeId        String   @map("mensaje_id") @db.Char(36)
+  nombreOriginal   String   @map("nombre_original") @db.VarChar(255)
+  nombreAlmacenado String   @map("nombre_almacenado") @db.VarChar(500)
+  tipoMime         String   @map("tipo_mime") @db.VarChar(100)
+  tamanoBytes      Int      @map("tamano_bytes")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  mensaje MensajeSeccion @relation(fields: [mensajeId], references: [id], onDelete: Cascade)
+
+  @@map("adjuntos_mensaje")
 }
