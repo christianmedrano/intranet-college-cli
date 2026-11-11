@@ -18,16 +18,19 @@
     "typecheck": "npm run build -w @intranet/shared && npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "test:coverage": "npm run test:coverage --workspaces --if-present",
+    "test:e2e": "playwright test",
     "preview": "npm run preview -w @intranet/web",
     "postinstall": "npm run build -w @intranet/shared"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.0",
     "concurrently": "^10.0.6",
     "eslint": "^10.13.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.13.0",
+    "playwright": "^1.65.0",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.72.0"
   }
