@@ -35,7 +35,7 @@
 
 ## Fase 3 — Backend: Anuncios
 
-- [ ] T003 — Implementar `anuncio.repository.ts` con CRUD y mapeo a DTO — `apps/api/src/modules/communication/anuncios/anuncio.repository.ts` — RF-COM-001, RF-COM-002, RF-COM-003 — `create`, `findById`, `update`, `softDelete`, `findMany` con filtros y paginación; tests de repositorio en verde
+- [x] T003 — Implementar `anuncio.repository.ts` con CRUD y mapeo a DTO — `apps/api/src/modules/communication/anuncios/anuncio.repository.ts` — RF-COM-001, RF-COM-002, RF-COM-003 — `create`, `findById`, `update`, `softDelete`, `findMany` con filtros y paginación; tests de repositorio en verde
 
 - [ ] T004 — Implementar `anuncio.scope.ts` con `construirAlcanceAnuncios` — `apps/api/src/modules/communication/anuncios/anuncio.scope.ts` — RF-COM-003 — Segmentación: DI ve todos, DO ve institucionales + secciones donde es tutor + secciones asignadas, PA ve vinculados a sus alumnos, AL ve su sección/grado/nivel/rol ALUMNO; SA ve todos (auditado); tests de scope en verde
 
