@@ -49,15 +49,15 @@
 
 ## Fase 4 — Backend: Mensajería
 
-- [ ] T008 — Implementar `mensaje.repository.ts` y `hilo.repository.ts` — `apps/api/src/modules/communication/mensajeria/mensaje.repository.ts`, `apps/api/src/modules/communication/mensajeria/hilo.repository.ts` — RF-COM-004, RF-COM-005 — Hilo único por sección (upsert), CRUD mensajes con paginación, adjuntos; tests de repositorio en verde
+- [x] T008 — Implementar `mensaje.repository.ts` y `hilo.repository.ts` — `apps/api/src/modules/communication/mensajeria/mensaje.repository.ts` — RF-COM-004, RF-COM-005 — Hilo único por sección (upsert), CRUD mensajes con paginación, adjuntos; tests de repositorio en verde
 
-- [ ] T009 — Implementar `mensaje.scope.ts` con `construirAlcanceMensajes` — `apps/api/src/modules/communication/mensajeria/mensaje.scope.ts` — RF-COM-004, RF-COM-005 — DO tutor + PA con alumno en sección (matrícula APROBADA); DI ve todo (auditado); SA ve todo (auditado, denuncia); tests de scope en verde
+- [x] T009 — Implementar `mensaje.scope.ts` con `construirAlcanceMensajes` — `apps/api/src/modules/communication/mensajeria/mensaje.scope.ts` — RF-COM-004, RF-COM-005 — DO tutor + PA con alumno en sección (matrícula APROBADA); DI ve todo (auditado); SA ve todo (auditado, denuncia); tests de scope en verde
 
-- [ ] T010 — Implementar `mensaje.service.ts` — `apps/api/src/modules/communication/mensajeria/mensaje.service.ts` — RF-COM-004, RF-COM-005 — Crear hilo al primer mensaje si no existe, validar autor (tutor/apoderado vinculado), auditoría en escritura; tests de servicio ≥ 80 % cobertura
+- [x] T010 — Implementar `mensaje.service.ts` — `apps/api/src/modules/communication/mensajeria/mensaje.service.ts` — RF-COM-004, RF-COM-005 — Crear hilo al primer mensaje si no existe, validar autor (tutor/apoderado vinculado), auditoría en escritura; tests de servicio ≥ 80 % cobertura
 
-- [ ] T011 — Implementar `mensaje.controller.ts` y `mensaje.routes.ts` — `apps/api/src/modules/communication/mensajeria/mensaje.controller.ts`, `apps/api/src/modules/communication/mensajeria/mensaje.routes.ts` — RF-COM-004, RF-COM-005 — Rutas: `GET /secciones/:id/mensajes`, `POST /secciones/:id/mensajes`, `DELETE /mensajes/:id`; guards: `communication.mensajeria.gestionar` (escritura tutor/apoderado), `communication.mensajeria.supervisar` (lectura DI/SA); tests de contrato en verde
+- [x] T011 — Implementar `mensaje.controller.ts` y `mensaje.routes.ts` — `apps/api/src/modules/communication/mensajeria/mensaje.controller.ts`, `apps/api/src/modules/communication/mensajeria/mensaje.routes.ts` — RF-COM-004, RF-COM-005 — Rutas: `GET /secciones/:id/mensajes`, `POST /secciones/:id/mensajes`, `DELETE /mensajes/:id`; guards: `communication.mensajeria.gestionar` (escritura tutor/apoderado), `communication.mensajeria.supervisar` (lectura DI/SA); tests de contrato en verde
 
-- [ ] T012 — Registrar rutas de mensajería en `apps/api/src/server.ts` — `apps/api/src/server.ts` — RF-COM-004, RF-COM-005 — `app.register(mensajeRoutes, { prefix: '/api/v1' })`; `npm run typecheck` en verde
+- [x] T012 — Registrar rutas de mensajería en `apps/api/src/app.ts` — `apps/api/src/app.ts` — RF-COM-004, RF-COM-005 — `app.register(mensajeRoutes, { prefix: '/api/v1' })`; `npm run typecheck` en verde
 
 ---
 

@@ -12,6 +12,7 @@ import { justificacionRoutes } from './modules/academic/justificaciones/justific
 import { horarioRoutes } from './modules/academic/horarios/horario.routes.js'
 import { umbralRoutes } from './modules/academic/umbral/umbral.routes.js'
 import { anuncioRoutes } from './modules/communication/anuncios/anuncio.routes.js'
+import { mensajeRoutes } from './modules/communication/mensajeria/mensaje.routes.js'
 import { authRoutes } from './modules/core/auth/auth.routes.js'
 import { auditoriaRoutes } from './modules/core/auditoria/auditoria.routes.js'
 import { anioAcademicoRoutes } from './modules/core/estructura/anio-academico.routes.js'
@@ -91,6 +92,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(alertaRoutes, { prefix: '/api/v1' })
   await app.register(horarioRoutes, { prefix: '/api/v1' })
   await app.register(anuncioRoutes, { prefix: '/api/v1' })
+  await app.register(mensajeRoutes, { prefix: '/api/v1' })
 
   return app
 }
