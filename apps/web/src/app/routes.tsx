@@ -1,4 +1,5 @@
 import type { RouteObject } from 'react-router'
+import { AsistenciasPage } from '../features/academic/asistencias/AsistenciasPage'
 import { CalificacionesPage } from '../features/academic/calificaciones/CalificacionesPage'
 import { ChangePasswordPage } from '../features/auth/ChangePasswordPage'
 import { ForgotPasswordPage } from '../features/auth/ForgotPasswordPage'
@@ -22,6 +23,7 @@ export const routes: RouteObject[] = [
         children: [
           { path: '/', element: <HomePage /> },
           { path: '/calificaciones', element: <CalificacionesPage /> },
+          { path: '/asistencias', element: <AsistenciasPage /> },
           { path: '/cambiar-password', element: <ChangePasswordPage /> },
         ],
       },

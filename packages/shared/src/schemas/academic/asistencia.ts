@@ -1,6 +1,10 @@
 import { z } from 'zod'
 import { estadoAsistenciaSchema } from '../../domain/academic.js'
-import { paginationSchema, uuidSchema } from '../base.js'
+import {
+  paginationMetaSchema,
+  paginationSchema,
+  uuidSchema,
+} from '../base.js'
 import { fechaEscolarSchema, observacionSchema } from './base.js'
 
 /** Registro individual de asistencia diaria (RF-ACAD-004). */
@@ -78,4 +82,36 @@ export const listarAsistenciasQuerySchema = paginationSchema
 
 export type ListarAsistenciasQuery = z.infer<
   typeof listarAsistenciasQuerySchema
+>
+
+/**
+ * Asistencia diaria devuelta por la API (RF-ACAD-004).
+ *
+ * `fecha` es una fecha escolar `YYYY-MM-DD`, sin hora ni zona horaria
+ * (RN-ACAD-024).
+ */
+export const asistenciaResponseSchema = z.object({
+  id: uuidSchema,
+  alumnoId: uuidSchema,
+  fecha: fechaEscolarSchema,
+  estado: estadoAsistenciaSchema,
+  observacion: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
+/** Listado paginado de asistencias. */
+export const paginatedAsistenciasSchema = z.object({
+  data: z.array(asistenciaResponseSchema),
+  meta: paginationMetaSchema,
+})
+
+/** Respuesta del registro atómico de una sección en una fecha. */
+export const registrarAsistenciaLoteResponseSchema = z.object({
+  registros: z.array(asistenciaResponseSchema),
+})
+
+export type AsistenciaResponsePayload = z.infer<typeof asistenciaResponseSchema>
+export type PaginatedAsistenciasPayload = z.infer<
+  typeof paginatedAsistenciasSchema
 >

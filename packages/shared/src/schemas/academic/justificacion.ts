@@ -1,6 +1,10 @@
 import { z } from 'zod'
 import { estadoJustificacionSchema } from '../../domain/academic.js'
-import { paginationSchema, uuidSchema } from '../base.js'
+import {
+  paginationMetaSchema,
+  paginationSchema,
+  uuidSchema,
+} from '../base.js'
 import { motivoObligatorioSchema } from './base.js'
 
 /**
@@ -46,4 +50,35 @@ export const listarJustificacionesQuerySchema = paginationSchema.extend({
 
 export type ListarJustificacionesQuery = z.infer<
   typeof listarJustificacionesQuerySchema
+>
+
+/**
+ * Justificación devuelta por la API (RF-ACAD-006).
+ *
+ * Los campos de resolución son `null` mientras el estado sea `SOLICITADA`.
+ */
+export const justificacionResponseSchema = z.object({
+  id: uuidSchema,
+  asistenciaId: uuidSchema,
+  solicitanteUsuarioId: uuidSchema,
+  motivo: z.string(),
+  estado: estadoJustificacionSchema,
+  resueltoPor: uuidSchema.nullable(),
+  resueltoEn: z.string().nullable(),
+  motivoResolucion: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
+/** Listado paginado de justificaciones. */
+export const paginatedJustificacionesSchema = z.object({
+  data: z.array(justificacionResponseSchema),
+  meta: paginationMetaSchema,
+})
+
+export type JustificacionResponsePayload = z.infer<
+  typeof justificacionResponseSchema
+>
+export type PaginatedJustificacionesPayload = z.infer<
+  typeof paginatedJustificacionesSchema
 >
