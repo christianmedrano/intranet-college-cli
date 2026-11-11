@@ -37,13 +37,13 @@
 
 - [x] T003 — Implementar `anuncio.repository.ts` con CRUD y mapeo a DTO — `apps/api/src/modules/communication/anuncios/anuncio.repository.ts` — RF-COM-001, RF-COM-002, RF-COM-003 — `create`, `findById`, `update`, `softDelete`, `findMany` con filtros y paginación; tests de repositorio en verde
 
-- [ ] T004 — Implementar `anuncio.scope.ts` con `construirAlcanceAnuncios` — `apps/api/src/modules/communication/anuncios/anuncio.scope.ts` — RF-COM-003 — Segmentación: DI ve todos, DO ve institucionales + secciones donde es tutor + secciones asignadas, PA ve vinculados a sus alumnos, AL ve su sección/grado/nivel/rol ALUMNO; SA ve todos (auditado); tests de scope en verde
+- [x] T004 — Implementar `anuncio.scope.ts` con `construirAlcanceAnuncios` — `apps/api/src/modules/communication/anuncios/anuncio.scope.ts` — RF-COM-003 — Segmentación: DI ve todos, DO ve institucionales + secciones donde es tutor + secciones asignadas, PA ve vinculados a sus alumnos, AL ve su sección/grado/nivel/rol ALUMNO; SA ve todos (auditado); tests de scope en verde
 
-- [ ] T005 — Implementar `anuncio.service.ts` con reglas de negocio — `apps/api/src/modules/communication/anuncios/anuncio.service.ts` — RF-COM-001, RF-COM-002, RF-COM-003 — Validación audiencia institucional, estado borrador/publicado, expiración automática, auditoría en escritura; tests de servicio ≥ 80 % cobertura
+- [x] T005 — Implementar `anuncio.service.ts` con reglas de negocio — `apps/api/src/modules/communication/anuncios/anuncio.service.ts` — RF-COM-001, RF-COM-002, RF-COM-003 — Validación audiencia institucional, estado borrador/publicado, expiración automática, auditoría en escritura; tests de servicio ≥ 80 % cobertura
 
-- [ ] T006 — Implementar `anuncio.controller.ts` y `anuncio.routes.ts` — `apps/api/src/modules/communication/anuncios/anuncio.controller.ts`, `apps/api/src/modules/communication/anuncios/anuncio.routes.ts` — RF-COM-001, RF-COM-002, RF-COM-003 — Rutas: `POST /anuncios`, `PATCH /anuncios/:id`, `DELETE /anuncios/:id`, `GET /anuncios`, `GET /anuncios/:id`; guards: `communication.anuncios.gestionar` (escritura), `communication.anuncios.leer` (lectura); tests de contrato en verde
+- [x] T006 — Implementar `anuncio.controller.ts` y `anuncio.routes.ts` — `apps/api/src/modules/communication/anuncios/anuncio.controller.ts`, `apps/api/src/modules/communication/anuncios/anuncio.routes.ts` — RF-COM-001, RF-COM-002, RF-COM-003 — Rutas: `POST /anuncios`, `PATCH /anuncios/:id`, `DELETE /anuncios/:id`, `GET /anuncios`, `GET /anuncios/:id`; guards: `communication.anuncios.gestionar` (escritura), `communication.anuncios.leer` (lectura); tests de contrato en verde
 
-- [ ] T007 — Registrar rutas de anuncios en `apps/api/src/server.ts` — `apps/api/src/server.ts` — RF-COM-001 a RF-COM-003 — `app.register(anuncioRoutes, { prefix: '/api/v1' })`; `npm run typecheck` en verde
+- [x] T007 — Registrar rutas de anuncios en `apps/api/src/app.ts` — `apps/api/src/app.ts` — RF-COM-001 a RF-COM-003 — `app.register(anuncioRoutes, { prefix: '/api/v1' })`; `npm run typecheck` en verde
 
 ---
 

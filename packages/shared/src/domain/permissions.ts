@@ -36,6 +36,10 @@ export const permissionCodes = [
   'academic.asistencias.justificar',
   'academic.horarios.gestionar',
   'academic.horarios.leer',
+  'communication.anuncios.gestionar',
+  'communication.anuncios.leer',
+  'communication.mensajeria.gestionar',
+  'communication.mensajeria.supervisar',
 ] as const
 
 export type Permission = (typeof permissionCodes)[number]
@@ -61,6 +65,9 @@ export const rolePermissions: Readonly<
     'academic.calificaciones.leer',
     'academic.horarios.gestionar',
     'academic.horarios.leer',
+    'communication.anuncios.gestionar',
+    'communication.anuncios.leer',
+    'communication.mensajeria.supervisar',
   ],
   DIRECTOR: [
     'core.institucion.editar',
@@ -76,6 +83,8 @@ export const rolePermissions: Readonly<
     'academic.asistencias.justificar',
     'academic.horarios.gestionar',
     'academic.horarios.leer',
+    'communication.anuncios.gestionar',
+    'communication.anuncios.leer',
   ],
   DOCENTE: [
     'core.perfil.leer',
@@ -85,6 +94,7 @@ export const rolePermissions: Readonly<
     'academic.asistencias.leer',
     'academic.asistencias.justificar',
     'academic.horarios.leer',
+    'communication.anuncios.leer',
   ],
   APODERADO: [
     'core.perfil.leer',
@@ -92,12 +102,15 @@ export const rolePermissions: Readonly<
     'academic.asistencias.leer',
     'academic.asistencias.solicitar',
     'academic.horarios.leer',
+    'communication.anuncios.leer',
+    'communication.mensajeria.gestionar',
   ],
   ALUMNO: [
     'core.perfil.leer',
     'academic.calificaciones.leer',
     'academic.asistencias.leer',
     'academic.horarios.leer',
+    'communication.anuncios.leer',
   ],
 }
 

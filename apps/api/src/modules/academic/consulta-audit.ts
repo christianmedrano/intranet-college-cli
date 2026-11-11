@@ -5,7 +5,7 @@ import {
 import type { Prisma, PrismaClient } from '../../generated/prisma/client.js'
 import type { ActorAcademico } from './scope.js'
 
-/** Entidades académicas cuyo acceso se audita (RF-ACAD-013). */
+/** Entidades cuyo acceso se audita (RF-ACAD-013, RF-COM-003). */
 export type EntidadAccesoAcademico =
   | 'CALIFICACION'
   | 'NOTA_FINAL_PERIODO'
@@ -13,6 +13,7 @@ export type EntidadAccesoAcademico =
   | 'JUSTIFICACION_FALTA'
   | 'ALERTA_ASISTENCIA'
   | 'HORARIO'
+  | 'ANUNCIO'
 
 /** Recurso consultado y datos no personales que lo describen. */
 export interface AccesoAcademico {

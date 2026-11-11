@@ -65,12 +65,14 @@ const TABLAS_EN_ORDEN_DE_BORRADO = [
   'usuario',
   'persona',
   'anio_academico',
-  'institucion',
+  // 'institucion' se excluye deliberadamente: debe persistir entre tests
+  // para que el guard de autenticación siempre encuentre una institución.
   'rol',
 ] as const
 
 /**
- * Vacía la base de pruebas antes de cada caso.
+ * Vacía la base de pruebas antes de cada caso (excepto la institución) y asegura
+ * que exista una institución por defecto con ID fijo.
  *
  * @param prisma Cliente creado con {@link createTestPrisma}.
  */
@@ -80,4 +82,12 @@ export async function limpiarBaseDePruebas(
   for (const tabla of TABLAS_EN_ORDEN_DE_BORRADO) {
     await prisma.$executeRawUnsafe(`DELETE FROM \`${tabla}\``)
   }
+
+  // Asegurar que exista la institución por defecto con ID fijo (requerida por el guard de autenticación).
+  // Los tests NO deben crear sus propias instituciones; deben usar esta.
+  await prisma.institucion.upsert({
+    where: { id: '00000000-0000-4000-8000-000000000001' },
+    create: { id: '00000000-0000-4000-8000-000000000001', nombre: 'Institución de Prueba' },
+    update: {},
+  })
 }

@@ -27,10 +27,9 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
       await prisma.$disconnect()
     })
 
+    /** Devuelve el ID de la institución por defecto (ya creada por limpiarBaseDePruebas). */
     async function crearInstitucion() {
-      return prisma.institucion.create({
-        data: { nombre: 'IE San Martín' },
-      })
+      return { id: '00000000-0000-4000-8000-000000000001' }
     }
 
     async function crearUsuarioConRoles(roles: string[]) {
@@ -259,7 +258,9 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
       expect(respuesta.body.error.code).toBe('VALIDATION_ERROR')
     })
 
-    it('devuelve 404 al crear si no hay institución', async () => {
+    it('devuelve 401 al crear si no hay institución', async () => {
+      // Eliminar la institución para probar el caso sin institución
+      await prisma.institucion.deleteMany()
       const token = await tokenDe(['SUPER_ADMIN'])
 
       const respuesta = await crear(token, {
@@ -268,8 +269,8 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
         fechaFin: '2026-12-15',
       })
 
-      expect(respuesta.status).toBe(404)
-      expect(respuesta.body).toMatchObject({ error: { code: 'NOT_FOUND' } })
+      expect(respuesta.status).toBe(401)
+      expect(respuesta.body).toMatchObject({ error: { code: 'UNAUTHORIZED' } })
     })
 
     it('actualiza parcialmente y conserva los campos no enviados', async () => {
@@ -333,6 +334,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
     })
 
     it('devuelve 404 al editar un año inexistente', async () => {
+      await crearInstitucion()
       const token = await tokenDe(['SUPER_ADMIN'])
 
       const respuesta = await actualizar(
@@ -408,6 +410,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
     })
 
     it('devuelve 404 al activar un año inexistente', async () => {
+      await crearInstitucion()
       const token = await tokenDe(['SUPER_ADMIN'])
 
       const respuesta = await activar(

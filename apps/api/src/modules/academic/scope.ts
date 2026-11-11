@@ -11,7 +11,9 @@ import type { Prisma, PrismaClient } from '../../generated/prisma/client.js'
  * Los controladores la construyen desde `request.authUser`; las pruebas la
  * inyectan directamente.
  */
-export type ActorAcademico = Pick<AuthActor, 'id' | 'roles'>
+export type ActorAcademico = Pick<AuthActor, 'id' | 'roles'> & {
+  institucionId: string
+}
 
 /**
  * Exige un permiso académico con el mismo criterio que `requirePermission`.

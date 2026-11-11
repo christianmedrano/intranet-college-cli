@@ -41,6 +41,7 @@ export type AccionAuditoria =
   | 'APROBAR'
   | 'RECHAZAR'
   | 'RETIRAR'
+  | 'ARCHIVAR'
   | 'ACCEDER'
 
 /** Contexto de la petición que acompaña al registro de auditoría. */

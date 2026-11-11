@@ -12,6 +12,9 @@ import type { PrismaClient } from '../../../generated/prisma/client.js'
 import { getPrisma } from '../../../core/db.js'
 import { aFechaISO } from '../../core/estructura/fechas.js'
 
+/** Cliente Prisma (incluye transaccional). */
+type PrismaClientOrTx = PrismaClient | Prisma.TransactionClient
+
 /** Fila interna de anuncio con adjuntos. */
 interface FilaAnuncio {
   id: string
@@ -117,7 +120,7 @@ function construirWhere(filtros: ListarAnunciosQuery): Prisma.AnuncioWhereInput 
  */
 export async function crearAnuncio(
   data: CrearAnuncioInput & { autorId: string; institucionId: string },
-  prisma: PrismaClient = getPrisma(),
+  prisma: PrismaClientOrTx = getPrisma(),
 ): Promise<AnuncioResponse> {
   const creado = await prisma.anuncio.create({
     data: {
@@ -139,7 +142,7 @@ export async function crearAnuncio(
  */
 export async function encontrarAnuncioPorId(
   id: string,
-  prisma: PrismaClient = getPrisma(),
+  prisma: PrismaClientOrTx = getPrisma(),
 ): Promise<AnuncioResponse | null> {
   const fila = await prisma.anuncio.findUnique({
     where: { id, deletedAt: null },
@@ -157,7 +160,7 @@ export async function encontrarAnuncioPorId(
 export async function actualizarAnuncio(
   id: string,
   data: ActualizarAnuncioInput,
-  prisma: PrismaClient = getPrisma(),
+  prisma: PrismaClientOrTx = getPrisma(),
 ): Promise<AnuncioResponse> {
   const datos: Prisma.AnuncioUpdateInput = {}
 
@@ -193,7 +196,7 @@ export async function actualizarAnuncio(
  */
 export async function archivarAnuncio(
   id: string,
-  prisma: PrismaClient = getPrisma(),
+  prisma: PrismaClientOrTx = getPrisma(),
 ): Promise<void> {
   await prisma.anuncio.update({
     where: { id },
@@ -207,7 +210,7 @@ export async function archivarAnuncio(
 export async function listarAnuncios(
   filtros: ListarAnunciosQuery,
   paginacion: PaginationInput,
-  prisma: PrismaClient = getPrisma(),
+  prisma: PrismaClientOrTx = getPrisma(),
 ): Promise<Paginated<AnuncioResponse>> {
   const where = construirWhere(filtros)
 
@@ -237,7 +240,7 @@ export async function listarAnuncios(
  */
 export async function contarAnunciosPorAutor(
   autorId: string,
-  prisma: PrismaClient = getPrisma(),
+  prisma: PrismaClientOrTx = getPrisma(),
 ): Promise<number> {
   return prisma.anuncio.count({
     where: { autorId, deletedAt: null },

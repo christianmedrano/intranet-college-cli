@@ -51,6 +51,7 @@ export async function requireAuth(request: FastifyRequest): Promise<void> {
       id: true,
       debeCambiarPassword: true,
       roles: { select: { rol: { select: { codigo: true } } } },
+      persona: { select: { id: true } },
     },
   })
 
@@ -58,9 +59,20 @@ export async function requireAuth(request: FastifyRequest): Promise<void> {
     throw new AppError('UNAUTHORIZED')
   }
 
+  // Obtener la institución (single-institution deployment)
+  const institucion = await getPrisma().institucion.findFirst({
+    where: { deletedAt: null },
+    select: { id: true },
+  })
+
+  if (!institucion) {
+    throw new AppError('UNAUTHORIZED', 'No hay institución configurada.')
+  }
+
   request.authUser = {
     id: usuario.id,
     roles: normalizeRoleCodes(usuario.roles.map((fila) => fila.rol.codigo)),
     debeCambiarPassword: usuario.debeCambiarPassword,
+    institucionId: institucion.id,
   }
 }

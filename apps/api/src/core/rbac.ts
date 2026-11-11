@@ -11,6 +11,8 @@ import { AppError } from './errors.js'
 export interface AuthActor {
   id: string
   roles: RoleCode[]
+  /** Institución a la que pertenece el usuario (para multi-institución futuro). */
+  institucionId: string
   /**
    * `true` mientras el usuario siga con el PIN temporal (RF-CORE-017).
    *
