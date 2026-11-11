@@ -48,7 +48,7 @@ Formato obligatorio:
 ## Fase 4 — Umbral y alertas
 
 - [x] T012 — Implementar configuración del umbral por año (sin valor por defecto) y recálculo de alertas con `>=`, eliminación al subir el umbral y actualización al registrar falta o aprobar justificación — `apps/api/src/modules/academic/umbral/`, `apps/api/src/modules/academic/alertas/`, `apps/api/test/academic/alertas.test.ts` — RF-ACAD-008, RF-ACAD-009, RN-ACAD-013, RN-ACAD-014, RN-ACAD-015, RN-ACAD-016 — sin umbral no hay alertas; `0` o negativo `400`; alerta única por alumno y año; subir el umbral por encima de las faltas elimina la alerta
-- [ ] T013 — Exponer `GET`/`PUT /anios-academicos/:anioId/umbral-asistencia` y `GET /alertas-asistencia` con scoping — `apps/api/src/modules/academic/umbral/*.routes.ts`, `alertas/*.routes.ts`, `*.controller.ts`, `apps/api/src/app.ts`, `apps/api/test/academic/api-alertas.test.ts` — RF-ACAD-008, RF-ACAD-009 — solo quien tiene `core.estructura.gestionar` configura; apoderado y alumno solo ven sus alertas; ajenos reciben `403`
+- [x] T013 — Exponer `GET`/`PUT /anios-academicos/:anioId/umbral-asistencia` y `GET /alertas-asistencia` con scoping — `apps/api/src/modules/academic/umbral/*.routes.ts`, `alertas/*.routes.ts`, `*.controller.ts`, `apps/api/src/app.ts`, `apps/api/test/academic/api-alertas.test.ts` — RF-ACAD-008, RF-ACAD-009 — solo quien tiene `core.estructura.gestionar` configura; apoderado y alumno solo ven sus alertas; ajenos reciben `403`
 
 ## Fase 5 — Horarios
 

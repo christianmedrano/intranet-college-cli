@@ -5,9 +5,11 @@ import Fastify, { type FastifyInstance } from 'fastify'
 import { loadConfig } from './core/config.js'
 import { AppError, registerErrorHandler } from './core/errors.js'
 import { asistenciaRoutes } from './modules/academic/asistencias/asistencia.routes.js'
+import { alertaRoutes } from './modules/academic/alertas/alerta.routes.js'
 import { calificacionRoutes } from './modules/academic/calificaciones/calificacion.routes.js'
 import { notaFinalRoutes } from './modules/academic/calificaciones/nota-final.routes.js'
 import { justificacionRoutes } from './modules/academic/justificaciones/justificacion.routes.js'
+import { umbralRoutes } from './modules/academic/umbral/umbral.routes.js'
 import { authRoutes } from './modules/core/auth/auth.routes.js'
 import { auditoriaRoutes } from './modules/core/auditoria/auditoria.routes.js'
 import { anioAcademicoRoutes } from './modules/core/estructura/anio-academico.routes.js'
@@ -83,6 +85,8 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(notaFinalRoutes, { prefix: '/api/v1' })
   await app.register(asistenciaRoutes, { prefix: '/api/v1' })
   await app.register(justificacionRoutes, { prefix: '/api/v1' })
+  await app.register(umbralRoutes, { prefix: '/api/v1' })
+  await app.register(alertaRoutes, { prefix: '/api/v1' })
 
   return app
 }
