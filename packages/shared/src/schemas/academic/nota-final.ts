@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { valorLiteralSchema } from '../../domain/academic.js'
-import { paginationSchema, uuidSchema } from '../base.js'
+import { paginationMetaSchema, paginationSchema, uuidSchema } from '../base.js'
 import { observacionSchema } from './base.js'
 
 /**
@@ -43,4 +43,32 @@ export const listarNotasFinalesQuerySchema = paginationSchema.extend({
 
 export type ListarNotasFinalesQuery = z.infer<
   typeof listarNotasFinalesQuerySchema
+>
+
+/**
+ * Nota final devuelta por la API (RF-ACAD-002).
+ *
+ * Se registra manualmente y nunca se calcula a partir de las calificaciones
+ * parciales (RN-ACAD-004).
+ */
+export const notaFinalResponseSchema = z.object({
+  id: uuidSchema,
+  alumnoId: uuidSchema,
+  cursoId: uuidSchema,
+  periodoId: uuidSchema,
+  valor: valorLiteralSchema,
+  observacion: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
+/** Listado paginado de notas finales de un período. */
+export const paginatedNotasFinalesSchema = z.object({
+  data: z.array(notaFinalResponseSchema),
+  meta: paginationMetaSchema,
+})
+
+export type NotaFinalResponsePayload = z.infer<typeof notaFinalResponseSchema>
+export type PaginatedNotasFinalesPayload = z.infer<
+  typeof paginatedNotasFinalesSchema
 >

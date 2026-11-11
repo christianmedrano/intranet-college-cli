@@ -17,6 +17,13 @@ export const paginationSchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
 })
 
+/** Metadatos de paginación que acompañan a los listados. */
+export const paginationMetaSchema = z.object({
+  page: z.number().int().min(1),
+  pageSize: z.number().int().min(1),
+  total: z.number().int().min(0),
+})
+
 /** Códigos de error del sobre estándar descrito en `docs/architecture.md`. */
 export const errorCodeSchema = z.enum([
   'VALIDATION_ERROR',

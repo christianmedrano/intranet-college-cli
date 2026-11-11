@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { valorLiteralSchema } from '../../domain/academic.js'
-import { paginationSchema, uuidSchema } from '../base.js'
+import { paginationMetaSchema, paginationSchema, uuidSchema } from '../base.js'
 import { observacionSchema } from './base.js'
 
 /**
@@ -48,4 +48,34 @@ export const listarCalificacionesQuerySchema = paginationSchema.extend({
 
 export type ListarCalificacionesQuery = z.infer<
   typeof listarCalificacionesQuerySchema
+>
+
+/**
+ * Calificación devuelta por la API (RF-ACAD-001).
+ *
+ * El cliente valida la respuesta con este schema antes de mostrarla; no existe
+ * ningún campo numérico ni equivalencia (RN-ACAD-001).
+ */
+export const calificacionResponseSchema = z.object({
+  id: uuidSchema,
+  alumnoId: uuidSchema,
+  cursoId: uuidSchema,
+  periodoId: uuidSchema,
+  valor: valorLiteralSchema,
+  observacion: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+})
+
+/** Listado paginado de calificaciones de un período. */
+export const paginatedCalificacionesSchema = z.object({
+  data: z.array(calificacionResponseSchema),
+  meta: paginationMetaSchema,
+})
+
+export type CalificacionResponsePayload = z.infer<
+  typeof calificacionResponseSchema
+>
+export type PaginatedCalificacionesPayload = z.infer<
+  typeof paginatedCalificacionesSchema
 >
