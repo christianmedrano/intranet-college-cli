@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { paginationMetaSchema, uuidSchema } from './base.js'
 
 /** Estados posibles de un período académico (spec core §6). */
 export const estadoPeriodoAcademicoSchema = z.enum([
@@ -58,4 +59,33 @@ export const actualizarPeriodoAcademicoSchema = z
 
 export type ActualizarPeriodoAcademicoInput = z.infer<
   typeof actualizarPeriodoAcademicoSchema
+>
+
+/**
+ * Período académico expuesto por la API (RF-CORE-009).
+ */
+export const periodoAcademicoResponseSchema = z.object({
+  id: uuidSchema,
+  anioId: uuidSchema,
+  nombre: z.string(),
+  orden: z.number().int(),
+  fechaInicio: z.string(),
+  fechaFin: z.string(),
+  estado: estadoPeriodoAcademicoSchema,
+})
+
+export type PeriodoAcademicoResponsePayload = z.infer<
+  typeof periodoAcademicoResponseSchema
+>
+
+/**
+ * Listado paginado de períodos académicos.
+ */
+export const paginatedPeriodosAcademicosSchema = z.object({
+  data: z.array(periodoAcademicoResponseSchema),
+  meta: paginationMetaSchema,
+})
+
+export type PaginatedPeriodosAcademicosPayload = z.infer<
+  typeof paginatedPeriodosAcademicosSchema
 >

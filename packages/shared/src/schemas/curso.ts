@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { paginationSchema, uuidSchema } from './base.js'
+import { paginationSchema, paginationMetaSchema, uuidSchema } from './base.js'
 
 const nombreSchema = z
   .string()
@@ -55,3 +55,26 @@ export const listarCursosQuerySchema = paginationSchema.extend({
 })
 
 export type ListarCursosQuery = z.infer<typeof listarCursosQuerySchema>
+
+/**
+ * Curso expuesto por la API (RF-CORE-011).
+ */
+export const cursoResponseSchema = z.object({
+  id: uuidSchema,
+  nivelId: uuidSchema,
+  nombre: z.string(),
+  area: z.string().nullable(),
+  orden: z.number().int(),
+})
+
+export type CursoResponsePayload = z.infer<typeof cursoResponseSchema>
+
+/**
+ * Listado paginado de cursos.
+ */
+export const paginatedCursosSchema = z.object({
+  data: z.array(cursoResponseSchema),
+  meta: paginationMetaSchema,
+})
+
+export type PaginatedCursosPayload = z.infer<typeof paginatedCursosSchema>
