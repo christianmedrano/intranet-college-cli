@@ -11,6 +11,7 @@ import {
   createTestPrisma,
   limpiarBaseDePruebas,
 } from '../helpers/test-db.js'
+import { INSTITUCION_ID } from '../constants.js'
 
 const FECHA = '2024-05-12'
 
@@ -81,7 +82,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
         })
       }
 
-      return { id: usuario.id, roles }
+      return { id: usuario.id, roles, institucionId: INSTITUCION_ID }
     }
 
     interface Contexto {
@@ -98,12 +99,9 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
      * dependan del año real en que se ejecuten.
      */
     async function crearContexto(): Promise<Contexto> {
-      const institucion = await prisma.institucion.create({
-        data: { nombre: 'IE de Pruebas' },
-      })
       const anio = await prisma.anioAcademico.create({
         data: {
-          institucionId: institucion.id,
+          institucionId: INSTITUCION_ID,
           nombre: 'Escolar',
           fechaInicio: new Date('2020-01-01'),
           fechaFin: new Date('2099-12-31'),
@@ -111,7 +109,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
         },
       })
       const nivel = await prisma.nivel.create({
-        data: { institucionId: institucion.id, nombre: 'Primaria', orden: 1 },
+        data: { institucionId: INSTITUCION_ID, nombre: 'Primaria', orden: 1 },
       })
       const grado = await prisma.grado.create({
         data: { nivelId: nivel.id, nombre: 'Primero', orden: 1 },

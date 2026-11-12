@@ -21,6 +21,7 @@ import {
   createTestPrisma,
   limpiarBaseDePruebas,
 } from '../helpers/test-db.js'
+import { INSTITUCION_ID } from '../constants.js'
 
 describe.skipIf(!process.env.TEST_DATABASE_URL)(
   'umbral y alertas de asistencias',
@@ -85,7 +86,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
         })
       }
 
-      return { actor: { id: usuario.id, roles }, personaId: persona.id, usuarioId: usuario.id }
+      return { actor: { id: usuario.id, roles, institucionId: INSTITUCION_ID }, personaId: persona.id, usuarioId: usuario.id }
     }
 
     interface Contexto {
@@ -99,12 +100,9 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
     }
 
     async function crearContexto(): Promise<Contexto> {
-      const institucion = await prisma.institucion.create({
-        data: { nombre: 'IE de Pruebas' },
-      })
       const anio = await prisma.anioAcademico.create({
         data: {
-          institucionId: institucion.id,
+          institucionId: INSTITUCION_ID,
           nombre: '2024',
           fechaInicio: new Date('2024-03-01'),
           fechaFin: new Date('2024-12-15'),
@@ -112,7 +110,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
         },
       })
       const nivel = await prisma.nivel.create({
-        data: { institucionId: institucion.id, nombre: 'Primaria', orden: 1 },
+        data: { institucionId: INSTITUCION_ID, nombre: 'Primaria', orden: 1 },
       })
       const grado = await prisma.grado.create({
         data: { nivelId: nivel.id, nombre: 'Primero', orden: 1 },
