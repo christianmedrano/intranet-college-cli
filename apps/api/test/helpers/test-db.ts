@@ -54,6 +54,8 @@ const TABLAS_EN_ORDEN_DE_BORRADO = [
   'calificacion',
   'nota_final_periodo',
   'asistencia',
+  'adjuntos_virtuales',
+  'materiales_virtuales',
   'periodo_academico',
   'seccion',
   'curso',
@@ -82,6 +84,12 @@ export async function limpiarBaseDePruebas(
   for (const tabla of TABLAS_EN_ORDEN_DE_BORRADO) {
     await prisma.$executeRawUnsafe(`DELETE FROM \`${tabla}\``)
   }
+
+  // Borrar cualquier institución distinta de la fija; así `findInstitucionVigente`
+  // (que ordena por createdAt ASC) siempre devuelve la de prueba.
+  await prisma.$executeRawUnsafe(
+    `DELETE FROM \`institucion\` WHERE \`id\` <> '00000000-0000-4000-8000-000000000001'`,
+  )
 
   // Asegurar que exista la institución por defecto con ID fijo (requerida por el guard de autenticación).
   // Los tests NO deben crear sus propias instituciones; deben usar esta.
