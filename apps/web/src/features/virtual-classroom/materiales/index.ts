@@ -1,0 +1,17 @@
+export {
+  listarMateriales,
+  obtenerMaterial,
+  crearMaterial,
+  actualizarMaterial,
+  eliminarMaterial,
+  prepararDescargaMaterial,
+  subirAdjunto,
+  eliminarAdjunto,
+  listarAdjuntos,
+  prepararDescargaAdjunto,
+  type MaterialResponsePayload,
+  type PaginatedMaterialesPayload,
+  type MaterialDescargaPayload,
+  type AdjuntoDescargaPayload,
+  type AdjuntoVirtualResponsePayload,
+} from './api'
