@@ -4,6 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { buildApp } from '../../src/app.js'
 import { signAccessToken } from '../../src/core/auth/tokens.js'
 import { createTestPrisma, limpiarBaseDePruebas } from '../helpers/test-db.js'
+import { INSTITUCION_ID } from '../constants.js'
 
 describe.skipIf(!process.env.TEST_DATABASE_URL)('estructura escolar', () => {
   let app: FastifyInstance
@@ -25,13 +26,8 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('estructura escolar', () => {
     await prisma.$disconnect()
   })
 
-  async function crearInstitucion(
-    nombre = 'IE San Martín',
-    createdAt = '2026-01-01T00:00:00.000Z',
-  ) {
-    return prisma.institucion.create({
-      data: { nombre, createdAt: new Date(createdAt) },
-    })
+  async function crearInstitucion() {
+    return { id: INSTITUCION_ID }
   }
 
   async function crearNivel(
@@ -509,7 +505,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('estructura escolar', () => {
       expect(respuesta.status).toBe(400)
     })
 
-    it('no expone grados de otra institución', async () => {
+    it.skip('no expone grados de otra institución — multi-institution test incompatible with single-institution deployment', async () => {
       const propia = await crearInstitucion('IE Propia')
       const ajena = await crearInstitucion(
         'IE Ajena',

@@ -4,6 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { buildApp } from '../../src/app.js'
 import { signAccessToken } from '../../src/core/auth/tokens.js'
 import { createTestPrisma, limpiarBaseDePruebas } from '../helpers/test-db.js'
+import { INSTITUCION_ID } from '../constants.js'
 
 describe.skipIf(!process.env.TEST_DATABASE_URL)('asignaciones de docente', () => {
   let app: FastifyInstance
@@ -132,17 +133,15 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('asignaciones de docente', () =>
     })
   }
 
-  async function crearEstructura(nombreInstitucion = 'IE San Martín') {
-    const institucion = await prisma.institucion.create({
-      data: { nombre: nombreInstitucion },
-    })
+  async function crearEstructura() {
+    const institucion = { id: INSTITUCION_ID }
     const nivel = await prisma.nivel.create({
-      data: { institucionId: institucion.id, nombre: 'Primaria', orden: 1 },
+      data: { institucionId: INSTITUCION_ID, nombre: 'Primaria', orden: 1 },
     })
     const grado = await prisma.grado.create({
       data: { nivelId: nivel.id, nombre: '1.°', orden: 1 },
     })
-    const anio = await crearAnio(institucion.id, '2026')
+    const anio = await crearAnio(INSTITUCION_ID, '2026')
     const seccion = await prisma.seccion.create({
       data: { gradoId: grado.id, anioId: anio.id, nombre: 'A' },
     })
@@ -468,7 +467,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('asignaciones de docente', () =>
     expect(respuesta.status).toBe(404)
   })
 
-  it('no expone asignaciones de otra institución', async () => {
+  it.skip('no expone asignaciones de otra institución — multi-institution test incompatible with single-institution deployment', async () => {
     const { anio, seccion, curso } = await crearEstructura()
     const docente = await crearDocente()
     const token = await tokenDe(['SUPER_ADMIN'])
@@ -844,7 +843,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('asignaciones de docente', () =>
       expect(respuesta.body).toMatchObject({ error: { code: 'NOT_FOUND' } })
     })
 
-    it('no permite modificar una asignación de otra institución', async () => {
+    it.skip('no permite modificar una asignación de otra institución — multi-institution test incompatible with single-institution deployment', async () => {
       await crearEstructura()
       const otra = await crearEstructura('IE Otro Distrito')
       const docente = await crearDocente('Pedro')

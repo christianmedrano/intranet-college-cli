@@ -34,6 +34,8 @@ const MATRIZ: Readonly<Record<RoleCode, readonly Permission[]>> = {
     'communication.anuncios.gestionar',
     'communication.anuncios.leer',
     'communication.mensajeria.supervisar',
+    'virtual.leer',
+    'virtual.eliminar',
   ],
   DIRECTOR: [
     'core.institucion.editar',
@@ -51,6 +53,9 @@ const MATRIZ: Readonly<Record<RoleCode, readonly Permission[]>> = {
     'academic.horarios.leer',
     'communication.anuncios.gestionar',
     'communication.anuncios.leer',
+    'virtual.leer',
+    'virtual.gestionar',
+    'virtual.eliminar',
   ],
   DOCENTE: [
     'core.perfil.leer',
@@ -61,6 +66,9 @@ const MATRIZ: Readonly<Record<RoleCode, readonly Permission[]>> = {
     'academic.asistencias.justificar',
     'academic.horarios.leer',
     'communication.anuncios.leer',
+    'virtual.leer',
+    'virtual.gestionar',
+    'virtual.eliminar',
   ],
   APODERADO: [
     'core.perfil.leer',
@@ -70,6 +78,7 @@ const MATRIZ: Readonly<Record<RoleCode, readonly Permission[]>> = {
     'academic.horarios.leer',
     'communication.anuncios.leer',
     'communication.mensajeria.gestionar',
+    'virtual.leer',
   ],
   ALUMNO: [
     'core.perfil.leer',
@@ -77,6 +86,7 @@ const MATRIZ: Readonly<Record<RoleCode, readonly Permission[]>> = {
     'academic.asistencias.leer',
     'academic.horarios.leer',
     'communication.anuncios.leer',
+    'virtual.leer',
   ],
 }
 

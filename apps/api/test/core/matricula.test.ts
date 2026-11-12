@@ -4,6 +4,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { buildApp } from '../../src/app.js'
 import { signAccessToken } from '../../src/core/auth/tokens.js'
 import { createTestPrisma, limpiarBaseDePruebas } from '../helpers/test-db.js'
+import { INSTITUCION_ID } from '../constants.js'
 
 describe.skipIf(!process.env.TEST_DATABASE_URL)('matrículas', () => {
   let app: FastifyInstance
@@ -96,8 +97,8 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('matrículas', () => {
       .send(cuerpo as object)
   }
 
-  async function crearInstitucion(nombre = 'IE San Martín') {
-    return prisma.institucion.create({ data: { nombre } })
+  async function crearInstitucion() {
+    return { id: INSTITUCION_ID }
   }
 
   async function crearAnio(

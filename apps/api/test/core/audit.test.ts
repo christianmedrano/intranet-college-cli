@@ -9,6 +9,7 @@ import {
 } from '../../src/core/audit.js'
 import { signAccessToken } from '../../src/core/auth/tokens.js'
 import { createTestPrisma, limpiarBaseDePruebas } from '../helpers/test-db.js'
+import { INSTITUCION_ID } from '../constants.js'
 
 describe.skipIf(!process.env.TEST_DATABASE_URL)('auditoría', () => {
   let app: FastifyInstance
@@ -95,18 +96,16 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('auditoría', () => {
   }
 
   async function crearEstructura() {
-    const institucion = await prisma.institucion.create({
-      data: { nombre: 'IE San Martín' },
-    })
+    const institucion = { id: INSTITUCION_ID }
     const nivel = await prisma.nivel.create({
-      data: { institucionId: institucion.id, nombre: 'Primaria', orden: 1 },
+      data: { institucionId: INSTITUCION_ID, nombre: 'Primaria', orden: 1 },
     })
     const grado = await prisma.grado.create({
       data: { nivelId: nivel.id, nombre: '1.°', orden: 1 },
     })
     const anio = await prisma.anioAcademico.create({
       data: {
-        institucionId: institucion.id,
+        institucionId: INSTITUCION_ID,
         nombre: '2026',
         fechaInicio: new Date('2026-03-01T00:00:00.000Z'),
         fechaFin: new Date('2026-12-15T00:00:00.000Z'),
