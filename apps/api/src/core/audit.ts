@@ -43,6 +43,7 @@ export type AccionAuditoria =
   | 'RETIRAR'
   | 'ARCHIVAR'
   | 'ACCEDER'
+  | 'ELIMINAR'
 
 /** Contexto de la petición que acompaña al registro de auditoría. */
 export interface ContextoAuditoria {
