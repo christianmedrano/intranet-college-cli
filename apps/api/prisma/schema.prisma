@@ -190,6 +190,7 @@ model AnioAcademico {
   umbral       UmbralAsistencia?
   alertas      AlertaAsistencia[]
   horarios     Horario[]
+  materialesVirtuales MaterialVirtual[]
 
   @@unique([institucionId, nombre], map: "anio_academico_nombre_key")
   @@index([institucionId, estado])
@@ -216,6 +217,7 @@ model PeriodoAcademico {
 
   calificaciones Calificacion[]
   notasFinales   NotaFinalPeriodo[]
+  materialesVirtuales MaterialVirtual[]
 
   @@unique([anioId, orden], map: "periodo_academico_orden_key")
   @@unique([anioId, nombre], map: "periodo_academico_nombre_key")
@@ -283,6 +285,7 @@ model Seccion {
   asignaciones AsignacionDocente[]
   horarios     Horario[]
   hiloMensajeria HiloMensajeria?
+  materialesVirtuales MaterialVirtual[]
 
   @@unique([gradoId, anioId, nombre], map: "seccion_nombre_key")
   @@index([anioId])
@@ -308,6 +311,7 @@ model Curso {
   calificaciones Calificacion[]
   notasFinales   NotaFinalPeriodo[]
   horarios       Horario[]
+  materialesVirtuales MaterialVirtual[]
 
   @@unique([nivelId, nombre], map: "curso_nombre_key")
   @@map("curso")
@@ -358,6 +362,7 @@ model Docente {
   persona      Persona             @relation(fields: [personaId], references: [id], onDelete: Restrict)
   asignaciones AsignacionDocente[]
   horarios     Horario[]
+  materialesVirtuales MaterialVirtual[]
 
   @@map("docente")
 }
@@ -737,4 +742,56 @@ model AdjuntoMensaje {
   mensaje MensajeSeccion @relation(fields: [mensajeId], references: [id], onDelete: Cascade)
 
   @@map("adjuntos_mensaje")
+}
+
+// ---------------------------------------------------------------------------
+// Módulo Virtual Classroom: Materiales y adjuntos
+// ---------------------------------------------------------------------------
+
+model MaterialVirtual {
+  id              String  @id @default(uuid()) @db.Char(36)
+  cursoId         String  @map("curso_id") @db.Char(36)
+  seccionId       String  @map("seccion_id") @db.Char(36)
+  periodoId       String  @map("periodo_id") @db.Char(36)
+  docenteId       String  @map("docente_id") @db.Char(36)
+  anioId          String  @map("anio_id") @db.Char(36)
+  titulo          String  @db.VarChar(200)
+  descripcion     String? @db.Text
+  archivoNombre   String  @map("archivo_nombre") @db.VarChar(255)
+  archivoRuta     String  @map("archivo_ruta") @db.VarChar(500)
+  archivoMime     String  @map("archivo_mime") @db.VarChar(100)
+  tamanoBytes     Int     @map("tamano_bytes")
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.DateTime(3)
+  createdBy String?   @map("created_by") @db.Char(36)
+  updatedBy String?   @map("updated_by") @db.Char(36)
+  deletedAt DateTime? @map("deleted_at") @db.DateTime(3)
+
+  curso       Curso            @relation(fields: [cursoId], references: [id], onDelete: Restrict)
+  seccion     Seccion          @relation(fields: [seccionId], references: [id], onDelete: Restrict)
+  periodo     PeriodoAcademico @relation(fields: [periodoId], references: [id], onDelete: Restrict)
+  docente     Docente          @relation(fields: [docenteId], references: [id], onDelete: Restrict)
+  anio        AnioAcademico    @relation(fields: [anioId], references: [id], onDelete: Restrict)
+  adjuntos    AdjuntoVirtual[]
+
+  @@index([cursoId, seccionId, periodoId])
+  @@index([docenteId])
+  @@index([cursoId, seccionId, periodoId, docenteId, titulo], name: "materiales_virtual_docente_curso_seccion_periodo_titulo_key")
+  @@map("materiales_virtuales")
+}
+
+model AdjuntoVirtual {
+  id               String  @id @default(uuid()) @db.Char(36)
+  materialId       String  @map("material_id") @db.Char(36)
+  nombreOriginal   String  @map("nombre_original") @db.VarChar(255)
+  nombreAlmacenado String  @map("nombre_almacenado") @db.VarChar(500)
+  tipoMime         String  @map("tipo_mime") @db.VarChar(100)
+  tamanoBytes      Int     @map("tamano_bytes")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.DateTime(3)
+
+  material MaterialVirtual @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  @@map("adjuntos_virtuales")
 }
