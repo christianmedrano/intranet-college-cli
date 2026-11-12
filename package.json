@@ -19,6 +19,8 @@
     "test": "npm run test --workspaces --if-present",
     "test:coverage": "npm run test:coverage --workspaces --if-present",
     "test:e2e": "playwright test",
+    "seed": "tsx apps/api/src/core/seed.ts",
+    "seed:e2e": "tsx apps/api/src/core/seed-e2e.ts",
     "preview": "npm run preview -w @intranet/web",
     "postinstall": "npm run build -w @intranet/shared"
   },
