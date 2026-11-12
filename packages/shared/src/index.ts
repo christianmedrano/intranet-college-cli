@@ -29,6 +29,32 @@ export * from './schemas/academic/horario.js'
 export * from './schemas/communication/anuncio.js'
 export * from './schemas/communication/mensaje.js'
 export * from './schemas/communication/adjunto.js'
+export {
+  crearMaterialSchema,
+  actualizarMaterialSchema,
+  listarMaterialesQuerySchema,
+  materialResponseSchema,
+  paginatedMaterialesSchema,
+  materialDescargaSchema,
+  adjuntoDescargaSchema,
+  tipoMimeVirtualSchema,
+  TAMANO_MAXIMO_BYTES_VIR,
+  esTipoMimePermitidoVir,
+  type CrearMaterialInput,
+  type ActualizarMaterialInput,
+  type ListarMaterialesQuery,
+  type MaterialResponsePayload,
+  type PaginatedMaterialesPayload,
+  type MaterialDescargaPayload,
+  type AdjuntoDescargaPayload,
+} from './schemas/virtual-classroom/material.js'
+export {
+  adjuntoVirtualMetadatosSchema,
+  adjuntoVirtualResponseSchema,
+  type AdjuntoVirtualResponse,
+  type AdjuntoVirtualMetadatosInput,
+  type AdjuntoVirtualResponsePayload,
+} from './schemas/virtual-classroom/adjunto.js'
 export * from './contracts/base.js'
 export * from './contracts/auth.js'
 export * from './contracts/institucion.js'
@@ -55,5 +81,7 @@ export * from './contracts/academic/horario.js'
 export * from './contracts/communication/anuncio.js'
 export * from './contracts/communication/mensaje.js'
 export * from './contracts/communication/adjunto.js'
+export * from './contracts/virtual-classroom/material.js'
+export * from './contracts/virtual-classroom/adjunto.js'
 export * from './domain/permissions.js'
 export * from './domain/academic.js'
