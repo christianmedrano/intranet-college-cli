@@ -15,6 +15,8 @@ import { umbralRoutes } from './modules/academic/umbral/umbral.routes.js'
 import { anuncioRoutes } from './modules/communication/anuncios/anuncio.routes.js'
 import { mensajeRoutes } from './modules/communication/mensajeria/mensaje.routes.js'
 import { adjuntoRoutes } from './modules/communication/adjuntos/adjunto.routes.js'
+import { adjuntoVirtualRoutes } from './modules/virtual-classroom/adjuntos/adjunto.routes.js'
+import { materialRoutes } from './modules/virtual-classroom/materiales/material.routes.js'
 import { authRoutes } from './modules/core/auth/auth.routes.js'
 import { auditoriaRoutes } from './modules/core/auditoria/auditoria.routes.js'
 import { anioAcademicoRoutes } from './modules/core/estructura/anio-academico.routes.js'
@@ -96,7 +98,9 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(horarioRoutes, { prefix: '/api/v1' })
   await app.register(anuncioRoutes, { prefix: '/api/v1' })
   await app.register(mensajeRoutes, { prefix: '/api/v1' })
-await app.register(adjuntoRoutes, { prefix: '/api/v1' })
+  await app.register(adjuntoRoutes, { prefix: '/api/v1' })
+  await app.register(materialRoutes, { prefix: '/api/v1' })
+  await app.register(adjuntoVirtualRoutes, { prefix: '/api/v1' })
 
   return app
 }
