@@ -146,6 +146,20 @@ export function colorEstadoPago(estado: string): string {
 }
 
 /**
+ * Traduce un estado de matrícula a texto legible en español.
+ */
+export function etiquetaEstadoMatricula(estado: string): string {
+  const etiquetas: Record<string, string> = {
+    SOLICITADA: 'Solicitada',
+    APROBADA: 'Aprobada',
+    RECHAZADA: 'Rechazada',
+    RETIRADA: 'Retirada',
+    ANULADA: 'Anulada',
+  }
+  return etiquetas[estado] ?? estado
+}
+
+/**
  * Devuelve la clase CSS de color para un estado de matrícula.
  */
 export function colorEstadoMatricula(estado: string): string {
