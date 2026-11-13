@@ -123,7 +123,7 @@
 
 - [x] T033 — Implementar `CertificadosPage.tsx` (lista + filtros + acciones) — `apps/web/src/features/administrative/certificados/CertificadosPage.tsx` — RF-ADM-011 a RF-ADM-013 — Tabla paginada, filtros: tipo, alumno, año, estado; botones emitir/solicitar/aprobar/rechazar/descargar según permiso/estado
 
-- [ ] T034 — Tests UI: `PlantillaForm.test.tsx`, `CertificadoForm.test.tsx`, `CertificadosPage.test.tsx` — `apps/web/src/features/administrative/certificados/*.test.tsx` — RF-ADM-011 a RF-ADM-014 — Caso feliz + error (validación, 403, plantilla inválida, variables faltantes); `npm test` en verde
+- [x] T034 — Tests UI: `PlantillaForm.test.tsx`, `CertificadoForm.test.tsx`, `CertificadosPage.test.tsx` — `apps/web/src/features/administrative/certificados/*.test.tsx` — RF-ADM-011 a RF-ADM-014 — Caso feliz + error (validación, 403, plantilla inválida, variables faltantes); `npm test` en verde
 
 ---
 
