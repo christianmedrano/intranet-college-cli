@@ -18,6 +18,11 @@ import { MatriculasPage } from '../features/administrative/matriculas/Matriculas
 import { CertificadosPage } from '../features/administrative/certificados/CertificadosPage'
 import { PlantillasPage } from '../features/administrative/certificados/PlantillasPage'
 
+/** Páginas de comunicación */
+import { AnunciosPage } from '../features/communication/anuncios/AnunciosPage'
+import { AnuncioDetalle } from '../features/communication/anuncios/AnuncioDetalle'
+import { MensajeriaPage } from '../features/communication/mensajeria/MensajeriaPage'
+
 /**
  * Rutas de la aplicación.
  *
@@ -44,6 +49,10 @@ export const routes: RouteObject[] = [
           { path: '/administrative/matriculas', element: <MatriculasPage /> },
           { path: '/administrative/certificados', element: <CertificadosPage /> },
           { path: '/administrative/plantillas', element: <PlantillasPage /> },
+          // Rutas de comunicación
+          { path: '/anuncios', element: <AnunciosPage /> },
+          { path: '/anuncios/:id', element: <AnuncioDetalle /> },
+          { path: '/mensajeria/:seccionId', element: <MensajeriaPage /> },
         ],
       },
       { path: '/login', element: <LoginPage /> },
