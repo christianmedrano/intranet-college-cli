@@ -109,7 +109,7 @@
 
 - [x] T028 — Implementar `MatriculasPage.tsx` (lista + filtros + acciones) — `apps/web/src/features/administrative/matriculas/MatriculasPage.tsx` — RF-ADM-005 a RF-ADM-010 — Tabla paginada, filtros: año, nivel, grado, sección, estado, alumno; botones aprobar/rechazar/retirar según permiso y estado
 
-- [ ] T029 — Tests UI: `MatriculaForm.test.tsx`, `MatriculasPage.test.tsx` — `apps/web/src/features/administrative/matriculas/*.test.tsx` — RF-ADM-005 a RF-ADM-010 — Caso feliz + error (validación, 403, capacidad llena, sin apoderado); `npm test` en verde
+- [x] T029 — Tests UI: `MatriculaForm.test.tsx`, `MatriculasPage.test.tsx` — `apps/web/src/features/administrative/matriculas/*.test.tsx` — RF-ADM-005 a RF-ADM-010 — Caso feliz + error (validación, 403, capacidad llena, sin apoderado); `npm test` en verde
 
 ---
 
