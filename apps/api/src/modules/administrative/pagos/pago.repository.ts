@@ -205,7 +205,7 @@ export async function estadoCuenta(
 ) {
   const [pagos, alumno] = await Promise.all([
     prisma.pago.findMany({
-      where: { alumnoId, deletedAt: null },
+      where: { alumnoId },
       select: {
         concepto: true,
         monto: true,

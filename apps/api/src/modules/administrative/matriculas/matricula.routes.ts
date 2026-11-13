@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify'
+import { requireAuth } from '../../../core/auth/guards.js'
 import {
   solicitarMatriculaHandler,
   listarMatriculasHandler,
@@ -10,6 +11,8 @@ import {
 } from './matricula.controller.js'
 
 async function matriculaRoutes(fastify: FastifyInstance) {
+  const preHandler = [requireAuth]
+
   // POST /api/v1/matriculas - Solicitar matrícula (apoderado)
   fastify.post(
     '/matriculas',
@@ -36,13 +39,11 @@ async function matriculaRoutes(fastify: FastifyInstance) {
             },
           },
         },
-        response: {
-          201: { $ref: 'MatriculaResponse#' },
-        },
         tags: ['Administrative - Matrículas'],
         summary: 'Solicitar una nueva matrícula',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     solicitarMatriculaHandler,
   )
@@ -65,13 +66,11 @@ async function matriculaRoutes(fastify: FastifyInstance) {
             alumnoId: { type: 'string', format: 'uuid' },
           },
         },
-        response: {
-          200: { $ref: 'PaginatedMatriculasResponse#' },
-        },
         tags: ['Administrative - Matrículas'],
         summary: 'Listar matrículas con filtros y paginación',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     listarMatriculasHandler,
   )
@@ -88,13 +87,11 @@ async function matriculaRoutes(fastify: FastifyInstance) {
             id: { type: 'string', format: 'uuid' },
           },
         },
-        response: {
-          200: { $ref: 'MatriculaResponse#' },
-        },
         tags: ['Administrative - Matrículas'],
         summary: 'Obtener una matrícula por ID',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     obtenerMatriculaHandler,
   )
@@ -117,13 +114,11 @@ async function matriculaRoutes(fastify: FastifyInstance) {
             observaciones: { type: 'string', maxLength: 500 },
           },
         },
-        response: {
-          200: { $ref: 'MatriculaResponse#' },
-        },
         tags: ['Administrative - Matrículas'],
         summary: 'Aprobar una matrícula',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     aprobarMatriculaHandler,
   )
@@ -147,13 +142,11 @@ async function matriculaRoutes(fastify: FastifyInstance) {
             motivo: { type: 'string', minLength: 1, maxLength: 500 },
           },
         },
-        response: {
-          200: { $ref: 'MatriculaResponse#' },
-        },
         tags: ['Administrative - Matrículas'],
         summary: 'Rechazar una matrícula',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     rechazarMatriculaHandler,
   )
@@ -177,13 +170,11 @@ async function matriculaRoutes(fastify: FastifyInstance) {
             motivo: { type: 'string', minLength: 1, maxLength: 500 },
           },
         },
-        response: {
-          200: { $ref: 'MatriculaResponse#' },
-        },
         tags: ['Administrative - Matrículas'],
         summary: 'Retirar una matrícula aprobada',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     retirarMatriculaHandler,
   )
@@ -207,13 +198,11 @@ async function matriculaRoutes(fastify: FastifyInstance) {
             motivo: { type: 'string', minLength: 1, maxLength: 500 },
           },
         },
-        response: {
-          200: { $ref: 'MatriculaResponse#' },
-        },
         tags: ['Administrative - Matrículas'],
         summary: 'Anular una matrícula',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     anularMatriculaHandler,
   )

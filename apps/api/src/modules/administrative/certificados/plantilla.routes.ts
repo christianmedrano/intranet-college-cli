@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify'
+import { requireAuth } from '../../../core/auth/guards.js'
 import {
   listarPlantillasHandler,
   obtenerPlantillaHandler,
@@ -9,6 +10,8 @@ import {
 } from './plantilla.controller.js'
 
 async function plantillaRoutes(fastify: FastifyInstance) {
+  const preHandler = [requireAuth]
+
   // GET /api/v1/plantillas-certificados - Listar plantillas
   fastify.get(
     '/plantillas-certificados',
@@ -23,13 +26,11 @@ async function plantillaRoutes(fastify: FastifyInstance) {
             estado: { type: 'string', enum: ['BORRADOR', 'SOLICITADO', 'APROBADO', 'RECHAZADO', 'EMITIDO', 'ANULADO'] },
           },
         },
-        response: {
-          200: { $ref: 'PaginatedPlantillasPayload#' },
-        },
         tags: ['Administrative - Certificados'],
         summary: 'Listar plantillas de certificados',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     listarPlantillasHandler,
   )
@@ -46,13 +47,11 @@ async function plantillaRoutes(fastify: FastifyInstance) {
             id: { type: 'string', format: 'uuid' },
           },
         },
-        response: {
-          200: { $ref: 'PlantillaCertificadoResponsePayload#' },
-        },
         tags: ['Administrative - Certificados'],
         summary: 'Obtener una plantilla por ID',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     obtenerPlantillaHandler,
   )
@@ -72,13 +71,11 @@ async function plantillaRoutes(fastify: FastifyInstance) {
             activa: { type: 'boolean', default: true },
           },
         },
-        response: {
-          201: { $ref: 'PlantillaCertificadoResponsePayload#' },
-        },
         tags: ['Administrative - Certificados'],
         summary: 'Crear una plantilla de certificado',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     crearPlantillaHandler,
   )
@@ -103,13 +100,11 @@ async function plantillaRoutes(fastify: FastifyInstance) {
             activa: { type: 'boolean' },
           },
         },
-        response: {
-          200: { $ref: 'PlantillaCertificadoResponsePayload#' },
-        },
         tags: ['Administrative - Certificados'],
         summary: 'Actualizar una plantilla de certificado',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     actualizarPlantillaHandler,
   )
@@ -133,6 +128,7 @@ async function plantillaRoutes(fastify: FastifyInstance) {
         summary: 'Eliminar una plantilla de certificado',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     eliminarPlantillaHandler,
   )
@@ -162,7 +158,7 @@ async function plantillaRoutes(fastify: FastifyInstance) {
           200: {
             type: 'object',
             properties: {
-              plantilla: { $ref: 'PlantillaCertificadoResponsePayload#' },
+              plantilla: { type: 'object', additionalProperties: true },
               variablesFaltantes: { type: 'array', items: { type: 'string' } },
             },
           },
@@ -171,6 +167,7 @@ async function plantillaRoutes(fastify: FastifyInstance) {
         summary: 'Generar preview de plantilla con variables de prueba',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     previewPlantillaHandler,
   )

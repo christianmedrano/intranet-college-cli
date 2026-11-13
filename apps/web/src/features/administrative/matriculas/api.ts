@@ -23,7 +23,7 @@ export type { MatriculaAdminResponsePayload, PaginatedMatriculasAdminPayload }
 export async function solicitarMatricula(
   input: SolicitarMatriculaInput,
 ): Promise<MatriculaAdminResponsePayload> {
-  return apiRequest('/matriculas', matriculaAdminResponseSchema, {
+  return apiRequest('/administrative/matriculas', matriculaAdminResponseSchema, {
     method: 'POST',
     body: input,
   })
@@ -38,7 +38,7 @@ export async function aprobarMatricula(
   id: string,
   input: AprobarMatriculaInput = {},
 ): Promise<MatriculaAdminResponsePayload> {
-  return apiRequest(`/matriculas/${id}/aprobar`, matriculaAdminResponseSchema, {
+  return apiRequest(`/administrative/matriculas/${id}/aprobar`, matriculaAdminResponseSchema, {
     method: 'PATCH',
     body: input,
   })
@@ -51,7 +51,7 @@ export async function rechazarMatricula(
   id: string,
   input: RechazarMatriculaInput,
 ): Promise<MatriculaAdminResponsePayload> {
-  return apiRequest(`/matriculas/${id}/rechazar`, matriculaAdminResponseSchema, {
+  return apiRequest(`/administrative/matriculas/${id}/rechazar`, matriculaAdminResponseSchema, {
     method: 'PATCH',
     body: input,
   })
@@ -64,7 +64,7 @@ export async function retirarMatricula(
   id: string,
   input: RetirarMatriculaInput,
 ): Promise<MatriculaAdminResponsePayload> {
-  return apiRequest(`/matriculas/${id}/retirar`, matriculaAdminResponseSchema, {
+  return apiRequest(`/administrative/matriculas/${id}/retirar`, matriculaAdminResponseSchema, {
     method: 'PATCH',
     body: input,
   })
@@ -91,5 +91,5 @@ export async function listarMatriculas(
   if (query.estado) params.set('estado', query.estado)
   if (query.alumnoId) params.set('alumnoId', query.alumnoId)
 
-  return apiRequest(`/matriculas?${params.toString()}`, paginatedMatriculasAdminSchema)
+  return apiRequest(`/administrative/matriculas?${params.toString()}`, paginatedMatriculasAdminSchema)
 }

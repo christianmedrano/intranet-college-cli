@@ -1,7 +1,10 @@
 import type { FastifyInstance } from 'fastify'
+import { requireAuth } from '../../../core/auth/guards.js'
 import { crearPagoHandler, listarPagosHandler, obtenerPagoHandler, anularPagoHandler, estadoCuentaHandler } from './pago.controller.js'
 
 async function pagoRoutes(fastify: FastifyInstance) {
+  const preHandler = [requireAuth]
+
   // POST /api/v1/pagos - Registrar pago
   fastify.post(
     '/pagos',
@@ -21,13 +24,11 @@ async function pagoRoutes(fastify: FastifyInstance) {
             observaciones: { type: 'string', maxLength: 500 },
           },
         },
-        response: {
-          201: { $ref: 'PagoResponse#' },
-        },
         tags: ['Administrative - Pagos'],
         summary: 'Registrar un nuevo pago',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     crearPagoHandler,
   )
@@ -50,13 +51,11 @@ async function pagoRoutes(fastify: FastifyInstance) {
             metodo: { type: 'string', enum: ['EFECTIVO', 'TRANSFERENCIA', 'DEPOSITO', 'OTRO'] },
           },
         },
-        response: {
-          200: { $ref: 'PaginatedPagosResponse#' },
-        },
         tags: ['Administrative - Pagos'],
         summary: 'Listar pagos con filtros y paginación',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     listarPagosHandler,
   )
@@ -73,13 +72,11 @@ async function pagoRoutes(fastify: FastifyInstance) {
             id: { type: 'string', format: 'uuid' },
           },
         },
-        response: {
-          200: { $ref: 'PagoResponse#' },
-        },
         tags: ['Administrative - Pagos'],
         summary: 'Obtener un pago por ID',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     obtenerPagoHandler,
   )
@@ -103,13 +100,11 @@ async function pagoRoutes(fastify: FastifyInstance) {
             motivo: { type: 'string', minLength: 1, maxLength: 500 },
           },
         },
-        response: {
-          200: { $ref: 'PagoResponse#' },
-        },
         tags: ['Administrative - Pagos'],
         summary: 'Anular un pago',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     anularPagoHandler,
   )
@@ -160,6 +155,7 @@ async function pagoRoutes(fastify: FastifyInstance) {
         summary: 'Obtener estado de cuenta de un alumno',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     estadoCuentaHandler,
   )

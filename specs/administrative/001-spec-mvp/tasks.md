@@ -23,7 +23,7 @@
 
 ## Fase 1 — Shared (tipos, schemas, contratos)
 
-- [ ] T001 — Definir schemas Zod de pago, matrícula, certificado y plantilla en `packages/shared` — `packages/shared/src/schemas/administrative/*.ts`, `packages/shared/src/contracts/administrative/*.ts` — RF-ADM-001 a RF-ADM-014 — `crearPagoSchema`, `solicitarMatriculaSchema`, `crearCertificadoSchema`, `plantillaCertificadoSchema`, contratos de respuesta; `npm run build -w @intranet/shared` en verde
+- [x] T001 — Definir schemas Zod de pago, matrícula, certificado y plantilla en `packages/shared` — `packages/shared/src/schemas/administrative/*.ts`, `packages/shared/src/contracts/administrative/*.ts` — RF-ADM-001 a RF-ADM-014 — `crearPagoSchema`, `solicitarMatriculaSchema`, `crearCertificadoSchema`, `plantillaCertificadoSchema`, contratos de respuesta; `npm run build -w @intranet/shared` en verde
 
 - [x] T002 — Registrar permisos administrativos en `packages/shared/src/domain/permissions.ts` — `packages/shared/src/domain/permissions.ts`, `packages/shared/src/index.ts` — RF-ADM-001 a RF-ADM-014 — `administrative.pagos.registrar`, `administrative.pagos.anular`, `administrative.pagos.leer`, `administrative.matriculas.gestionar`, `administrative.matriculas.leer`, `administrative.certificados.emitir`, `administrative.certificados.solicitar`, `administrative.certificados.descargar`; `npm run build -w @intranet/shared` en verde
 
@@ -57,7 +57,7 @@
 
 - [x] T011 — Implementar `matricula.service.ts` con reglas de negocio — `apps/api/src/modules/administrative/matriculas/matricula.service.ts` — RF-ADM-005 a RF-ADM-010, RN-ADM-005 a RN-ADM-010 — Validación capacidad, apoderado principal, año activo, retiro libera cupo; tests servicio ≥ 80 % cobertura
 
-- [x] T012 — Implementar `matricula.controller.ts` y `matricula.routes.ts` — `apps/api/src/modules/administrative/matriculas/matricula.controller.ts`, `apps/api/src/modules/administrative/matriculas/matricula.routes.ts` — RF-ADM-005 a RF-ADM-010 — Rutas: `POST /matriculas`, `PATCH /matriculas/:id/aprobar`, `PATCH /matriculas/:id/rechazar`, `PATCH /matriculas/:id/retirar`, `PATCH /matriculas/:id/anular`, `GET /matriculas`; guards: `administrative.matriculas.gestionar` (escritura), `administrative.matriculas.leer` (lectura); tests de contrato en verde
+- [x] T012 — Implementar `matricula.controller.ts` y `matricula.routes.ts` — `apps/api/src/modules/administrative/matriculas/matricula.controller.ts`, `apps/api/src/modules/administrative/matriculas/matricula.routes.ts` — RF-ADM-005 a RF-ADM-010 — Rutas bajo `/api/v1/administrative`: `POST /matriculas`, `PATCH /matriculas/:id/aprobar`, `PATCH /matriculas/:id/rechazar`, `PATCH /matriculas/:id/retirar`, `PATCH /matriculas/:id/anular`, `GET /matriculas`; guards: `administrative.matriculas.gestionar` (escritura), `administrative.matriculas.leer` (lectura); tests de contrato en verde
 
 - [x] T013 — Registrar rutas de matrículas en `apps/api/src/app.ts` — `apps/api/src/app.ts` — RF-ADM-005 a RF-ADM-010 — `app.register(matriculaRoutes, { prefix: '/api/v1' })`; `npm run typecheck` en verde
 
@@ -129,7 +129,7 @@
 
 ## Fase 10 — Cierre
 
-- [ ] T035 — Ejecutar gate completo y actualizar `docs/architecture.md` — `apps/api/test/administrative/`, `docs/architecture.md`, `specs/administrative/001-spec-mvp/tasks.md` — RF-ADM-001 a RF-ADM-014 — `lint + typecheck + test` en verde; cobertura servicios ≥ 70 %; arquitectura actualizada
+- [x] T035 — Ejecutar gate completo y actualizar `docs/architecture.md` — `apps/api/test/administrative/`, `docs/architecture.md`, `specs/administrative/001-spec-mvp/tasks.md` — RF-ADM-001 a RF-ADM-014 — `lint + typecheck + test` en verde; cobertura servicios ≥ 70 %; arquitectura actualizada
 
 - [ ] T036 — Configurar Playwright y flujo E2E administrative — `playwright.config.ts`, `apps/web/e2e/`, `package.json` — RF-ADM-001, RF-ADM-005, RF-ADM-011 — `npx playwright test` completa flujo: apoderado solicita matrícula → director aprueba → director emite certificado → apoderado descarga
 

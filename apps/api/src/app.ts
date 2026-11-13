@@ -93,7 +93,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(apoderadoRoutes, { prefix: '/api/v1' })
   await app.register(usuarioRoutes, { prefix: '/api/v1' })
   await app.register(matriculaRoutes, { prefix: '/api/v1' })
-  await app.register(matriculaAdminRoutes, { prefix: '/api/v1' })
+  await app.register(matriculaAdminRoutes, { prefix: '/api/v1/administrative' })
   await app.register(pagoRoutes, { prefix: '/api/v1' })
   await app.register(certificadoRoutes, { prefix: '/api/v1' })
   await app.register(plantillaRoutes, { prefix: '/api/v1' })

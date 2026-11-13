@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify'
+import { requireAuth } from '../../../core/auth/guards.js'
 import {
   listarCertificadosHandler,
   obtenerCertificadoHandler,
@@ -12,6 +13,8 @@ import {
 } from './certificado.controller.js'
 
 async function certificadoRoutes(fastify: FastifyInstance) {
+  const preHandler = [requireAuth]
+
   // GET /api/v1/certificados - Listar certificados
   fastify.get(
     '/certificados',
@@ -28,13 +31,11 @@ async function certificadoRoutes(fastify: FastifyInstance) {
             estado: { type: 'string', enum: ['BORRADOR', 'SOLICITADO', 'APROBADO', 'RECHAZADO', 'EMITIDO', 'ANULADO'] },
           },
         },
-        response: {
-          200: { $ref: 'PaginatedCertificadosPayload#' },
-        },
         tags: ['Administrative - Certificados'],
         summary: 'Listar certificados con filtros y paginación',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     listarCertificadosHandler,
   )
@@ -51,13 +52,11 @@ async function certificadoRoutes(fastify: FastifyInstance) {
             id: { type: 'string', format: 'uuid' },
           },
         },
-        response: {
-          200: { $ref: 'CertificadoResponsePayload#' },
-        },
         tags: ['Administrative - Certificados'],
         summary: 'Obtener un certificado por ID',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     obtenerCertificadoHandler,
   )
@@ -74,13 +73,11 @@ async function certificadoRoutes(fastify: FastifyInstance) {
             numero: { type: 'string', minLength: 1 },
           },
         },
-        response: {
-          200: { $ref: 'CertificadoResponsePayload#' },
-        },
         tags: ['Administrative - Certificados'],
         summary: 'Obtener un certificado por número',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     obtenerCertificadoPorNumeroHandler,
   )
@@ -104,13 +101,11 @@ async function certificadoRoutes(fastify: FastifyInstance) {
             },
           },
         },
-        response: {
-          201: { $ref: 'CertificadoResponsePayload#' },
-        },
         tags: ['Administrative - Certificados'],
         summary: 'Emitir un certificado directamente',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     emitirCertificadoHandler,
   )
@@ -130,13 +125,11 @@ async function certificadoRoutes(fastify: FastifyInstance) {
             plantillaId: { type: 'string', format: 'uuid' },
           },
         },
-        response: {
-          201: { $ref: 'CertificadoResponsePayload#' },
-        },
         tags: ['Administrative - Certificados'],
         summary: 'Solicitar un certificado',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     solicitarCertificadoHandler,
   )
@@ -163,13 +156,11 @@ async function certificadoRoutes(fastify: FastifyInstance) {
             },
           },
         },
-        response: {
-          200: { $ref: 'CertificadoResponsePayload#' },
-        },
         tags: ['Administrative - Certificados'],
         summary: 'Aprobar un certificado solicitado',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     aprobarCertificadoHandler,
   )
@@ -193,13 +184,11 @@ async function certificadoRoutes(fastify: FastifyInstance) {
             motivo: { type: 'string', minLength: 1, maxLength: 500 },
           },
         },
-        response: {
-          200: { $ref: 'CertificadoResponsePayload#' },
-        },
         tags: ['Administrative - Certificados'],
         summary: 'Rechazar un certificado solicitado',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     rechazarCertificadoHandler,
   )
@@ -223,13 +212,11 @@ async function certificadoRoutes(fastify: FastifyInstance) {
             motivo: { type: 'string', minLength: 1, maxLength: 500 },
           },
         },
-        response: {
-          200: { $ref: 'CertificadoResponsePayload#' },
-        },
         tags: ['Administrative - Certificados'],
         summary: 'Anular un certificado',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     anularCertificadoHandler,
   )
@@ -251,7 +238,7 @@ async function certificadoRoutes(fastify: FastifyInstance) {
             type: 'object',
             properties: {
               message: { type: 'string' },
-              certificado: { $ref: 'CertificadoResponsePayload#' },
+              certificado: { type: 'object', additionalProperties: true },
               downloadUrl: { type: 'string' },
             },
           },
@@ -260,6 +247,7 @@ async function certificadoRoutes(fastify: FastifyInstance) {
         summary: 'Descargar certificado en PDF',
         security: [{ bearerAuth: [] }],
       },
+      preHandler,
     },
     descargarCertificadoHandler,
   )

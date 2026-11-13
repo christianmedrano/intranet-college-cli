@@ -292,11 +292,11 @@ Según `docs/rbac-matrix.md` sección **Administrativo**:
 ### Matrículas
 | Método | Ruta | Permiso | Descripción |
 |---|---|---|---|
-| POST | `/api/v1/matriculas` | `administrative.matriculas.gestionar` (PA inicia) | Solicitar matrícula |
-| PATCH | `/api/v1/matriculas/:id/aprobar` | `administrative.matriculas.gestionar` | Aprobar matrícula |
-| PATCH | `/api/v1/matriculas/:id/rechazar` | `administrative.matriculas.gestionar` | Rechazar matrícula |
-| PATCH | `/api/v1/matriculas/:id/retirar` | `administrative.matriculas.gestionar` | Retirar matrícula |
-| GET | `/api/v1/matriculas` | `administrative.matriculas.leer` | Listar matrículas |
+| POST | `/api/v1/administrative/matriculas` | `administrative.matriculas.gestionar` (PA inicia) | Solicitar matrícula |
+| PATCH | `/api/v1/administrative/matriculas/:id/aprobar` | `administrative.matriculas.gestionar` | Aprobar matrícula |
+| PATCH | `/api/v1/administrative/matriculas/:id/rechazar` | `administrative.matriculas.gestionar` | Rechazar matrícula |
+| PATCH | `/api/v1/administrative/matriculas/:id/retirar` | `administrative.matriculas.gestionar` | Retirar matrícula |
+| GET | `/api/v1/administrative/matriculas` | `administrative.matriculas.leer` | Listar matrículas |
 
 ### Certificados
 | Método | Ruta | Permiso | Descripción |
