@@ -115,7 +115,7 @@
 
 ## Fase 9 — Frontend: Certificados y Plantillas
 
-- [ ] T030 — Implementar `administrative/certificados/api.ts` cliente tipado — `apps/web/src/features/administrative/certificados/api.ts` — RF-ADM-011 a RF-ADM-014 — `listarCertificados`, `crearCertificado`, `solicitarCertificado`, `aprobarCertificado`, `rechazarCertificado`, `descargarCertificado`, `listarPlantillas`, `crearPlantilla`, `actualizarPlantilla`, `eliminarPlantilla`; usa schemas `packages/shared`
+- [x] T030 — Implementar `administrative/certificados/api.ts` cliente tipado — `apps/web/src/features/administrative/certificados/api.ts` — RF-ADM-011 a RF-ADM-014 — `listarCertificados`, `crearCertificado`, `solicitarCertificado`, `aprobarCertificado`, `rechazarCertificado`, `descargarCertificado`, `listarPlantillas`, `crearPlantilla`, `actualizarPlantilla`, `eliminarPlantilla`; usa schemas `packages/shared`
 
 - [ ] T031 — Implementar `PlantillaForm.tsx` y `PlantillasPage.tsx` — `apps/web/src/features/administrative/certificados/PlantillaForm.tsx`, `apps/web/src/features/administrative/certificados/PlantillasPage.tsx` — RF-ADM-014 — CRUD plantillas con editor HTML + preview variables `{{variable}}`; lista con versión
 
