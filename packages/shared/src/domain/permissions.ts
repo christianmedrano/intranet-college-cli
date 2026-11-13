@@ -43,6 +43,15 @@ export const permissionCodes = [
   'virtual.leer',
   'virtual.gestionar',
   'virtual.eliminar',
+  // Administrative (ADM-001)
+  'administrative.pagos.registrar',
+  'administrative.pagos.anular',
+  'administrative.pagos.leer',
+  'administrative.matriculas.gestionar',
+  'administrative.matriculas.leer',
+  'administrative.certificados.emitir',
+  'administrative.certificados.solicitar',
+  'administrative.certificados.descargar',
 ] as const
 
 export type Permission = (typeof permissionCodes)[number]
@@ -73,6 +82,15 @@ export const rolePermissions: Readonly<
     'communication.mensajeria.supervisar',
     'virtual.leer',
     'virtual.eliminar',
+    // Administrative (ADM-001)
+    'administrative.pagos.registrar',
+    'administrative.pagos.anular',
+    'administrative.pagos.leer',
+    'administrative.matriculas.gestionar',
+    'administrative.matriculas.leer',
+    'administrative.certificados.emitir',
+    'administrative.certificados.solicitar',
+    'administrative.certificados.descargar',
   ],
   DIRECTOR: [
     'core.institucion.editar',
@@ -93,6 +111,14 @@ export const rolePermissions: Readonly<
     'virtual.leer',
     'virtual.gestionar',
     'virtual.eliminar',
+    // Administrative (ADM-001)
+    'administrative.pagos.registrar',
+    'administrative.pagos.anular',
+    'administrative.pagos.leer',
+    'administrative.matriculas.gestionar',
+    'administrative.matriculas.leer',
+    'administrative.certificados.emitir',
+    'administrative.certificados.descargar',
   ],
   DOCENTE: [
     'core.perfil.leer',
@@ -116,6 +142,12 @@ export const rolePermissions: Readonly<
     'communication.anuncios.leer',
     'communication.mensajeria.gestionar',
     'virtual.leer',
+    // Administrative (ADM-001)
+    'administrative.pagos.leer',
+    'administrative.matriculas.gestionar',
+    'administrative.matriculas.leer',
+    'administrative.certificados.solicitar',
+    'administrative.certificados.descargar',
   ],
   ALUMNO: [
     'core.perfil.leer',
@@ -124,6 +156,11 @@ export const rolePermissions: Readonly<
     'academic.horarios.leer',
     'communication.anuncios.leer',
     'virtual.leer',
+    // Administrative (ADM-001)
+    'administrative.pagos.leer',
+    'administrative.matriculas.leer',
+    'administrative.certificados.solicitar',
+    'administrative.certificados.descargar',
   ],
 }
 

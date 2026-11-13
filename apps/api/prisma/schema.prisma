@@ -91,6 +91,9 @@ model Usuario {
   justificacionesResueltas   JustificacionFalta[] @relation("JustificacionResolutor")
   anunciosCreados            Anuncio[]            @relation("AnuncioAutor")
   mensajesEnviados           MensajeSeccion[]     @relation("MensajeAutor")
+  pagosAnulados              Pago[]               @relation("PagoAnuladoPor")
+  certificadosSolicitados    Certificado[]        @relation("CertificadoSolicitadoPor")
+  certificadosAprobados      Certificado[]        @relation("CertificadoAprobadoPor")
 
   @@map("usuario")
 }
@@ -191,6 +194,7 @@ model AnioAcademico {
   alertas      AlertaAsistencia[]
   horarios     Horario[]
   materialesVirtuales MaterialVirtual[]
+  certificados Certificado[]
 
   @@unique([institucionId, nombre], map: "anio_academico_nombre_key")
   @@index([institucionId, estado])
@@ -342,6 +346,8 @@ model Alumno {
   notasFinales      NotaFinalPeriodo[]
   asistencias       Asistencia[]
   alertasAsistencia AlertaAsistencia[]
+  pagos             Pago[]
+  certificados      Certificado[]
 
   @@map("alumno")
 }
@@ -404,15 +410,22 @@ model ApoderadoAlumno {
   @@map("apoderado_alumno")
 }
 
-/// Matrícula de un alumno en una sección para un año lectivo (RF-CORE-015).
+/// Matrícula de un alumno en una sección para un año lectivo (RF-CORE-015, RF-ADM-005 a RF-ADM-010).
+/// Estados core: SOLICITADA | APROBADA | RETIRADA
+/// Estados admin: SOLICITADA | APROBADA | RECHAZADA | RETIRADA | ANULADA
 model Matricula {
-  id             String   @id @default(uuid()) @db.Char(36)
-  alumnoId       String   @map("alumno_id") @db.Char(36)
-  seccionId      String   @map("seccion_id") @db.Char(36)
-  anioId         String   @map("anio_id") @db.Char(36)
-  /// SOLICITADA | APROBADA | RETIRADA
-  estado         String   @default("SOLICITADA") @db.VarChar(20)
-  fechaMatricula DateTime @default(now()) @map("fecha_matricula") @db.DateTime(3)
+  id              String    @id @default(uuid()) @db.Char(36)
+  alumnoId        String    @map("alumno_id") @db.Char(36)
+  seccionId       String    @map("seccion_id") @db.Char(36)
+  anioId          String    @map("anio_id") @db.Char(36)
+  /// SOLICITADA | APROBADA | RECHAZADA | RETIRADA | ANULADA
+  estado          String    @default("SOLICITADA") @db.VarChar(20)
+  fechaMatricula  DateTime  @default(now()) @map("fecha_matricula") @db.DateTime(3)
+  fechaSolicitud  DateTime? @map("fecha_solicitud") @db.DateTime(3)
+  fechaAprobacion DateTime? @map("fecha_aprobacion") @db.DateTime(3)
+  fechaRetiro     DateTime? @map("fecha_retiro") @db.DateTime(3)
+  motivoRetiro    String?   @map("motivo_retiro") @db.VarChar(500)
+  observaciones   String?   @db.VarChar(500)
 
   createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(3)
   updatedAt DateTime  @updatedAt @map("updated_at") @db.DateTime(3)
@@ -427,6 +440,7 @@ model Matricula {
   @@unique([alumnoId, anioId], map: "matricula_alumno_anio_key")
   @@index([seccionId])
   @@index([anioId])
+  @@index([estado])
   @@map("matricula")
 }
 
@@ -795,3 +809,111 @@ model AdjuntoVirtual {
 
   @@map("adjuntos_virtuales")
 }
+
+// ---------------------------------------------------------------------------
+// Módulo administrativo: pagos, matrículas extendidas, certificados y plantillas
+// ---------------------------------------------------------------------------
+
+/// Pago registrado por alumno (RF-ADM-001, RF-ADM-002).
+/// Conceptos: CUOTA_MENSUAL | MATRICULA | CERTIFICADO | OTRO
+/// Métodos: EFECTIVO | TRANSFERENCIA | DEPOSITO | OTRO
+/// Estado: REGISTRADO | ANULADO
+model Pago {
+  id              String    @id @default(uuid()) @db.Char(36)
+  alumnoId        String    @map("alumno_id") @db.Char(36)
+  concepto        String    @db.VarChar(20)
+  monto           Decimal   @db.Decimal(10, 2)
+  moneda          String    @default("PEN") @db.Char(3)
+  fechaPago       DateTime  @map("fecha_pago") @db.Date
+  metodo          String    @db.VarChar(20)
+  comprobante     String?   @db.VarChar(100)
+  observaciones   String?   @db.VarChar(500)
+  /// REGISTRADO | ANULADO
+  estado          String    @default("REGISTRADO") @db.VarChar(20)
+  anuladoMotivo   String?   @map("anulado_motivo") @db.VarChar(500)
+  anuladoPorId    String?   @map("anulado_por_id") @db.Char(36)
+  anuladoAt       DateTime? @map("anulado_at") @db.DateTime(3)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.DateTime(3)
+  createdBy String?   @map("created_by") @db.Char(36)
+  updatedBy String?   @map("updated_by") @db.Char(36)
+
+  alumno      Alumno    @relation(fields: [alumnoId], references: [id], onDelete: Restrict)
+  anuladoPor  Usuario?  @relation("PagoAnuladoPor", fields: [anuladoPorId], references: [id], onDelete: SetNull)
+
+  @@index([alumnoId])
+  @@index([fechaPago])
+  @@index([estado])
+  @@map("pago")
+}
+
+/// Plantilla de certificado con versionado (RF-ADM-014, RN-ADM-012, RN-ADM-014).
+/// Versionado por tipo + version.
+/// Contenido HTML con variables {{variable}}.
+model PlantillaCertificado {
+  id          String  @id @default(uuid()) @db.Char(36)
+  /// ESTUDIOS | MATRICULA | NO_ADEUDO | CONDUCTA | OTRO
+  tipo        String  @db.VarChar(20)
+  nombre      String  @db.VarChar(100)
+  contenido   String  @db.Text
+  activa      Boolean @default(true)
+  version     Int     @default(1)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.DateTime(3)
+  createdBy String?   @map("created_by") @db.Char(36)
+  updatedBy String?   @map("updated_by") @db.Char(36)
+  deletedAt DateTime? @map("deleted_at") @db.DateTime(3)
+
+  certificados Certificado[]
+
+  @@unique([tipo, version], map: "plantilla_certificado_tipo_version_key")
+  @@index([tipo])
+  @@map("plantilla_certificado")
+}
+
+/// Certificado emitido (RF-ADM-011 a RF-ADM-013).
+/// Tipos: ESTUDIOS | MATRICULA | NO_ADEUDO | CONDUCTA | OTRO
+/// Estados: BORRADOR | SOLICITADO | APROBADO | RECHAZADO | EMITIDO | ANULADO
+/// Numeración correlativa: CERT-{TIPO}-{AÑO}-{SEQ}
+model Certificado {
+  id                  String    @id @default(uuid()) @db.Char(36)
+  /// ESTUDIOS | MATRICULA | NO_ADEUDO | CONDUCTA | OTRO
+  tipo                String    @db.VarChar(20)
+  numero              String    @unique @db.VarChar(50)
+  alumnoId            String    @map("alumno_id") @db.Char(36)
+  anioId              String    @map("anio_id") @db.Char(36)
+  plantillaId         String?   @map("plantilla_id") @db.Char(36)
+  variables           Json?     @default("{}")
+  /// BORRADOR | SOLICITADO | APROBADO | RECHAZADO | EMITIDO | ANULADO
+  estado              String    @default("BORRADOR") @db.VarChar(20)
+  solicitadoPorId     String?   @map("solicitado_por_id") @db.Char(36)
+  solicitadoAt        DateTime? @map("solicitado_at") @db.DateTime(3)
+  aprobadoPorId       String?   @map("aprobado_por_id") @db.Char(36)
+  aprobadoAt          DateTime? @map("aprobado_at") @db.DateTime(3)
+  rechazadoMotivo     String?   @map("rechazado_motivo") @db.VarChar(500)
+  pdfRuta             String?   @map("pdf_ruta") @db.VarChar(500)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.DateTime(3)
+  createdBy String?   @map("created_by") @db.Char(36)
+  updatedBy String?   @map("updated_by") @db.Char(36)
+  deletedAt DateTime? @map("deleted_at") @db.DateTime(3)
+
+  alumno      Alumno                @relation(fields: [alumnoId], references: [id], onDelete: Restrict)
+  anio        AnioAcademico         @relation(fields: [anioId], references: [id], onDelete: Restrict)
+  plantilla   PlantillaCertificado? @relation(fields: [plantillaId], references: [id], onDelete: SetNull)
+  solicitadoPor Usuario?            @relation("CertificadoSolicitadoPor", fields: [solicitadoPorId], references: [id], onDelete: SetNull)
+  aprobadoPor   Usuario?            @relation("CertificadoAprobadoPor", fields: [aprobadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([alumnoId])
+  @@index([anioId])
+  @@index([tipo, estado])
+  @@index([numero])
+  @@map("certificado")
+}
+
+/// Extension de Matricula para estados adicionales (RF-ADM-005 a RF-ADM-010).
+/// Estados: SOLICITADA | APROBADA | RECHAZADA | RETIRADA | ANULADA
+/// (El modelo base ya existe, solo se agregan índices y relaciones nuevas)

@@ -32,6 +32,10 @@ import { alumnoRoutes } from './modules/core/personas/alumno.routes.js'
 import { apoderadoRoutes } from './modules/core/personas/apoderado.routes.js'
 import { docenteRoutes } from './modules/core/personas/docente.routes.js'
 import { usuarioRoutes } from './modules/core/usuarios/usuario.routes.js'
+import pagoRoutes from './modules/administrative/pagos/pago.routes.js'
+import matriculaAdminRoutes from './modules/administrative/matriculas/matricula.routes.js'
+import certificadoRoutes from './modules/administrative/certificados/certificado.routes.js'
+import plantillaRoutes from './modules/administrative/certificados/plantilla.routes.js'
 import { healthRoutes } from './routes/health.js'
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -89,6 +93,10 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(apoderadoRoutes, { prefix: '/api/v1' })
   await app.register(usuarioRoutes, { prefix: '/api/v1' })
   await app.register(matriculaRoutes, { prefix: '/api/v1' })
+  await app.register(matriculaAdminRoutes, { prefix: '/api/v1' })
+  await app.register(pagoRoutes, { prefix: '/api/v1' })
+  await app.register(certificadoRoutes, { prefix: '/api/v1' })
+  await app.register(plantillaRoutes, { prefix: '/api/v1' })
   await app.register(calificacionRoutes, { prefix: '/api/v1' })
   await app.register(notaFinalRoutes, { prefix: '/api/v1' })
   await app.register(asistenciaRoutes, { prefix: '/api/v1' })
