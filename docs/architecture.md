@@ -1,18 +1,18 @@
 # Arquitectura del Proyecto
 
 > Documento técnico de referencia. Las reglas normativas están en `docs/constitution.md`.
-> Última actualización: 2026-11-13.
+> Última actualización: 2026-11-14.
 
 ## 1. Estado actual vs. objetivo
 
 | Área | Estado actual | Pendiente |
 |---|---|---|
 | Repositorio | Monorepo con workspaces (`apps/web`, `apps/api`, `packages/shared`) | — |
-| Frontend | React 19 + Vite 8 + TypeScript 6 + Tailwind 4; router, sesión en memoria con refresh, login, recuperación, guard por rol y cambio de contraseña (T033–T039). Módulo académico: calificaciones/notas finales (T017), asistencias/justificaciones (T018), umbral/alertas/horarios (T019). Módulo administrativo: pagos, matrículas, certificados, plantillas | Playwright y pruebas E2E (T021) |
-| Backend | Fastify 5 con el módulo `core` implementado bajo `/api/v1`: auth (incluido el cambio obligatorio de contraseña, RF-CORE-017), gestión de usuarios y roles (RF-CORE-002), RBAC, institución, años y períodos, niveles/grados/secciones/cursos, personas, matrículas, asignaciones y auditoría. Módulo académico completo bajo `/api/v1`: calificaciones, notas finales, asistencias, justificaciones, umbral, alertas, horarios. Módulo administrativo bajo `/api/v1` y `/api/v1/administrative`: pagos, matrículas administrativas, certificados, plantillas. `GET /health` fuera de `/api/v1` | Borrado lógico de años (T042) |
-| Base de datos | MySQL 8 con Prisma 7, migración `core_init` y seed idempotente de roles, institución y SuperAdmin. Esquemas académico y administrativo aplicados | — |
+| Frontend | React 19 + Vite 8 + TypeScript 6 + Tailwind 4; router, sesión en memoria con refresh, login, recuperación, guard por rol y cambio de contraseña (T033–T039). Módulo académico: calificaciones/notas finales (T017), asistencias/justificaciones (T018), umbral/alertas/horarios (T019). Módulo administrativo: pagos, matrículas, certificados, plantillas. **Módulo comunicación: anuncios, mensajería** | Playwright y pruebas E2E (T021) |
+| Backend | Fastify 5 con el módulo `core` implementado bajo `/api/v1`: auth (incluido el cambio obligatorio de contraseña, RF-CORE-017), gestión de usuarios y roles (RF-CORE-002), RBAC, institución, años y períodos, niveles/grados/secciones/cursos, personas, matrículas, asignaciones y auditoría. Módulo académico completo bajo `/api/v1`: calificaciones, notas finales, asistencias, justificaciones, umbral, alertas, horarios. Módulo administrativo bajo `/api/v1` y `/api/v1/administrative`: pagos, matrículas administrativas, certificados, plantillas. **Módulo comunicación bajo `/api/v1`: anuncios, mensajería, adjuntos**. `GET /health` fuera de `/api/v1` | Borrado lógico de años (T042) |
+| Base de datos | MySQL 8 con Prisma 7, migración `core_init` y seed idempotente de roles, institución y SuperAdmin. **Esquemas académico, administrativo y comunicación aplicados** | — |
 | Pruebas | Vitest 5 en web y api. API: 54 suites y 701 pruebas; web: 21 suites y 126 pruebas. Cobertura de la API: ≥70 % en sentencias, ramas, funciones y líneas | Playwright y pruebas E2E (T021) |
-| Specs | `specs/core/001-spec-mvp/` aprobada v1.2.0; API y frontend de autenticación implementados (T001–T039, T043). `specs/academic/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T019). `specs/administrative/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T035). `T044` de core cerrada (`es_tutor`) | T020 (cierre), T021 (E2E), T042 (deuda técnica) y 2 módulos vacíos |
+| Specs | `specs/core/001-spec-mvp/` aprobada v1.2.0; API y frontend de autenticación implementados (T001–T039, T043). `specs/academic/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T019). `specs/administrative/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T035). **`specs/communication/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T028).** `T044` de core cerrada (`es_tutor`) | T020 (cierre), T021 (E2E), T029 (E2E communication), T042 (deuda técnica) y 1 módulo vacío |
 | Gobernanza | Constitución v2, plantillas, matriz RBAC y ADRs | Mantener sincronizada |
 
 Comandos desde la raíz:

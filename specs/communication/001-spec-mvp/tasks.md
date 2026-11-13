@@ -73,43 +73,43 @@
 
 ## Fase 6 — Frontend: Shared
 
-- [ ] T016 — Crear `communication/shared/formato.ts` y `adjuntos.ts` — `apps/web/src/features/communication/shared/formato.ts`, `apps/web/src/features/communication/shared/adjuntos.ts` — RF-COM-001 a RF-COM-006 — `mensajeError`, `truncarTexto`, `formatoFecha`, componente `AdjuntosUpload` con validación cliente; `npm run lint` en verde
+- [x] T016 — Crear `communication/shared/formato.ts` y `adjuntos.ts` — `apps/web/src/features/communication/shared/formato.ts`, `apps/web/src/features/communication/shared/adjuntos.ts` — RF-COM-001 a RF-COM-006 — `mensajeError`, `truncarTexto`, `formatoFecha`, componente `AdjuntosUpload` con validación cliente; `npm run lint` en verde
 
 ---
 
 ## Fase 7 — Frontend: Anuncios
 
-- [ ] T017 — Implementar `anuncios/api.ts` cliente tipado — `apps/web/src/features/communication/anuncios/api.ts` — RF-COM-001 a RF-COM-003 — `listarAnuncios`, `crearAnuncio`, `actualizarAnuncio`, `eliminarAnuncio`, `subirAdjuntoAnuncio`, `eliminarAdjuntoAnuncio`; usa schemas de `packages/shared`
+- [x] T017 — Implementar `anuncios/api.ts` cliente tipado — `apps/web/src/features/communication/anuncios/api.ts` — RF-COM-001 a RF-COM-003 — `listarAnuncios`, `crearAnuncio`, `actualizarAnuncio`, `eliminarAnuncio`, `subirAdjuntoAnuncio`, `eliminarAdjuntoAnuncio`; usa schemas de `packages/shared`
 
-- [ ] T018 — Implementar `AnuncioForm.tsx` (crear/editar) — `apps/web/src/features/communication/anuncios/AnuncioForm.tsx` — RF-COM-001, RF-COM-002 — Campos: título, cuerpo (rich text), tipo (institucional/sección), segmentación condicional, adjuntos, estado; validación Zod cliente + mensajes en español; accesible (labels, foco, ARIA)
+- [x] T018 — Implementar `AnuncioForm.tsx` (crear/editar) — `apps/web/src/features/communication/anuncios/AnuncioForm.tsx` — RF-COM-001, RF-COM-002 — Campos: título, cuerpo (rich text), tipo (institucional/sección), segmentación condicional, adjuntos, estado; validación Zod cliente + mensajes en español; accesible (labels, foco, ARIA)
 
-- [ ] T019 — Implementar `AnunciosPage.tsx` (lista + filtros) — `apps/web/src/features/communication/anuncios/AnunciosPage.tsx` — RF-COM-003 — Tabla paginada, filtros: tipo, estado, nivel, grado, sección, rol, fechas; estados carga/vacío/error; botón crear según permiso; enlace a detalle
+- [x] T019 — Implementar `AnunciosPage.tsx` (lista + filtros) — `apps/web/src/features/communication/anuncios/AnunciosPage.tsx` — RF-COM-003 — Tabla paginada, filtros: tipo, estado, nivel, grado, sección, rol, fechas; estados carga/vacío/error; botón crear según permiso; enlace a detalle
 
-- [ ] T020 — Implementar `AnuncioDetalle.tsx` — `apps/web/src/features/communication/anuncios/AnuncioDetalle.tsx` — RF-COM-003 — Vista completa: título, cuerpo renderizado, metadatos (autor, fecha, audiencia), adjuntos descargables; botones editar/archivar según permiso
+- [x] T020 — Implementar `AnuncioDetalle.tsx` — `apps/web/src/features/communication/anuncios/AnuncioDetalle.tsx` — RF-COM-003 — Vista completa: título, cuerpo renderizado, metadatos (autor, fecha, audiencia), adjuntos descargables; botones editar/archivar según permiso
 
-- [ ] T021 — Registrar ruta `/anuncios` en `apps/web/src/app/routes.tsx` — `apps/web/src/app/routes.tsx` — RF-COM-001 a RF-COM-003 — `{ path: '/anuncios', element: <AnunciosPage /> }`, `{ path: '/anuncios/:id', element: <AnuncioDetallePage /> }`; `npm run typecheck` en verde
+- [x] T021 — Registrar ruta `/anuncios` en `apps/web/src/app/routes.tsx` — `apps/web/src/app/routes.tsx` — RF-COM-001 a RF-COM-003 — `{ path: '/anuncios', element: <AnunciosPage /> }`, `{ path: '/anuncios/:id', element: <AnuncioDetallePage /> }`; `npm run typecheck` en verde
 
-- [ ] T022 — Tests UI: `AnunciosPage.test.tsx`, `AnuncioForm.test.tsx` — `apps/web/src/features/communication/anuncios/*.test.tsx` — RF-COM-001 a RF-COM-003 — Caso feliz + error (validación, 403, vacío); `npm test` en verde
+- [x] T022 — Tests UI: `AnunciosPage.test.tsx`, `AnuncioForm.test.tsx` — `apps/web/src/features/communication/anuncios/*.test.tsx` — RF-COM-001 a RF-COM-003 — Caso feliz + error (validación, 403, vacío); `npm test` en verde
 
 ---
 
 ## Fase 8 — Frontend: Mensajería
 
-- [ ] T023 — Implementar `mensajeria/api.ts` cliente tipado — `apps/web/src/features/communication/mensajeria/api.ts` — RF-COM-004, RF-COM-005 — `listarMensajes`, `enviarMensaje`, `subirAdjuntoMensaje`, `eliminarAdjuntoMensaje`
+- [x] T023 — Implementar `mensajeria/api.ts` cliente tipado — `apps/web/src/features/communication/mensajeria/api.ts` — RF-COM-004, RF-COM-005 — `listarMensajes`, `enviarMensaje`, `subirAdjuntoMensaje`, `eliminarAdjuntoMensaje`
 
-- [ ] T024 — Implementar `MensajeForm.tsx` — `apps/web/src/features/communication/mensajeria/MensajeForm.tsx` — RF-COM-004 — Cuerpo (rich text), adjuntos, validación cliente, accesible
+- [x] T024 — Implementar `MensajeForm.tsx` — `apps/web/src/features/communication/mensajeria/MensajeForm.tsx` — RF-COM-004 — Cuerpo (rich text), adjuntos, validación cliente, accesible
 
-- [ ] T025 — Implementar `MensajeriaPage.tsx` (hilo de sección) — `apps/web/src/features/communication/mensajeria/MensajeriaPage.tsx` — RF-COM-004, RF-COM-005 — Lista mensajes cronológica, paginación, formulario envío fijo abajo, adjuntos visibles; solo lectura para DI/SA (sin formulario); estados carga/vacío/error
+- [x] T025 — Implementar `MensajeriaPage.tsx` (hilo de sección) — `apps/web/src/features/communication/mensajeria/MensajeriaPage.tsx` — RF-COM-004, RF-COM-005 — Lista mensajes cronológica, paginación, formulario envío fijo abajo, adjuntos visibles; solo lectura para DI/SA (sin formulario); estados carga/vacío/error
 
-- [ ] T026 — Registrar ruta `/mensajeria/:seccionId` en `apps/web/src/app/routes.tsx` — `apps/web/src/app/routes.tsx` — RF-COM-004, RF-COM-005 — `{ path: '/mensajeria/:seccionId', element: <MensajeriaPage /> }`; `npm run typecheck` en verde
+- [x] T026 — Registrar ruta `/mensajeria/:seccionId` en `apps/web/src/app/routes.tsx` — `apps/web/src/app/routes.tsx` — RF-COM-004, RF-COM-005 — `{ path: '/mensajeria/:seccionId', element: <MensajeriaPage /> }`; `npm run typecheck` en verde
 
-- [ ] T027 — Tests UI: `MensajeriaPage.test.tsx`, `MensajeForm.test.tsx` — `apps/web/src/features/communication/mensajeria/*.test.tsx` — RF-COM-004, RF-COM-005 — Caso feliz + error (403 sin vínculo, validación, vacío); `npm test` en verde
+- [x] T027 — Tests UI: `MensajeriaPage.test.tsx`, `MensajeForm.test.tsx` — `apps/web/src/features/communication/mensajeria/*.test.tsx` — RF-COM-004, RF-COM-005 — Caso feliz + error (403 sin vínculo, validación, vacío); `npm test` en verde
 
 ---
 
 ## Fase 9 — Cierre
 
-- [ ] T028 — Ejecutar gate completo y actualizar `docs/architecture.md` — `apps/api/test/communication/`, `docs/architecture.md`, `specs/communication/001-spec-mvp/tasks.md` — RF-COM-001 a RF-COM-006 — `lint + typecheck + test` en verde; cobertura servicios ≥ 70 %; arquitectura actualizada
+- [x] T028 — Ejecutar gate completo y actualizar `docs/architecture.md` — `apps/api/test/communication/`, `docs/architecture.md`, `specs/communication/001-spec-mvp/tasks.md` — RF-COM-001 a RF-COM-006 — `lint + typecheck + test` en verde; cobertura servicios ≥ 70 %; arquitectura actualizada
 
 - [ ] T029 — Configurar Playwright test E2E: Director crea anuncio → apoderado lo ve → tutor responde en hilo — `playwright.config.ts`, `apps/web/e2e/`, `package.json` — RF-COM-001, RF-COM-004 — `npx playwright test` completa flujo sin fallos (requiere seed usuarios)
 
