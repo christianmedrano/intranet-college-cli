@@ -44,7 +44,9 @@ export * from './schemas/communication/adjunto.js'
 // Administrative schemas
 export * from './schemas/administrative/pago.js'
 export {
+  TIPO_CERTIFICADO_VALUES,
   tipoCertificadoSchema,
+  ESTADO_CERTIFICADO_VALUES,
   estadoCertificadoSchema,
   type TipoCertificado,
   type EstadoCertificado,
