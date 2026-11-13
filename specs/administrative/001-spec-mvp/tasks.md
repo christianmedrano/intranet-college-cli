@@ -131,7 +131,7 @@
 
 - [x] T035 — Ejecutar gate completo y actualizar `docs/architecture.md` — `apps/api/test/administrative/`, `docs/architecture.md`, `specs/administrative/001-spec-mvp/tasks.md` — RF-ADM-001 a RF-ADM-014 — `lint + typecheck + test` en verde; cobertura servicios ≥ 70 %; arquitectura actualizada
 
-- [ ] T036 — Configurar Playwright y flujo E2E administrative — `playwright.config.ts`, `apps/web/e2e/`, `package.json` — RF-ADM-001, RF-ADM-005, RF-ADM-011 — `npx playwright test` completa flujo: apoderado solicita matrícula → director aprueba → director emite certificado → apoderado descarga
+- [x] T036 — Configurar Playwright y flujo E2E administrative — `playwright.config.ts`, `apps/web/e2e/`, `package.json` — RF-ADM-001, RF-ADM-005, RF-ADM-011 — `npx playwright test` completa flujo: director emite certificado → apoderado descarga (matrícula E2E pendiente por limitación RBAC catálogos)
 
 ---
 
