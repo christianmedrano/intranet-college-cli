@@ -103,7 +103,7 @@
 
 ## Fase 8 — Frontend: Matrículas
 
-- [ ] T026 — Implementar `administrative/matriculas/api.ts` cliente tipado — `apps/web/src/features/administrative/matriculas/api.ts` — RF-ADM-005 a RF-ADM-010 — `solicitarMatricula`, `aprobarMatricula`, `rechazarMatricula`, `retirarMatricula`, `listarMatriculas`; usa schemas `packages/shared`
+- [x] T026 — Implementar `administrative/matriculas/api.ts` cliente tipado — `apps/web/src/features/administrative/matriculas/api.ts` — RF-ADM-005 a RF-ADM-010 — `solicitarMatricula`, `aprobarMatricula`, `rechazarMatricula`, `retirarMatricula`, `listarMatriculas`; usa schemas `packages/shared`
 
 - [ ] T027 — Implementar `MatriculaForm.tsx` (solicitar/editar) — `apps/web/src/features/administrative/matriculas/MatriculaForm.tsx` — RF-ADM-005 — Campos: alumno, año, nivel, grado, sección, documentos; validación Zod + mensajes español; accesible
 
