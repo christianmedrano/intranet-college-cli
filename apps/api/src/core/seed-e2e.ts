@@ -21,10 +21,22 @@
  * - JWT_SECRET
  */
 
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { existsSync } from 'node:fs'
+import { loadEnvFile } from 'node:process'
 import { hashPassword } from './auth/password.js'
 import { loadConfig } from './config.js'
 import { getPrisma } from './db.js'
 import { roleCodes, type RoleCode } from '@intranet/shared'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const envPath = resolve(__dirname, '../../.env')
+
+// Cargar .env del proyecto (para seed en dev local)
+if (existsSync(envPath)) {
+  loadEnvFile(envPath)
+}
 
 const DEV_INSTITUCION_ID = '00000000-0000-4000-8000-000000000001'
 
@@ -276,7 +288,19 @@ async function main() {
     update: { estado: 'APROBADA', seccionId: seccionA.id },
   })
 
-  // 10. Apoderado (vinculado al alumno, principal)
+  // 10. Director (para flujos administrativos)
+  console.log('👨‍💼 Creando director...')
+  await crearUsuarioConRol(
+    'director1',
+    'director1@ejemplo.edu.pe',
+    'Director123!',
+    'Roberto',
+    'Gómez Sánchez',
+    '44444444',
+    'DIRECTOR',
+  )
+
+  // 11. Apoderado (vinculado al alumno, principal)
   console.log('👨‍👩‍👧 Creando apoderado...')
   const { persona: personaApoderado } = await crearUsuarioConRol(
     'apoderado1',
@@ -321,8 +345,9 @@ async function main() {
   console.log(`   Período 2: ${periodo2.id} (${periodo2.nombre})`)
   console.log('')
   console.log('👥 Usuarios de prueba:')
-  console.log('   Docente: docente1@ejemplo.edu.pe / Docente123! (asignado a Sección A, Curso Matemática)')
-  console.log('   Alumno:  alumno1@ejemplo.edu.pe / Alumno123! (matriculado en Sección A, APROBADA)')
+  console.log('   Director:  director1@ejemplo.edu.pe / Director123! (acceso administrativo completo)')
+  console.log('   Docente:   docente1@ejemplo.edu.pe / Docente123! (asignado a Sección A, Curso Matemática)')
+  console.log('   Alumno:    alumno1@ejemplo.edu.pe / Alumno123! (matriculado en Sección A, APROBADA)')
   console.log('   Apoderado: apoderado1@ejemplo.edu.pe / Apoderado123! (vinculado a alumno, principal)')
   console.log('')
   console.log('🔧 Para E2E: usa anioId =', anio.id)

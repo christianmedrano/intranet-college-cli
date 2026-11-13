@@ -10,6 +10,14 @@ import { RequireAuth } from './guards/RequireAuth'
 import { AppLayout } from './layouts/AppLayout'
 import { HomePage } from './pages/HomePage'
 
+/** Páginas administrativas */
+import { PagosPage } from '../features/administrative/pagos/PagosPage'
+import { PagoNuevoPage } from '../features/administrative/pagos/PagoNuevoPage'
+import { EstadoCuentaPage } from '../features/administrative/pagos/EstadoCuentaPage'
+import { MatriculasPage } from '../features/administrative/matriculas/MatriculasPage'
+import { CertificadosPage } from '../features/administrative/certificados/CertificadosPage'
+import { PlantillasPage } from '../features/administrative/certificados/PlantillasPage'
+
 /**
  * Rutas de la aplicación.
  *
@@ -29,6 +37,13 @@ export const routes: RouteObject[] = [
           { path: '/horarios', element: <HorariosIndexPage /> },
           { path: '/cambiar-password', element: <ChangePasswordPage /> },
           { path: '/virtual', element: <MaterialesPage /> },
+          // Rutas administrativas
+          { path: '/administrative/pagos', element: <PagosPage /> },
+          { path: '/administrative/pagos/nuevo', element: <PagoNuevoPage /> },
+          { path: '/administrative/estado-cuenta/:alumnoId', element: <EstadoCuentaPage /> },
+          { path: '/administrative/matriculas', element: <MatriculasPage /> },
+          { path: '/administrative/certificados', element: <CertificadosPage /> },
+          { path: '/administrative/plantillas', element: <PlantillasPage /> },
         ],
       },
       { path: '/login', element: <LoginPage /> },
