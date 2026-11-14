@@ -133,6 +133,10 @@
 
 - [x] T036 — Configurar Playwright y flujo E2E administrative — `playwright.config.ts`, `apps/web/e2e/`, `package.json` — RF-ADM-001, RF-ADM-005, RF-ADM-011 — `npx playwright test` completa flujo: director emite certificado → apoderado descarga (matrícula E2E pendiente por limitación RBAC catálogos)
 
+- [ ] T037 — Permitir que el apoderado y el alumno consulten sus certificados en la interfaz — `apps/web/src/features/administrative/certificados/CertificadosPage.tsx` — RF-ADM-005, RF-ADM-011 — el listado debe cargarse con `emitir`, `solicitar` o `descargar` (el backend ya lo admite en `listarCertificados`); hoy la página solo consulta con `emitir` y el apoderado ve una pantalla vacía
+
+> **T037 (2026-11-13):** detectado al auditar el cierre del módulo. `GET /certificados` acepta `administrative.certificados.emitir`, `solicitar` o `descargar`, pero `CertificadosPage` condiciona la carga a `puedeEmitir`. El apoderado puede solicitar y descargar por API, pero no ve su bandeja en la interfaz. Queda pendiente.
+
 ---
 
 ## Definition of Done
@@ -153,7 +157,7 @@ Se aplica el anexo A de `docs/constitution.md` (Anexo A):
 
 | Fecha | Tarea | Motivo | Estado |
 |---|---|---|---|
-| | | | |
+| 2026-11-13 | T036 (E2E de matrícula) | El apoderado no puede cargar los catálogos de `/alumnos`, `/grados`, `/niveles`, `/anios-academicos` ni `/secciones`: exigen permisos `core.*` que su rol no tiene, así que los filtros del formulario quedan vacíos. Falta decidir entre abrir lectura de catálogo al apoderado o resolver los filtros en el backend; `docs/rbac-matrix.md` no se modifica sin autorización | Bloqueado |
 
 ---
 
