@@ -16,6 +16,7 @@ import {
   listarNivelesCatalogo,
   listarGradosCatalogo,
   listarSeccionesCatalogo,
+  listarAniosCatalogo,
   crearAnuncio,
   actualizarAnuncio,
 } from './api'
@@ -28,6 +29,7 @@ interface AnuncioFormProps {
     cuerpo: string
     tipo: AnuncioTipo
     estado: 'BORRADOR' | 'PUBLICADO' | 'EXPIRADO' | 'ARCHIVADO'
+    anioId: string | null
     audienciaNiveles: string[]
     audienciaGrados: string[]
     audienciaSecciones: string[]
@@ -49,10 +51,16 @@ const ROLES_DISPONIBLES = [
   { value: 'ALUMNO', label: 'Alumno' },
 ] as const
 
-function parseFechaISO(fechaISO: string | null): string {
-  if (!fechaISO) return ''
-  const result = fechaISO.split('T')[0]
-  return result ?? ''
+function parseFechaISO(fechaISO: string | null): string | undefined {
+  if (!fechaISO) return undefined
+  // Convert ISO datetime (2026-01-15T23:59:59.999Z) to datetime-local format (2026-01-15T23:59)
+  if (fechaISO.includes('T')) {
+    const parts = fechaISO.split('.')
+    const base = parts[0] ?? ''
+    return base.replace('Z', '')
+  }
+  // If it's already a date string (YYYY-MM-DD), return as is
+  return fechaISO.split('T')[0] ?? undefined
 }
 
 export function AnuncioForm({ anuncio, onGuardado, onCancelar }: AnuncioFormProps) {
@@ -64,6 +72,7 @@ export function AnuncioForm({ anuncio, onGuardado, onCancelar }: AnuncioFormProp
   const [niveles, setNiveles] = useState<{ id: string; nombre: string }[]>([])
   const [grados, setGrados] = useState<{ id: string; nombre: string; nivelId: string }[]>([])
   const [secciones, setSecciones] = useState<{ id: string; nombre: string; gradoId: string }[]>([])
+  const [anios, setAnios] = useState<{ id: string; nombre: string }[]>([])
   const [cargandoCatalogos, setCargandoCatalogos] = useState(true)
 
   const [nivelSeleccionado, setNivelSeleccionado] = useState<string>('')
@@ -82,11 +91,13 @@ export function AnuncioForm({ anuncio, onGuardado, onCancelar }: AnuncioFormProp
       listarNivelesCatalogo(),
       listarGradosCatalogo(),
       listarSeccionesCatalogo(),
+      listarAniosCatalogo(),
     ])
-      .then(([n, g, s]) => {
+      .then(([n, g, s, a]) => {
         setNiveles(n)
         setGrados(g)
         setSecciones(s)
+        setAnios(a)
       })
       .catch(() => setError('No se pudieron cargar los catálogos'))
       .finally(() => setCargandoCatalogos(false))
@@ -105,12 +116,13 @@ export function AnuncioForm({ anuncio, onGuardado, onCancelar }: AnuncioFormProp
   } = useForm<FormInput>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schema as any),
-    defaultValues: esEdicion
+    defaultValues: (esEdicion
       ? {
           titulo: anuncio!.titulo,
           cuerpo: anuncio!.cuerpo,
           tipo: anuncio!.tipo,
           estado: anuncio!.estado,
+          anioId: anuncio!.anioId,
           audienciaNiveles: anuncio!.audienciaNiveles,
           audienciaGrados: anuncio!.audienciaGrados,
           audienciaSecciones: anuncio!.audienciaSecciones,
@@ -119,7 +131,8 @@ export function AnuncioForm({ anuncio, onGuardado, onCancelar }: AnuncioFormProp
         }
       : {
           estado: 'BORRADOR',
-        },
+          anioId: null,
+        }) as Partial<FormInput>,
     mode: 'onChange',
   })
 
@@ -375,6 +388,36 @@ export function AnuncioForm({ anuncio, onGuardado, onCancelar }: AnuncioFormProp
         </fieldset>
       )}
 
+      {/* Año académico (solo para INSTITUCIONAL) */}
+      {tipo === 'INSTITUCIONAL' && (
+        <div>
+          <label htmlFor="anioId" className="block text-sm font-medium text-slate-700 mb-1">
+            Año académico <span className="text-red-500" aria-hidden="true">*</span>
+          </label>
+          <select
+            id="anioId"
+            {...register('anioId')}
+            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.anioId ? 'border-red-500' : 'border-slate-300'
+            }`}
+            aria-invalid={errors.anioId ? 'true' : 'false'}
+            aria-describedby={errors.anioId ? 'anioId-error' : undefined}
+          >
+            <option value="">Seleccionar año académico...</option>
+            {anios.map((anio) => (
+              <option key={anio.id} value={anio.id}>
+                {anio.nombre}
+              </option>
+            ))}
+          </select>
+          {errors.anioId && (
+            <p id="anioId-error" className="mt-1 text-sm text-red-600" role="alert">
+              {errors.anioId.message}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Expiración (solo para INSTITUCIONAL) */}
       {tipo === 'INSTITUCIONAL' && (
         <div>
@@ -383,13 +426,23 @@ export function AnuncioForm({ anuncio, onGuardado, onCancelar }: AnuncioFormProp
           </label>
           <input
             id="expiraEn"
-            type="date"
+            type="datetime-local"
             {...register('expiraEn')}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.expiraEn ? 'border-red-500' : 'border-slate-300'
+            }`}
+            aria-invalid={errors.expiraEn ? 'true' : 'false'}
+            aria-describedby={errors.expiraEn ? 'expiraEn-error' : undefined}
           />
-          <p className="mt-1 text-xs text-slate-500">Si se omite, el anuncio no expira automáticamente.</p>
+          {errors.expiraEn && (
+            <p id="expiraEn-error" className="mt-1 text-sm text-red-600" role="alert">
+              {errors.expiraEn.message}
+            </p>
+          )}
         </div>
       )}
+
+      {/* Expiración (solo para INSTITUCIONAL) */}
 
       {/* Adjuntos */}
       <AdjuntosUpload

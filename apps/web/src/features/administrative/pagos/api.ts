@@ -54,14 +54,14 @@ export async function listarPagos(
   if (query.estado) params.set('estado', query.estado)
   if (query.metodo) params.set('metodo', query.metodo)
 
-  return apiRequest(`/pagos?${params.toString()}`, paginatedPagosSchema)
+  return apiRequest(`/api/v1/pagos?${params.toString()}`, paginatedPagosSchema)
 }
 
 /**
  * Obtiene el detalle de un pago por ID.
  */
 export async function obtenerPago(id: string): Promise<PagoResponsePayload> {
-  return apiRequest(`/pagos/${id}`, pagoResponseSchema)
+  return apiRequest(`/api/v1/pagos/${id}`, pagoResponseSchema)
 }
 
 /**
@@ -71,7 +71,7 @@ export async function obtenerPago(id: string): Promise<PagoResponsePayload> {
  * Validaciones: monto > 0, fecha no futura, concepto/método válidos
  */
 export async function crearPago(input: CrearPagoInput): Promise<PagoResponsePayload> {
-  return apiRequest('/pagos', pagoResponseSchema, {
+  return apiRequest('/api/v1/pagos', pagoResponseSchema, {
     method: 'POST',
     body: input,
   })
@@ -86,7 +86,7 @@ export async function anularPago(
   id: string,
   input: AnularPagoInput,
 ): Promise<PagoResponsePayload> {
-  return apiRequest(`/pagos/${id}/anular`, pagoResponseSchema, {
+  return apiRequest(`/api/v1/pagos/${id}/anular`, pagoResponseSchema, {
     method: 'PATCH',
     body: input,
   })
@@ -101,5 +101,5 @@ export async function anularPago(
 export async function obtenerEstadoCuenta(
   alumnoId: string,
 ): Promise<EstadoCuentaResponsePayload> {
-  return apiRequest(`/alumnos/${alumnoId}/estado-cuenta`, estadoCuentaResponseSchema)
+  return apiRequest(`/api/v1/alumnos/${alumnoId}/estado-cuenta`, estadoCuentaResponseSchema)
 }

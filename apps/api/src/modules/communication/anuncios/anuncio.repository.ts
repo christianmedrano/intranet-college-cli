@@ -24,6 +24,7 @@ interface FilaAnuncio {
   cuerpo: string
   tipo: 'INSTITUCIONAL' | 'SECCION'
   estado: 'BORRADOR' | 'PUBLICADO' | 'EXPIRADO' | 'ARCHIVADO'
+  anioId: string | null
   audienciaNiveles: string[]
   audienciaGrados: string[]
   audienciaSecciones: string[]
@@ -55,6 +56,7 @@ function mapearAnuncio(fila: FilaAnuncio): AnuncioResponse {
     cuerpo: fila.cuerpo,
     tipo: fila.tipo,
     estado: fila.estado,
+    anioId: fila.anioId ?? null,
     audienciaNiveles: fila.audienciaNiveles,
     audienciaGrados: fila.audienciaGrados,
     audienciaSecciones: fila.audienciaSecciones,

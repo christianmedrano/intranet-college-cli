@@ -179,7 +179,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)('sesión', () => {
 
       expect(salida.status).toBe(204)
       expect(leerCookies(salida.headers)).toContain('refresh_token=;')
-      expect(leerCookies(salida.headers)).toContain('Path=/api/v1/auth')
+      expect(leerCookies(salida.headers)).toContain('Path=/api/v1')
 
       const sesion = await prisma.sesionRefresh.findFirstOrThrow()
       expect(sesion.revocadoEn).not.toBeNull()

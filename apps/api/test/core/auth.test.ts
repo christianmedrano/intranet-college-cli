@@ -93,7 +93,7 @@ describe.skipIf(!process.env.TEST_DATABASE_URL)(
       const cookies = leerCookies(respuesta.headers)
       expect(cookies).toContain('refresh_token=')
       expect(cookies).toContain('HttpOnly')
-      expect(cookies).toContain('Path=/api/v1/auth')
+      expect(cookies).toContain('Path=/api/v1')
       expect(cookies).toContain('SameSite=Lax')
 
       const sesion = await prisma.sesionRefresh.findFirstOrThrow()

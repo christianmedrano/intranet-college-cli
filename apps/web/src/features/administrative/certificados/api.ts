@@ -59,7 +59,7 @@ export async function listarCertificados(
   if (query.anioId) params.set('anioId', query.anioId)
   if (query.estado) params.set('estado', query.estado)
 
-  return apiRequest(`/certificados?${params.toString()}`, paginatedCertificadosSchema)
+  return apiRequest(`/api/v1/certificados?${params.toString()}`, paginatedCertificadosSchema)
 }
 
 /**
@@ -82,7 +82,7 @@ export async function crearCertificado(
 export async function solicitarCertificado(
   input: SolicitarCertificadoInput,
 ): Promise<CertificadoResponsePayload> {
-  return apiRequest('/certificados/solicitar', certificadoResponseSchema, {
+  return apiRequest('/api/v1/certificados/solicitar', certificadoResponseSchema, {
     method: 'POST',
     body: input,
   })
@@ -96,7 +96,7 @@ export async function aprobarCertificado(
   id: string,
   input: AprobarCertificadoInput = {},
 ): Promise<CertificadoResponsePayload> {
-  return apiRequest(`/certificados/${id}/aprobar`, certificadoResponseSchema, {
+  return apiRequest(`/api/v1/certificados/${id}/aprobar`, certificadoResponseSchema, {
     method: 'PATCH',
     body: input,
   })
@@ -109,7 +109,7 @@ export async function rechazarCertificado(
   id: string,
   input: RechazarCertificadoInput,
 ): Promise<CertificadoResponsePayload> {
-  return apiRequest(`/certificados/${id}/rechazar`, certificadoResponseSchema, {
+  return apiRequest(`/api/v1/certificados/${id}/rechazar`, certificadoResponseSchema, {
     method: 'PATCH',
     body: input,
   })
@@ -123,7 +123,7 @@ export async function rechazarCertificado(
 export async function descargarCertificado(
   id: string,
 ): Promise<DescargaCertificadoPayload> {
-  return apiRequest(`/certificados/${id}/download`, descargaCertificadoSchema)
+  return apiRequest(`/api/v1/certificados/${id}/download`, descargaCertificadoSchema)
 }
 
 /**
@@ -138,7 +138,7 @@ export async function listarPlantillas(
   if (params.tipo) query.set('tipo', params.tipo)
 
   return apiRequest(
-    `/plantillas-certificados?${query.toString()}`,
+    `/api/v1/plantillas-certificados?${query.toString()}`,
     paginatedPlantillasSchema,
   )
 }
@@ -150,7 +150,7 @@ export async function listarPlantillas(
 export async function crearPlantilla(
   input: PlantillaCertificadoInput,
 ): Promise<PlantillaCertificadoResponsePayload> {
-  return apiRequest('/plantillas-certificados', plantillaCertificadoResponseSchema, {
+  return apiRequest('/api/v1/plantillas-certificados', plantillaCertificadoResponseSchema, {
     method: 'POST',
     body: input,
   })
@@ -164,7 +164,7 @@ export async function actualizarPlantilla(
   id: string,
   input: ActualizarPlantillaInput,
 ): Promise<PlantillaCertificadoResponsePayload> {
-  return apiRequest(`/plantillas-certificados/${id}`, plantillaCertificadoResponseSchema, {
+  return apiRequest(`/api/v1/plantillas-certificados/${id}`, plantillaCertificadoResponseSchema, {
     method: 'PATCH',
     body: input,
   })
@@ -174,7 +174,7 @@ export async function actualizarPlantilla(
  * Elimina una plantilla de certificado (RF-ADM-014).
  */
 export async function eliminarPlantilla(id: string): Promise<void> {
-  await apiRequestSinContenido(`/plantillas-certificados/${id}`, {
+  await apiRequestSinContenido(`/api/v1/plantillas-certificados/${id}`, {
     method: 'DELETE',
   })
 }

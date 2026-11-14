@@ -5,8 +5,8 @@ import type { RefreshToken } from './tokens.js'
 /** Nombre de la cookie de refresh (plan §5). */
 export const REFRESH_COOKIE = 'refresh_token'
 
-/** La cookie solo se envía a los endpoints de autenticación. */
-export const REFRESH_COOKIE_PATH = '/api/v1/auth'
+/** La cookie solo se envía a los endpoints de la API. */
+export const REFRESH_COOKIE_PATH = '/api/v1'
 
 /**
  * Establece la cookie `httpOnly` con el refresh token.

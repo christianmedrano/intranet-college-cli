@@ -250,8 +250,9 @@ async function main() {
       cursoId: curso.id,
       seccionId: seccionA.id,
       anioId: anio.id,
+      esTutor: true,
     },
-    update: {},
+    update: { esTutor: true },
   })
 
   // 9. Alumno (con matrícula APROBADA en Sección A)

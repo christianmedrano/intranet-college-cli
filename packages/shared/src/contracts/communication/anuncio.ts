@@ -10,6 +10,7 @@ export interface AnuncioResponse {
   cuerpo: string
   tipo: AnuncioTipo
   estado: AnuncioEstado
+  anioId: string | null
   audienciaNiveles: string[]
   audienciaGrados: string[]
   audienciaSecciones: string[]

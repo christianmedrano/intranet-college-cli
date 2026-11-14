@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import {
   anuncioResponseSchema,
   paginatedAnunciosSchema,
@@ -11,6 +12,40 @@ import { apiRequest, apiRequestSinContenido } from '../../../shared/api/client'
 
 // Re-export types for consumers
 export type { AnuncioResponsePayload, PaginatedAnunciosPayload }
+
+// Esquemas Zod para respuestas de catálogos
+const catalogoOpcionSchema = z.object({
+  id: z.string(),
+  nombre: z.string(),
+})
+
+const catalogoOpcionConNivelSchema = catalogoOpcionSchema.extend({
+  nivelId: z.string(),
+})
+
+const catalogoOpcionConGradoSchema = catalogoOpcionSchema.extend({
+  gradoId: z.string(),
+})
+
+const catalogoNivelesResponseSchema = z.object({
+  data: z.array(catalogoOpcionSchema),
+  meta: z.object({ page: z.number(), pageSize: z.number(), total: z.number() }),
+})
+
+const catalogoGradosResponseSchema = z.object({
+  data: z.array(catalogoOpcionConNivelSchema),
+  meta: z.object({ page: z.number(), pageSize: z.number(), total: z.number() }),
+})
+
+const catalogoSeccionesResponseSchema = z.object({
+  data: z.array(catalogoOpcionConGradoSchema),
+  meta: z.object({ page: z.number(), pageSize: z.number(), total: z.number() }),
+})
+
+const catalogoAniosResponseSchema = z.object({
+  data: z.array(catalogoOpcionSchema),
+  meta: z.object({ page: z.number(), pageSize: z.number(), total: z.number() }),
+})
 
 /**
  * Lista anuncios con filtros y paginación (RF-COM-003).
@@ -125,23 +160,13 @@ export interface CatalogoOpcion {
 }
 
 export async function listarNivelesCatalogo(): Promise<{ id: string; nombre: string }[]> {
-  const respuesta = await fetch('/api/v1/niveles?pageSize=100', {
-    credentials: 'include',
-    headers: { Accept: 'application/json' },
-  })
-  if (!respuesta.ok) throw new Error('No se pudieron cargar los niveles')
-  const data = await respuesta.json()
-  return data.data.map((n: { id: string; nombre: string }) => ({ id: n.id, nombre: n.nombre }))
+  const respuesta = await apiRequest('/api/v1/niveles?pageSize=100', catalogoNivelesResponseSchema)
+  return respuesta.data.map((n: { id: string; nombre: string }) => ({ id: n.id, nombre: n.nombre }))
 }
 
 export async function listarGradosCatalogo(): Promise<{ id: string; nombre: string; nivelId: string }[]> {
-  const respuesta = await fetch('/api/v1/grados?pageSize=100', {
-    credentials: 'include',
-    headers: { Accept: 'application/json' },
-  })
-  if (!respuesta.ok) throw new Error('No se pudieron cargar los grados')
-  const data = await respuesta.json()
-  return data.data.map((g: { id: string; nombre: string; nivelId: string }) => ({
+  const respuesta = await apiRequest('/api/v1/grados?pageSize=100', catalogoGradosResponseSchema)
+  return respuesta.data.map((g: { id: string; nombre: string; nivelId: string }) => ({
     id: g.id,
     nombre: g.nombre,
     nivelId: g.nivelId,
@@ -149,15 +174,18 @@ export async function listarGradosCatalogo(): Promise<{ id: string; nombre: stri
 }
 
 export async function listarSeccionesCatalogo(): Promise<{ id: string; nombre: string; gradoId: string }[]> {
-  const respuesta = await fetch('/api/v1/secciones?pageSize=100', {
-    credentials: 'include',
-    headers: { Accept: 'application/json' },
-  })
-  if (!respuesta.ok) throw new Error('No se pudieron cargar las secciones')
-  const data = await respuesta.json()
-  return data.data.map((s: { id: string; nombre: string; gradoId: string }) => ({
+  const respuesta = await apiRequest('/api/v1/secciones?pageSize=100', catalogoSeccionesResponseSchema)
+  return respuesta.data.map((s: { id: string; nombre: string; gradoId: string }) => ({
     id: s.id,
     nombre: s.nombre,
     gradoId: s.gradoId,
+  }))
+}
+
+export async function listarAniosCatalogo(): Promise<{ id: string; nombre: string }[]> {
+  const respuesta = await apiRequest('/api/v1/anios-academicos?pageSize=100', catalogoAniosResponseSchema)
+  return respuesta.data.map((a: { id: string; nombre: string }) => ({
+    id: a.id,
+    nombre: a.nombre,
   }))
 }

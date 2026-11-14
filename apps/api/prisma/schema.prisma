@@ -195,6 +195,7 @@ model AnioAcademico {
   horarios     Horario[]
   materialesVirtuales MaterialVirtual[]
   certificados Certificado[]
+  anuncios      Anuncio[]
 
   @@unique([institucionId, nombre], map: "anio_academico_nombre_key")
   @@index([institucionId, estado])
@@ -674,6 +675,8 @@ model Anuncio {
   audienciaGrados     Json     @default("[]") @map("audiencia_grados")
   audienciaSecciones  Json     @default("[]") @map("audiencia_secciones")
   audienciaRoles      Json     @default("[]") @map("audiencia_roles")
+  /// Año académico al que pertenece el anuncio (obligatorio para institucionales)
+  anioId              String?  @map("anio_id") @db.Char(36)
   publicadoEn         DateTime? @map("publicado_en") @db.DateTime(3)
   expiraEn            DateTime? @map("expira_en") @db.DateTime(3)
 
@@ -685,6 +688,7 @@ model Anuncio {
 
   institucion Institucion       @relation(fields: [institucionId], references: [id], onDelete: Restrict)
   autor       Usuario           @relation("AnuncioAutor", fields: [autorId], references: [id], onDelete: Restrict)
+  anio        AnioAcademico?    @relation(fields: [anioId], references: [id], onDelete: SetNull)
   adjuntos    AdjuntoAnuncio[]
 
   @@index([institucionId, estado])

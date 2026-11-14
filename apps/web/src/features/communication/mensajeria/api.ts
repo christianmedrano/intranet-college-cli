@@ -23,7 +23,7 @@ export async function listarMensajes(
   if (query.page) params.set('page', String(query.page))
   if (query.pageSize) params.set('pageSize', String(query.pageSize))
 
-  return apiRequest(`/secciones/${seccionId}/mensajes?${params.toString()}`, paginatedMensajesSchema)
+  return apiRequest(`/api/v1/secciones/${seccionId}/mensajes?${params.toString()}`, paginatedMensajesSchema)
 }
 
 /**
@@ -36,7 +36,7 @@ export async function enviarMensaje(
   seccionId: string,
   input: CrearMensajeInput,
 ): Promise<MensajeResponsePayload> {
-  return apiRequest(`/secciones/${seccionId}/mensajes`, mensajeResponseSchema, {
+  return apiRequest(`/api/v1/secciones/${seccionId}/mensajes`, mensajeResponseSchema, {
     method: 'POST',
     body: input,
   })
@@ -79,5 +79,5 @@ export async function subirAdjuntoMensaje(
  * Elimina un adjunto de un mensaje (RF-COM-006).
  */
 export async function eliminarAdjuntoMensaje(adjuntoId: string): Promise<void> {
-  await apiRequestSinContenido(`/mensajes/adjuntos/${adjuntoId}`, { method: 'DELETE' })
+  await apiRequestSinContenido(`/api/v1/mensajes/adjuntos/${adjuntoId}`, { method: 'DELETE' })
 }

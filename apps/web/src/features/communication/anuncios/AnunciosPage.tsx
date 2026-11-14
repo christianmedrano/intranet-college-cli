@@ -71,6 +71,7 @@ interface AnuncioResponsePayload {
   cuerpo: string
   tipo: 'INSTITUCIONAL' | 'SECCION'
   estado: 'BORRADOR' | 'PUBLICADO' | 'EXPIRADO' | 'ARCHIVADO'
+  anioId: string | null
   audienciaNiveles: string[]
   audienciaGrados: string[]
   audienciaSecciones: string[]
@@ -107,15 +108,23 @@ export function AnunciosPage() {
         fetch('/api/v1/grados?pageSize=100', { credentials: 'include' }),
         fetch('/api/v1/secciones?pageSize=100', { credentials: 'include' }),
       ])
+
+      // Verificar que las respuestas sean exitosas
+      if (!nivelesRes.ok || !gradosRes.ok || !seccionesRes.ok) {
+        console.warn('Error cargando catálogos:', { niveles: nivelesRes.status, grados: gradosRes.status, secciones: seccionesRes.status })
+        return CATALOGOS_VACIOS
+      }
+
       const [niveles, grados, secciones] = await Promise.all([
         nivelesRes.json(),
         gradosRes.json(),
         seccionesRes.json(),
       ])
+
       return {
-        niveles: niveles.data,
-        grados: grados.data,
-        secciones: secciones.data,
+        niveles: niveles.data ?? [],
+        grados: grados.data ?? [],
+        secciones: secciones.data ?? [],
       }
     } catch {
       return CATALOGOS_VACIOS

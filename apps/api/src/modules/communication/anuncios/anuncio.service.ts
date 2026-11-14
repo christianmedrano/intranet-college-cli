@@ -226,6 +226,7 @@ export async function listarAnunciosService(
     cuerpo: fila.cuerpo,
     tipo: fila.tipo as 'INSTITUCIONAL' | 'SECCION',
     estado: fila.estado as 'BORRADOR' | 'PUBLICADO' | 'EXPIRADO' | 'ARCHIVADO',
+    anioId: fila.anioId,
     audienciaNiveles: (fila.audienciaNiveles as string[]) ?? [],
     audienciaGrados: (fila.audienciaGrados as string[]) ?? [],
     audienciaSecciones: (fila.audienciaSecciones as string[]) ?? [],

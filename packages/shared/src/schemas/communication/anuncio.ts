@@ -18,11 +18,32 @@ export const crearAnuncioSchema = z
     cuerpo: z.string().trim().min(1, 'El cuerpo es obligatorio').max(10000, 'El cuerpo es demasiado largo'),
     tipo: anuncioTipoSchema,
     estado: z.enum(['BORRADOR', 'PUBLICADO']).default('BORRADOR'),
+    anioId: uuidSchema,
     audienciaNiveles: z.array(uuidSchema).optional(),
     audienciaGrados: z.array(uuidSchema).optional(),
     audienciaSecciones: z.array(uuidSchema).optional(),
     audienciaRoles: z.array(roleCodeSchema).optional(),
-    expiraEn: z.iso.datetime({ offset: true }).optional(),
+    expiraEn: z
+    .union([
+      z.iso.datetime({ offset: true }),
+      z.iso.date(),
+      z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/),
+    ])
+    .optional()
+    .transform((val) => {
+      if (!val) return undefined
+      if (typeof val === 'string') {
+        if (val.length === 10) {
+          // It's a date string (YYYY-MM-DD), convert to end of day ISO datetime
+          return `${val}T23:59:59.999Z`
+        }
+        if (val.length === 16) {
+          // It's a datetime-local string (YYYY-MM-DDTHH:MM), convert to ISO datetime with Z offset
+          return `${val}:00.000Z`
+        }
+      }
+      return val
+    }),
   })
   .refine(
     (d) =>
@@ -47,11 +68,32 @@ export const actualizarAnuncioSchema = z
     cuerpo: z.string().trim().min(1, 'El cuerpo es obligatorio').max(10000, 'El cuerpo es demasiado largo').optional(),
     tipo: anuncioTipoSchema.optional(),
     estado: anuncioEstadoSchema.optional(),
+    anioId: uuidSchema.optional(),
     audienciaNiveles: z.array(uuidSchema).optional(),
     audienciaGrados: z.array(uuidSchema).optional(),
     audienciaSecciones: z.array(uuidSchema).optional(),
     audienciaRoles: z.array(roleCodeSchema).optional(),
-    expiraEn: z.iso.datetime({ offset: true }).optional(),
+    expiraEn: z
+    .union([
+      z.iso.datetime({ offset: true }),
+      z.iso.date(),
+      z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/),
+    ])
+    .optional()
+    .transform((val) => {
+      if (!val) return undefined
+      if (typeof val === 'string') {
+        if (val.length === 10) {
+          // It's a date string (YYYY-MM-DD), convert to end of day ISO datetime
+          return `${val}T23:59:59.999Z`
+        }
+        if (val.length === 16) {
+          // It's a datetime-local string (YYYY-MM-DDTHH:MM), convert to ISO datetime with Z offset
+          return `${val}:00.000Z`
+        }
+      }
+      return val
+    }),
   })
   .refine((d) => Object.keys(d).length > 0, {
     message: 'Debe enviar al menos un campo para actualizar',
@@ -108,6 +150,7 @@ export const anuncioResponseSchema = z.object({
   cuerpo: z.string(),
   tipo: anuncioTipoSchema,
   estado: anuncioEstadoSchema,
+  anioId: z.string().nullable(),
   audienciaNiveles: z.array(uuidSchema),
   audienciaGrados: z.array(uuidSchema),
   audienciaSecciones: z.array(uuidSchema),
