@@ -1,7 +1,7 @@
 ﻿# Arquitectura del Proyecto
 
 > Documento técnico de referencia. Las reglas normativas están en `docs/constitution.md`.
-> Última actualización: 2026-11-13.
+> Última actualización: 2026-11-14.
 
 ## 1. Estado actual vs. objetivo
 
@@ -12,7 +12,7 @@
 | Backend | Fastify 5 con el módulo `core` implementado bajo `/api/v1`: auth (incluido el cambio obligatorio de contraseña, RF-CORE-017), gestión de usuarios y roles (RF-CORE-002), RBAC, institución, años y períodos, niveles/grados/secciones/cursos, personas, matrículas, asignaciones y auditoría. Módulo académico completo bajo `/api/v1`: calificaciones, notas finales, asistencias, justificaciones, umbral, alertas, horarios. Módulo administrativo bajo `/api/v1` y `/api/v1/administrative`: pagos, matrículas administrativas, certificados, plantillas. **Módulo comunicación bajo `/api/v1`: anuncios, mensajería, adjuntos**. `GET /health` fuera de `/api/v1` | Borrado lógico de años (T042) |
 | Base de datos | MySQL 8 con Prisma 7, migración `core_init` y seed idempotente de roles, institución y SuperAdmin. **Esquemas académico, administrativo y comunicación aplicados** | — |
 | Pruebas | Vitest 5 en web y api. API: 56 suites y 717 pruebas (5 omitidas); web: 22 suites y 129 pruebas (14 omitidas). E2E: Playwright con los flujos de autenticación, académico, administrativo, comunicación y aula virtual | Deuda de pruebas de Communication (T022, T027, T030, T031) |
-| Specs | `specs/core/001-spec-mvp/` aprobada v1.2.0; API y frontend de autenticación implementados (T001–T045, salvo T042). `specs/academic/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T023). `specs/administrative/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T036). `specs/communication/001-spec-mvp/` aprobada v1.0.0; implementación completa salvo la deuda de pruebas (T022, T027, T028, T030, T031). `specs/virtual-classroom/001-spec-mvp/` implementada (T001–T022) | T042 (borrado lógico de años) y deuda de pruebas de Communication |
+| Specs | `specs/core/001-spec-mvp/` aprobada v1.2.0; API y frontend de autenticación implementados (T001–T045, salvo T042). `specs/academic/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T023). `specs/administrative/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T037). `specs/communication/001-spec-mvp/` aprobada v1.0.0; implementación completa salvo deuda de pruebas UI y API (T022, T027, T030, T031 pendientes; T029 E2E completado). `specs/virtual-classroom/001-spec-mvp/` implementada (T001–T022) | T042 (borrado lógico de años) y deuda de pruebas UI de Communication (T022, T027) |
 | Gobernanza | Constitución v2, plantillas, matriz RBAC y ADRs | Mantener sincronizada |
 
 Comandos desde la raíz:
@@ -160,7 +160,7 @@ Restricciones que MySQL no cubre igual que PostgreSQL:
 
 Los tests de dominio no dependen de la base de datos. Los de API usan una base de datos de prueba aislada.
 
-Estado actual (2026-11-13): 56 suites y 717 pruebas de API en verde (5 omitidas), más 22 suites y 129 pruebas de frontend (14 omitidas) y 4 flujos E2E de Playwright. Cobertura de sentencias de la API 91,6 %, ramas 80,5 % (última medición tras T019 del módulo académico; umbral mínimo 70 %). Las pruebas corren en serie (`fileParallelism: false`) para no saturar MySQL.
+Estado actual (2026-11-14): 56 suites y 717 pruebas de API en verde (5 omitidas), más 22 suites y 129 pruebas de frontend (14 omitidas) y 4 flujos E2E de Playwright. Cobertura de sentencias de la API 91,6 %, ramas 80,5 % (última medición tras T019 del módulo académico; umbral mínimo 70 %). Las pruebas corren en serie (`fileParallelism: false`) para no saturar MySQL.
 
 ## 10. Decisiones pendientes
 
@@ -174,6 +174,6 @@ Estado actual (2026-11-13): 56 suites y 717 pruebas de API en verde (5 omitidas)
 | Roles administrativos adicionales | Abierto | `specs/administrative/001-spec-mvp/` |
 | Participación de alumnos en mensajería | Abierto | `specs/communication/001-spec-mvp/` |
 | Prisma + MySQL | Resuelto e implementado | ADR-0002 y `specs/core/001-spec-mvp/` |
-| Playwright y pruebas E2E | Resuelto (2026-11-13): 4 flujos (académico, administrativo, comunicación, aula virtual) | `apps/web/e2e/` |
+| Playwright y pruebas E2E | Resuelto (2026-11-14): 4 flujos (académico, administrativo, comunicación, aula virtual) | `apps/web/e2e/` |
 | Cierre del módulo académico (T001–T019) | Resuelto (2026-11-11) | `specs/academic/001-spec-mvp/` |
 | Cierre de la spec `core` (T042) | Bloqueado (falta autorizar `DELETE /anios-academicos/:id` en spec §7) | `specs/core/001-spec-mvp/` |

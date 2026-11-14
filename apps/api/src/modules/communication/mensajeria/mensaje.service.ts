@@ -166,11 +166,8 @@ export async function archivarMensajeService(
     throw new AppError('NOT_FOUND', 'El mensaje no existe.')
   }
 
-  const esAutor = mensaje.autorId === actor.id
-  const esDirector = actor.roles.includes('DIRECTOR')
-
-  if (!esAutor && !esDirector) {
-    throw new AppError('FORBIDDEN', 'Solo el autor o un Director pueden archivar este mensaje.')
+  if (mensaje.autorId !== actor.id) {
+    throw new AppError('FORBIDDEN', 'Solo el autor puede archivar este mensaje.')
   }
 
   await prisma.$transaction(async (tx) => {

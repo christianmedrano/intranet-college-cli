@@ -15,11 +15,11 @@ export const listarMensajesQuerySchema = paginationSchema.extend({
 
 export type ListarMensajesQuery = z.infer<typeof listarMensajesQuerySchema>
 
-/** Adjunto de mensaje. */
+/** Adjunto de mensaje. La `url` es relativa a `/api/v1` y requiere autenticación. */
 export const adjuntoMensajeSchema = z.object({
   id: uuidSchema,
   nombreOriginal: z.string(),
-  url: z.string().url(),
+  url: z.string().min(1),
   tipoMime: z.string(),
   tamanoBytes: z.number().int().nonnegative(),
   createdAt: z.string(),

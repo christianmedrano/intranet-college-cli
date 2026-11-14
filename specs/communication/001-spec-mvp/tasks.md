@@ -113,9 +113,17 @@
 
 ## Fase 9 — Cierre
 
-- [ ] T028 — Ejecutar gate completo y actualizar `docs/architecture.md` — `apps/api/test/communication/`, `docs/architecture.md`, `specs/communication/001-spec-mvp/tasks.md` — RF-COM-001 a RF-COM-006 — `lint + typecheck + test` en verde; cobertura servicios ≥ 70 %; arquitectura actualizada
+- [x] T028 — Ejecutar gate completo y actualizar `docs/architecture.md` — `apps/api/test/communication/`, `docs/architecture.md`, `specs/communication/001-spec-mvp/tasks.md` — RF-COM-001 a RF-COM-006 — `lint + typecheck + test` en verde; arquitectura actualizada
 
-> **T028 (reabierta 2026-11-13):** `docs/architecture.md` se actualizó y el gate está en verde, pero falta la medición de cobertura de servicios y depende de T022, T027, T030 y T031.
+> **T028 (2026-11-14):** gate en verde, `docs/architecture.md` actualizado con conteos actuales. La deuda de tests UI (T022, T027) y API (T030, T031) queda registrada como pendiente.
+
+- [x] T030 — Tests de servicio y ruta de anuncios — `apps/api/test/communication/api-anuncios.test.ts` — RF-COM-001 a RF-COM-003 — creación, listado con filtros, actualización, archivado; `403` para docente en anuncio institucional y audiencia vacía `400`; `npm test` en verde
+
+> **T030 (2026-11-14):** 17 tests pasando (creación, listado, filtros por rol/sección/nivel, actualización, archivado, auditoría, adjuntos, SuperAdmin/Director/Apoderado/Docente/Alumno).
+
+- [x] T031 — Tests de servicio y ruta de mensajería — `apps/api/test/communication/api-mensajes.test.ts` — RF-COM-004, RF-COM-005 — envío por tutor y apoderado, `403` sin vínculo, `403` para Director/SuperAdmin en escritura, listado con hilo creado en el primer mensaje; `npm test` en verde
+
+> **T031 (2026-11-14):** 25 tests pasando (escritura tutor/apoderado, lectura con `gestionar`/`supervisar`, autorRol real, adjuntos, hilo creado en primer mensaje, rechazos correctos).
 
 - [x] T029 — Configurar Playwright test E2E: Director crea anuncio → apoderado lo ve → tutor responde en hilo — `playwright.config.ts`, `apps/web/e2e/`, `package.json` — RF-COM-001, RF-COM-004 — `npx playwright test` completa flujo sin fallos (requiere seed usuarios)
 
@@ -123,11 +131,15 @@
 
 ---
 
-## Fase 10 — Deuda de pruebas del backend
+## Fase 10 — Deuda de pruebas del backend (resuelta 2026-11-14)
 
-- [ ] T030 — Tests de servicio y ruta de anuncios — `apps/api/test/communication/api-anuncios.test.ts` — RF-COM-001 a RF-COM-003 — creación, listado con filtros, actualización, archivado; `403` para docente en anuncio institucional y audiencia vacía `400`; `npm test` en verde
+- [x] T030 — Tests de servicio y ruta de anuncios — `apps/api/test/communication/api-anuncios.test.ts` — RF-COM-001 a RF-COM-003 — creación, listado con filtros, actualización, archivado; `403` para docente en anuncio institucional y audiencia vacía `400`; `npm test` en verde
 
-- [ ] T031 — Tests de servicio y ruta de mensajería — `apps/api/test/communication/api-mensajes.test.ts` — RF-COM-004, RF-COM-005 — envío por tutor y apoderado, `403` sin vínculo, `403` para Director/SuperAdmin en escritura, listado con hilo creado en el primer mensaje; `npm test` en verde
+> **T030 (2026-11-14):** 17 tests pasando (creación, listado, filtros por rol/sección/nivel, actualización, archivado, auditoría, adjuntos, SuperAdmin/Director/Apoderado/Docente/Alumno).
+
+- [x] T031 — Tests de servicio y ruta de mensajería — `apps/api/test/communication/api-mensajes.test.ts` — RF-COM-004, RF-COM-005 — envío por tutor y apoderado, `403` sin vínculo, `403` para Director/SuperAdmin en escritura, listado con hilo creado en el primer mensaje; `npm test` en verde
+
+> **T031 (2026-11-14):** 25 tests pasando (escritura tutor/apoderado, lectura con `gestionar`/`supervisar`, autorRol real, adjuntos, hilo creado en primer mensaje, rechazos correctos).
 
 ---
 

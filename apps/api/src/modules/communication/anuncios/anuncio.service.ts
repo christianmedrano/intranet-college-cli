@@ -80,8 +80,8 @@ export async function obtenerAnuncioService(
     { tipo: anuncio.tipo as 'INSTITUCIONAL' | 'SECCION' },
     prisma,
   )
-  const permitido = await getPrisma().anuncio.findFirst({ where: { ...where, id } })
-  
+  const permitido = await prisma.anuncio.findFirst({ where: { ...where, id } })
+
   if (!permitido) return null
 
   return anuncio

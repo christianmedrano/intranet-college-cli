@@ -111,11 +111,11 @@ export const listarAnunciosQuerySchema = paginationSchema.extend({
 
 export type ListarAnunciosQuery = z.infer<typeof listarAnunciosQuerySchema>
 
-/** Adjunto de anuncio. */
+/** Adjunto de anuncio. La `url` es relativa a `/api/v1` y requiere autenticación. */
 export const adjuntoAnuncioSchema = z.object({
   id: uuidSchema,
   nombreOriginal: z.string(),
-  url: z.string().url(),
+  url: z.string().min(1),
   tipoMime: z.string(),
   tamanoBytes: z.number().int().nonnegative(),
   createdAt: z.string(),

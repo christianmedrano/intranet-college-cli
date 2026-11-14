@@ -106,14 +106,16 @@ export function CertificadosPage() {
   const [errorAccion, setErrorAccion] = useState<string | null>(null)
   const [mensajeExito, setMensajeExito] = useState<string | null>(null)
 
+  const puedeLeer = puedeEmitir || puedeSolicitar || puedeDescargar
+
   const clave = `${JSON.stringify(filtros)}|${recarga}`
-  const cargando = puedeEmitir && resultado?.clave !== clave
+  const cargando = puedeLeer && resultado?.clave !== clave
   const errorCarga = resultado?.clave === clave ? resultado.error : null
   const certificados = resultado?.clave === clave ? resultado.data : []
   const meta = resultado?.clave === clave ? resultado.meta : { page: 1, pageSize: 20, total: 0 }
 
   useEffect(() => {
-    if (!puedeEmitir) return
+    if (!puedeLeer) return
 
     let activo = true
 
@@ -143,7 +145,7 @@ export function CertificadosPage() {
     return () => {
       activo = false
     }
-  }, [clave, filtros, puedeEmitir])
+  }, [clave, filtros, puedeLeer])
 
   useEffect(() => {
     let activo = true
@@ -277,7 +279,7 @@ export function CertificadosPage() {
         </div>
       </div>
 
-      {!puedeEmitir && (
+      {!puedeLeer && (
         <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm" role="alert">
           No tiene permiso para consultar certificados.
         </div>
