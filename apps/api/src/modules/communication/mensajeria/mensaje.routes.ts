@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import { requireAuth } from '../../../core/auth/guards.js'
-import { requirePermission } from '../../../core/rbac.js'
+import { requireAnyPermission, requirePermission } from '../../../core/rbac.js'
 import {
   archivarMensajeController,
   enviarMensajeController,
@@ -10,8 +10,9 @@ import {
 /**
  * Rutas de mensajería. Se registran bajo `/api/v1`.
  *
- * Escritura y lectura exigen `communication.mensajeria.gestionar`;
- * el alcance por vínculo se resuelve en el servicio (RF-COM-004, RF-COM-005).
+ * La escritura exige `communication.mensajeria.gestionar`; la lectura admite
+ * `gestionar` (tutor/apoderado) o `supervisar` (Director/SuperAdmin). El alcance
+ * por vínculo se resuelve en el servicio (RF-COM-004, RF-COM-005).
  */
 export async function mensajeRoutes(app: FastifyInstance): Promise<void> {
   const gestionar = [
@@ -19,9 +20,17 @@ export async function mensajeRoutes(app: FastifyInstance): Promise<void> {
     requirePermission('communication.mensajeria.gestionar'),
   ]
 
+  const leer = [
+    requireAuth,
+    requireAnyPermission([
+      'communication.mensajeria.gestionar',
+      'communication.mensajeria.supervisar',
+    ]),
+  ]
+
   app.post('/secciones/:id/mensajes', { preHandler: gestionar }, enviarMensajeController)
 
-  app.get('/secciones/:id/mensajes', { preHandler: gestionar }, listarMensajesController)
+  app.get('/secciones/:id/mensajes', { preHandler: leer }, listarMensajesController)
 
   app.delete('/mensajes/:id', { preHandler: gestionar }, archivarMensajeController)
 }

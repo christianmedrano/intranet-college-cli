@@ -8,7 +8,7 @@ import type { PrismaClient } from '../../../generated/prisma/client.js'
 import { getPrisma } from '../../../core/db.js'
 import { AppError } from '../../../core/errors.js'
 import { registrarAuditoria } from '../../../core/audit.js'
-import { assertPermiso, type ActorAcademico } from '../../academic/scope.js'
+import { assertAlgunPermiso, assertPermiso, type ActorAcademico } from '../../academic/scope.js'
 import { institucionActual } from '../../core/estructura/institucion-actual.js'
 import {
   obtenerOCrearHilo,
@@ -16,6 +16,7 @@ import {
   archivarMensaje,
 } from './mensaje.repository.js'
 import {
+  assertVinculoSeccion,
   construirAlcanceMensajes,
   type FiltrosConsultaMensajes,
 } from './mensaje.scope.js'
@@ -37,12 +38,8 @@ export async function enviarMensajeService(
 
   await institucionActual(prisma)
 
-  // Verificar alcance antes de crear
-  const { where } = await construirAlcanceMensajes(actor, { seccionId }, prisma)
-
-  if (where.id === 'NINGUNO') {
-    throw new AppError('FORBIDDEN', 'No tienes vínculo con esta sección para enviar mensajes.')
-  }
+  // Verificar vínculo antes de crear (el hilo puede no existir todavía)
+  await assertVinculoSeccion(actor, seccionId, prisma)
 
   return prisma.$transaction(async (tx) => {
     // Obtener o crear hilo
@@ -76,7 +73,10 @@ export async function listarMensajesService(
   actor: ActorAcademico,
   prisma: PrismaClient = getPrisma(),
 ): Promise<Paginated<MensajeResponse>> {
-  assertPermiso(actor, 'communication.mensajeria.gestionar')
+  assertAlgunPermiso(actor, [
+    'communication.mensajeria.gestionar',
+    'communication.mensajeria.supervisar',
+  ])
 
   const { where, hiloId, auditarAcceso } = await construirAlcanceMensajes(actor, filtros, prisma)
 
@@ -88,7 +88,15 @@ export async function listarMensajesService(
     prisma.mensajeSeccion.count({ where }),
     prisma.mensajeSeccion.findMany({
       where,
-      include: { adjuntos: true, autor: { select: { persona: { select: { nombres: true, apellidos: true } } } } },
+      include: {
+        adjuntos: true,
+        autor: {
+          select: {
+            persona: { select: { nombres: true, apellidos: true } },
+            roles: { select: { rol: { select: { codigo: true } } } },
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
       skip: (paginacion.page - 1) * paginacion.pageSize,
       take: paginacion.pageSize,
@@ -112,7 +120,7 @@ export async function listarMensajesService(
     hiloId: fila.hiloId,
     autorId: fila.autorId,
     autorNombre: `${fila.autor.persona.nombres} ${fila.autor.persona.apellidos}`,
-    autorRol: 'TODO',
+    autorRol: fila.autor.roles[0]?.rol.codigo ?? '',
     cuerpo: fila.cuerpo,
     createdAt: aFechaISO(fila.createdAt),
     updatedAt: aFechaISO(fila.updatedAt),

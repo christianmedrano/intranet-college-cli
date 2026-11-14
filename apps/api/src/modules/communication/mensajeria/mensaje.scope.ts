@@ -1,6 +1,7 @@
 import type { Prisma } from '../../../generated/prisma/client.js'
 import type { PrismaClient } from '../../../generated/prisma/client.js'
 import { getPrisma } from '../../../core/db.js'
+import { AppError } from '../../../core/errors.js'
 import { type ActorAcademico } from '../../academic/scope.js'
 
 /** Filtros del listado de mensajes (ya validados por Zod). */
@@ -65,12 +66,12 @@ export async function construirAlcanceMensajes(
 
   const hiloId = hilo.id
 
-  // SuperAdmin y Director ven todo (auditado)
+  // SuperAdmin y Director ven todo (acceso auditado, RF-COM-004)
   if (esSA || esDI) {
     return {
       where: { hiloId, deletedAt: null },
       hiloId,
-      auditarAcceso: esSA,
+      auditarAcceso: true,
     }
   }
 
@@ -78,7 +79,7 @@ export async function construirAlcanceMensajes(
   if (esDO) {
     const asignacion = await prisma.asignacionDocente.findFirst({
       where: {
-        docente: { usuarioId: actor.id },
+        docente: { persona: { usuario: { id: actor.id } } },
         seccionId: filtros.seccionId,
         esTutor: true,
         anio: { estado: 'ACTIVO' },
@@ -100,7 +101,7 @@ export async function construirAlcanceMensajes(
   // Apoderado: solo si tiene alumno en la sección con matrícula APROBADA
   if (esPA) {
     const apoderado = await prisma.apoderado.findFirst({
-      where: { persona: { usuarioId: actor.id } },
+      where: { persona: { usuario: { id: actor.id } } },
       select: { id: true },
     })
 
@@ -108,18 +109,14 @@ export async function construirAlcanceMensajes(
       return { where: { id: 'NINGUNO' }, hiloId, auditarAcceso: false }
     }
 
-    const vinculacion = await prisma.apoderadoAlumno.findFirst({
+    const vinculaciones = await prisma.apoderadoAlumno.findMany({
       where: { apoderadoId: apoderado.id, esPrincipal: true },
       select: { alumnoId: true },
     })
 
-    if (!vinculacion) {
-      return { where: { id: 'NINGUNO' }, hiloId, auditarAcceso: false }
-    }
-
     const matricula = await prisma.matricula.findFirst({
       where: {
-        alumnoId: vinculacion.alumnoId,
+        alumnoId: { in: vinculaciones.map((v) => v.alumnoId) },
         seccionId: filtros.seccionId,
         estado: 'APROBADA',
         anio: { estado: 'ACTIVO' },
@@ -144,4 +141,72 @@ export async function construirAlcanceMensajes(
     hiloId,
     auditarAcceso: false,
   }
+}
+
+/**
+ * Verifica que el actor pueda escribir en el hilo de una sección (RF-COM-004).
+ *
+ * No exige que el hilo exista: se crea con el primer mensaje. Según la matriz
+ * RBAC, el SuperAdmin no participa y el Director solo comunica
+ * institucionalmente; escriben el docente tutor y los apoderados con alumno
+ * matriculado (`APROBADA`) en la sección.
+ *
+ * @throws AppError `FORBIDDEN` si el actor no tiene vínculo con la sección.
+ */
+export async function assertVinculoSeccion(
+  actor: ActorAcademico,
+  seccionId: string,
+  prisma: PrismaClient = getPrisma(),
+): Promise<void> {
+  if (actor.roles.includes('SUPER_ADMIN') || actor.roles.includes('DIRECTOR')) {
+    throw new AppError(
+      'FORBIDDEN',
+      'La mensajería de sección es solo para docentes tutores y apoderados.',
+    )
+  }
+
+  if (actor.roles.includes('DOCENTE')) {
+    const asignacion = await prisma.asignacionDocente.findFirst({
+      where: {
+        docente: { persona: { usuario: { id: actor.id } } },
+        seccionId,
+        esTutor: true,
+        anio: { estado: 'ACTIVO' },
+      },
+      select: { id: true },
+    })
+
+    if (asignacion) return
+  }
+
+  if (actor.roles.includes('APODERADO')) {
+    const apoderado = await prisma.apoderado.findFirst({
+      where: { persona: { usuario: { id: actor.id } } },
+      select: { id: true },
+    })
+
+    if (apoderado) {
+      const vinculaciones = await prisma.apoderadoAlumno.findMany({
+        where: { apoderadoId: apoderado.id, esPrincipal: true },
+        select: { alumnoId: true },
+      })
+
+      const matricula = await prisma.matricula.findFirst({
+        where: {
+          alumnoId: { in: vinculaciones.map((v) => v.alumnoId) },
+          seccionId,
+          estado: 'APROBADA',
+          anio: { estado: 'ACTIVO' },
+        },
+        select: { id: true },
+      })
+
+      if (matricula) return
+    }
+  }
+
+  throw new AppError(
+    'FORBIDDEN',
+    'No tienes vínculo con esta sección para enviar mensajes.',
+  )
 }

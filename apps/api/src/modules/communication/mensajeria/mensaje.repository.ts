@@ -79,7 +79,15 @@ export async function crearMensaje(
 ) {
   const creado = await prisma.mensajeSeccion.create({
     data: { hiloId, autorId, cuerpo },
-    include: { adjuntos: true, autor: { select: { persona: { select: { nombres: true, apellidos: true } } } } },
+    include: {
+      adjuntos: true,
+      autor: {
+        select: {
+          persona: { select: { nombres: true, apellidos: true } },
+          roles: { select: { rol: { select: { codigo: true } } } },
+        },
+      },
+    },
   })
 
   return mapearMensaje({
@@ -91,7 +99,7 @@ export async function crearMensaje(
     updatedAt: creado.updatedAt,
     adjuntos: creado.adjuntos,
     autorNombre: `${creado.autor.persona.nombres} ${creado.autor.persona.apellidos}`,
-    autorRol: 'TODO',
+    autorRol: creado.autor.roles[0]?.rol.codigo ?? '',
   })
 }
 
@@ -107,7 +115,15 @@ export async function listarMensajes(
     prisma.mensajeSeccion.count({ where: { hiloId, deletedAt: null } }),
     prisma.mensajeSeccion.findMany({
       where: { hiloId, deletedAt: null },
-      include: { adjuntos: true, autor: { select: { persona: { select: { nombres: true, apellidos: true } } } } },
+      include: {
+        adjuntos: true,
+        autor: {
+          select: {
+            persona: { select: { nombres: true, apellidos: true } },
+            roles: { select: { rol: { select: { codigo: true } } } },
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
       skip: (paginacion.page - 1) * paginacion.pageSize,
       take: paginacion.pageSize,
@@ -123,7 +139,7 @@ export async function listarMensajes(
     updatedAt: f.updatedAt,
     adjuntos: f.adjuntos,
     autorNombre: `${f.autor.persona.nombres} ${f.autor.persona.apellidos}`,
-    autorRol: 'TODO',
+    autorRol: f.autor.roles[0]?.rol.codigo ?? '',
   }))
 
   const mensajesMapeados = mensajes.map(mapearMensaje)

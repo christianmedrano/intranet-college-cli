@@ -1,18 +1,18 @@
-# Arquitectura del Proyecto
+﻿# Arquitectura del Proyecto
 
 > Documento técnico de referencia. Las reglas normativas están en `docs/constitution.md`.
-> Última actualización: 2026-11-14.
+> Última actualización: 2026-11-13.
 
 ## 1. Estado actual vs. objetivo
 
 | Área | Estado actual | Pendiente |
 |---|---|---|
 | Repositorio | Monorepo con workspaces (`apps/web`, `apps/api`, `packages/shared`) | — |
-| Frontend | React 19 + Vite 8 + TypeScript 6 + Tailwind 4; router, sesión en memoria con refresh, login, recuperación, guard por rol y cambio de contraseña (T033–T039). Módulo académico: calificaciones/notas finales (T017), asistencias/justificaciones (T018), umbral/alertas/horarios (T019). Módulo administrativo: pagos, matrículas, certificados, plantillas. **Módulo comunicación: anuncios, mensajería** | Playwright y pruebas E2E (T021) |
+| Frontend | React 19 + Vite 8 + TypeScript 6 + Tailwind 4; router, sesión en memoria con refresh, login, recuperación, guard por rol, cambio de contraseña (T033–T039) y cabecera con cierre de sesión (T045). Módulo académico: calificaciones/notas finales (T017), asistencias/justificaciones (T018), umbral/alertas/horarios (T019). Módulo administrativo: pagos, matrículas, certificados, plantillas. Módulo comunicación: anuncios, mensajería. **Módulo aula virtual: materiales y adjuntos** | Pruebas E2E de matrícula administrativa y deuda de pruebas UI de Communication (T022, T027) |
 | Backend | Fastify 5 con el módulo `core` implementado bajo `/api/v1`: auth (incluido el cambio obligatorio de contraseña, RF-CORE-017), gestión de usuarios y roles (RF-CORE-002), RBAC, institución, años y períodos, niveles/grados/secciones/cursos, personas, matrículas, asignaciones y auditoría. Módulo académico completo bajo `/api/v1`: calificaciones, notas finales, asistencias, justificaciones, umbral, alertas, horarios. Módulo administrativo bajo `/api/v1` y `/api/v1/administrative`: pagos, matrículas administrativas, certificados, plantillas. **Módulo comunicación bajo `/api/v1`: anuncios, mensajería, adjuntos**. `GET /health` fuera de `/api/v1` | Borrado lógico de años (T042) |
 | Base de datos | MySQL 8 con Prisma 7, migración `core_init` y seed idempotente de roles, institución y SuperAdmin. **Esquemas académico, administrativo y comunicación aplicados** | — |
-| Pruebas | Vitest 5 en web y api. API: 54 suites y 701 pruebas; web: 21 suites y 126 pruebas. Cobertura de la API: ≥70 % en sentencias, ramas, funciones y líneas | Playwright y pruebas E2E (T021) |
-| Specs | `specs/core/001-spec-mvp/` aprobada v1.2.0; API y frontend de autenticación implementados (T001–T039, T043). `specs/academic/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T019). `specs/administrative/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T035). **`specs/communication/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T028).** `T044` de core cerrada (`es_tutor`) | T020 (cierre), T021 (E2E), T029 (E2E communication), T042 (deuda técnica) y 1 módulo vacío |
+| Pruebas | Vitest 5 en web y api. API: 56 suites y 717 pruebas (5 omitidas); web: 22 suites y 129 pruebas (14 omitidas). E2E: Playwright con los flujos de autenticación, académico, administrativo, comunicación y aula virtual | Deuda de pruebas de Communication (T022, T027, T030, T031) |
+| Specs | `specs/core/001-spec-mvp/` aprobada v1.2.0; API y frontend de autenticación implementados (T001–T045, salvo T042). `specs/academic/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T023). `specs/administrative/001-spec-mvp/` aprobada v1.0.0; implementación completa (T001–T036). `specs/communication/001-spec-mvp/` aprobada v1.0.0; implementación completa salvo la deuda de pruebas (T022, T027, T028, T030, T031). `specs/virtual-classroom/001-spec-mvp/` implementada (T001–T022) | T042 (borrado lógico de años) y deuda de pruebas de Communication |
 | Gobernanza | Constitución v2, plantillas, matriz RBAC y ADRs | Mantener sincronizada |
 
 Comandos desde la raíz:
@@ -156,11 +156,11 @@ Restricciones que MySQL no cubre igual que PostgreSQL:
 | Dominio | Vitest | Reglas de negocio, períodos, escalas, permisos |
 | API | Vitest + Supertest | Contratos, validación, RBAC, errores |
 | UI | Testing Library | Formularios, estados, accesibilidad básica |
-| E2E | Playwright | Login, notas, asistencia, pagos |
+| E2E | Playwright | Login, notas, asistencia, pagos, certificados, anuncios/mensajería, aula virtual |
 
 Los tests de dominio no dependen de la base de datos. Los de API usan una base de datos de prueba aislada.
 
-Estado actual: 43 suites y 541 pruebas de API en verde, más 10 suites y 60 pruebas de frontend. Cobertura de sentencias de la API 91,6 %, ramas 80,5 % (última medición tras T019; umbral mínimo 70 %). Las pruebas corren en serie (`fileParallelism: false`) para no saturar MySQL.
+Estado actual (2026-11-13): 56 suites y 717 pruebas de API en verde (5 omitidas), más 22 suites y 129 pruebas de frontend (14 omitidas) y 4 flujos E2E de Playwright. Cobertura de sentencias de la API 91,6 %, ramas 80,5 % (última medición tras T019 del módulo académico; umbral mínimo 70 %). Las pruebas corren en serie (`fileParallelism: false`) para no saturar MySQL.
 
 ## 10. Decisiones pendientes
 
@@ -170,10 +170,10 @@ Estado actual: 43 suites y 541 pruebas de API en verde, más 10 suites y 60 prue
 | Modelo de competencias vs. cursos | Resuelto (2026-11-08): calificación literal por curso | `specs/academic/001-spec-mvp/` |
 | Fórmula de nota final | Resuelto (2026-11-08): registro manual del docente, sin cálculo | `specs/academic/001-spec-mvp/` |
 | Umbral de alerta de inasistencias | Resuelto (2026-11-08): configurable por año, sin valor por defecto | `specs/academic/001-spec-mvp/` |
-| Almacenamiento de archivos en producción | Abierto | ADR antes de implementar aula virtual |
+| Almacenamiento de archivos en producción | Abierto (el aula virtual usa almacenamiento local en desarrollo) | ADR |
 | Roles administrativos adicionales | Abierto | `specs/administrative/001-spec-mvp/` |
 | Participación de alumnos en mensajería | Abierto | `specs/communication/001-spec-mvp/` |
 | Prisma + MySQL | Resuelto e implementado | ADR-0002 y `specs/core/001-spec-mvp/` |
-| Playwright y pruebas E2E | Pendiente (T021) | Primera feature con flujo completo |
+| Playwright y pruebas E2E | Resuelto (2026-11-13): 4 flujos (académico, administrativo, comunicación, aula virtual) | `apps/web/e2e/` |
 | Cierre del módulo académico (T001–T019) | Resuelto (2026-11-11) | `specs/academic/001-spec-mvp/` |
 | Cierre de la spec `core` (T042) | Bloqueado (falta autorizar `DELETE /anios-academicos/:id` en spec §7) | `specs/core/001-spec-mvp/` |

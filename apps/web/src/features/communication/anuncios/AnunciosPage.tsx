@@ -420,23 +420,27 @@ export function AnunciosPage() {
                         {anuncio.publicadoEn ? new Date(anuncio.publicadoEn).toLocaleString('es-PE') : '—'}
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-700">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => abrirFormularioEditar(anuncio)}
-                            className="px-3 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 text-slate-700"
-                          >
-                            Editar
-                          </button>
-                          {anuncio.estado !== 'ARCHIVADO' && (
+                        {puedeGestionar ? (
+                          <div className="flex items-center gap-2">
                             <button
-                              onClick={() => confirmarEliminar(anuncio.id)}
-                              disabled={eliminandoId === anuncio.id}
-                              className="px-3 py-1 text-xs border border-red-300 rounded hover:bg-red-50 text-red-700"
+                              onClick={() => abrirFormularioEditar(anuncio)}
+                              className="px-3 py-1 text-xs border border-slate-300 rounded hover:bg-slate-50 text-slate-700"
                             >
-                              {eliminandoId === anuncio.id ? 'Archivando...' : 'Archivar'}
+                              Editar
                             </button>
-                          )}
-                        </div>
+                            {anuncio.estado !== 'ARCHIVADO' && (
+                              <button
+                                onClick={() => confirmarEliminar(anuncio.id)}
+                                disabled={eliminandoId === anuncio.id}
+                                className="px-3 py-1 text-xs border border-red-300 rounded hover:bg-red-50 text-red-700"
+                              >
+                                {eliminandoId === anuncio.id ? 'Archivando...' : 'Archivar'}
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
                       </td>
                     </tr>
                   ))}

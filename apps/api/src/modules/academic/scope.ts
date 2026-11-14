@@ -33,6 +33,24 @@ export function assertPermiso(
 }
 
 /**
+ * Exige al menos uno de los permisos indicados.
+ *
+ * Se usa en operaciones que admiten permisos alternativos, como la lectura del
+ * hilo de mensajería: `gestionar` para tutor/apoderado y `supervisar` para
+ * Director/SuperAdmin (RF-COM-004, RF-COM-005).
+ *
+ * @throws AppError `FORBIDDEN` si el actor no tiene ninguno.
+ */
+export function assertAlgunPermiso(
+  actor: ActorAcademico,
+  permissions: readonly Permission[],
+): void {
+  if (!permissions.some((permission) => hasPermission(actor.roles, permission))) {
+    throw new AppError('FORBIDDEN')
+  }
+}
+
+/**
  * Resuelve la sección del alumno a partir de su matrícula `APROBADA` en el año
  * (RN-ACAD-008).
  *

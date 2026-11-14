@@ -8,6 +8,7 @@ import {
 } from './api'
 import { MensajeForm } from './MensajeForm'
 import { formatoFechaHora, mensajeError } from '../shared/formato'
+import { etiquetaRol } from '../shared/roles'
 
 export function MensajeriaPage() {
   const { seccionId } = useParams<{ seccionId: string }>()
@@ -17,8 +18,8 @@ export function MensajeriaPage() {
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [mostrarFormulario, setMostrarFormulario] = useState(false)
-  // Mark as used to satisfy TypeScript no-unused-vars
-  if (mostrarFormulario) { /* intentional */ }
+  const permisos = usuario?.permissions ?? []
+  const puedeEnviar = permisos.includes('communication.mensajeria.gestionar')
 
   const cargarConEstado = useCallback(async (pageNum: number) => {
     if (!seccionId) return
@@ -55,12 +56,14 @@ export function MensajeriaPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">Mensajería de Sección</h1>
-        <button
-          onClick={() => setMostrarFormulario(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
-        >
-          Nuevo mensaje
-        </button>
+        {puedeEnviar && (
+          <button
+            onClick={() => setMostrarFormulario(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+          >
+            Nuevo mensaje
+          </button>
+        )}
       </div>
 
       {error && (
@@ -86,7 +89,7 @@ export function MensajeriaPage() {
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-medium text-slate-900">{mensaje.autorNombre}</span>
                         <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                          {mensaje.autorRol}
+                          {etiquetaRol(mensaje.autorRol)}
                         </span>
                         {esPropio(mensaje) && (
                           <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
@@ -134,26 +137,28 @@ export function MensajeriaPage() {
           </>
         )}
 
-        {/* Formulario nuevo mensaje (modal inferior) */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg p-4 md:relative md:fixed md:bottom-auto md:top-auto md:left-auto md:right-auto md:max-w-2xl md:mx-auto md:rounded-t-lg md:shadow-xl">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-slate-900">Nuevo mensaje</h2>
-            <button
-              onClick={() => setMostrarFormulario(false)}
-              className="text-slate-500 hover:text-slate-700 text-2xl"
-              aria-label="Cerrar"
-            >
-              ×
-            </button>
+        {/* Formulario nuevo mensaje (modal inferior, solo si puede escribir) */}
+        {puedeEnviar && mostrarFormulario && (
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg p-4 md:relative md:fixed md:bottom-auto md:top-auto md:left-auto md:right-auto md:max-w-2xl md:mx-auto md:rounded-t-lg md:shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-900">Nuevo mensaje</h2>
+              <button
+                onClick={() => setMostrarFormulario(false)}
+                className="text-slate-500 hover:text-slate-700 text-2xl"
+                aria-label="Cerrar"
+              >
+                ×
+              </button>
+            </div>
+            <MensajeForm
+              seccionId={seccionId!}
+              onEnviado={() => {
+                setMostrarFormulario(false)
+                cargarConEstado(page)
+              }}
+            />
           </div>
-          <MensajeForm
-            seccionId={seccionId!}
-            onEnviado={() => {
-              setMostrarFormulario(false)
-              cargarConEstado(page)
-            }}
-          />
-        </div>
+        )}
       </div>
     </div>
   )

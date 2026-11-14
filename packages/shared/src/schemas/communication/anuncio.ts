@@ -11,6 +11,28 @@ export type AnuncioTipo = z.infer<typeof anuncioTipoSchema>
 export const anuncioEstadoSchema = z.enum(['BORRADOR', 'PUBLICADO', 'EXPIRADO', 'ARCHIVADO'])
 export type AnuncioEstado = z.infer<typeof anuncioEstadoSchema>
 
+/** Año académico opcional; el formulario envía cadena vacía cuando no aplica. */
+const anioIdSchema = z
+  .union([uuidSchema, z.literal('')])
+  .optional()
+  .transform((val) => (val === '' ? undefined : val))
+
+/** Expiración opcional; acepta `YYYY-MM-DD`, `YYYY-MM-DDTHH:MM` o ISO completo. */
+const expiraEnSchema = z
+  .union([
+    z.iso.datetime({ offset: true }),
+    z.iso.date(),
+    z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/),
+    z.literal(''),
+  ])
+  .optional()
+  .transform((val) => {
+    if (!val) return undefined
+    if (val.length === 10) return `${val}T23:59:59.999Z`
+    if (val.length === 16) return `${val}:00.000Z`
+    return val
+  })
+
 /** Crear anuncio (RF-COM-001, RF-COM-002). */
 export const crearAnuncioSchema = z
   .object({
@@ -18,32 +40,12 @@ export const crearAnuncioSchema = z
     cuerpo: z.string().trim().min(1, 'El cuerpo es obligatorio').max(10000, 'El cuerpo es demasiado largo'),
     tipo: anuncioTipoSchema,
     estado: z.enum(['BORRADOR', 'PUBLICADO']).default('BORRADOR'),
-    anioId: uuidSchema,
+    anioId: anioIdSchema,
     audienciaNiveles: z.array(uuidSchema).optional(),
     audienciaGrados: z.array(uuidSchema).optional(),
     audienciaSecciones: z.array(uuidSchema).optional(),
     audienciaRoles: z.array(roleCodeSchema).optional(),
-    expiraEn: z
-    .union([
-      z.iso.datetime({ offset: true }),
-      z.iso.date(),
-      z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/),
-    ])
-    .optional()
-    .transform((val) => {
-      if (!val) return undefined
-      if (typeof val === 'string') {
-        if (val.length === 10) {
-          // It's a date string (YYYY-MM-DD), convert to end of day ISO datetime
-          return `${val}T23:59:59.999Z`
-        }
-        if (val.length === 16) {
-          // It's a datetime-local string (YYYY-MM-DDTHH:MM), convert to ISO datetime with Z offset
-          return `${val}:00.000Z`
-        }
-      }
-      return val
-    }),
+    expiraEn: expiraEnSchema,
   })
   .refine(
     (d) =>
@@ -68,32 +70,12 @@ export const actualizarAnuncioSchema = z
     cuerpo: z.string().trim().min(1, 'El cuerpo es obligatorio').max(10000, 'El cuerpo es demasiado largo').optional(),
     tipo: anuncioTipoSchema.optional(),
     estado: anuncioEstadoSchema.optional(),
-    anioId: uuidSchema.optional(),
+    anioId: anioIdSchema,
     audienciaNiveles: z.array(uuidSchema).optional(),
     audienciaGrados: z.array(uuidSchema).optional(),
     audienciaSecciones: z.array(uuidSchema).optional(),
     audienciaRoles: z.array(roleCodeSchema).optional(),
-    expiraEn: z
-    .union([
-      z.iso.datetime({ offset: true }),
-      z.iso.date(),
-      z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/),
-    ])
-    .optional()
-    .transform((val) => {
-      if (!val) return undefined
-      if (typeof val === 'string') {
-        if (val.length === 10) {
-          // It's a date string (YYYY-MM-DD), convert to end of day ISO datetime
-          return `${val}T23:59:59.999Z`
-        }
-        if (val.length === 16) {
-          // It's a datetime-local string (YYYY-MM-DDTHH:MM), convert to ISO datetime with Z offset
-          return `${val}:00.000Z`
-        }
-      }
-      return val
-    }),
+    expiraEn: expiraEnSchema,
   })
   .refine((d) => Object.keys(d).length > 0, {
     message: 'Debe enviar al menos un campo para actualizar',

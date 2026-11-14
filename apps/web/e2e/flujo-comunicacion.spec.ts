@@ -35,22 +35,15 @@ test.describe('Flujo Communication E2E: Anuncio + Mensajería', () => {
     // ==========================================
     await page.goto('/login')
     await page.waitForLoadState('networkidle')
-    // Wait for React app to mount
-    await page.waitForFunction(() => document.getElementById('root')?.children.length > 0, { timeout: 30000 })
-    const bodyText = await page.locator('body').textContent()
-    console.log('Login page body:', bodyText?.substring(0, 500))
     await expect(page.locator('h1:has-text("Iniciar sesión")')).toBeVisible({ timeout: 30000 })
-    await page.waitForSelector('input[name="identifier"]', { state: 'visible', timeout: 15000 })
     await page.fill('input[name="identifier"]', 'director1@ejemplo.edu.pe')
     await page.fill('input[name="password"]', 'Director123!')
     await page.click('button[type="submit"]')
     await expect(page).toHaveURL('/')
-    console.log('After login URL:', page.url())
 
     // Ir a página de anuncios
     await page.goto('/anuncios')
     await page.waitForLoadState('networkidle')
-    console.log('Current URL:', page.url())
     await expect(page).toHaveURL(/\/anuncios/)
     await expect(page.locator('h1')).toContainText('Anuncios y Comunicados')
 
@@ -58,14 +51,14 @@ test.describe('Flujo Communication E2E: Anuncio + Mensajería', () => {
     await page.click('button:has-text("Crear anuncio")')
     await expect(page.locator('h2:has-text("Crear anuncio")')).toBeVisible()
 
-    // Esperar a que los catálogos se carguen
+    // Seleccionar tipo INSTITUCIONAL (revela el selector de año académico)
+    await page.selectOption('select[name="tipo"]', 'INSTITUCIONAL')
+
+    // Esperar a que el catálogo de años académicos se cargue
     await page.waitForFunction(() => {
       const select = document.querySelector('select[name="anioId"]')
-      return select && select.options.length > 1
-    }, { timeout: 15000 })
-
-    // Llenar formulario: tipo INSTITUCIONAL, audiencia general
-    await page.selectOption('select[name="tipo"]', 'INSTITUCIONAL')
+      return select !== null && select.options.length > 1
+    }, { timeout: 20000 })
     await page.fill('input[name="titulo"]', 'Anuncio E2E: Reunión de Padres')
     await page.fill('textarea[name="cuerpo"]', 'Se convoca a reunión de padres el próximo viernes a las 10:00 AM.')
 
@@ -75,12 +68,15 @@ test.describe('Flujo Communication E2E: Anuncio + Mensajería', () => {
     // Año académico
     await page.selectOption('select[name="anioId"]', _ANIO_ID_E2E)
 
-    await page.click('button:has-text("Crear anuncio")')
-    await expect(page.locator('.text-emerald-800')).toContainText('Anuncio creado')
+    // Publicar directamente (RF-COM-001: el Director publica el anuncio)
+    await page.selectOption('select[name="estado"]', 'PUBLICADO')
 
-    // Verificar que aparece en la lista con estado PUBLICADO (al crearlo como Director se publica directo)
-    await expect(page.locator('table')).toBeVisible()
-    await expect(page.locator('td')).toContainText('Reunión de Padres')
+    await page.locator('form button[type="submit"]').click()
+
+    // El anuncio aparece en la lista con estado PUBLICADO
+    const filaAnuncio = page.locator('tbody tr', { hasText: 'Reunión de Padres' }).first()
+    await expect(filaAnuncio).toBeVisible()
+    await expect(filaAnuncio).toContainText('PUBLICADO')
 
     // ==========================================
     // 2. APODERADO: VER ANUNCIO
@@ -98,13 +94,10 @@ test.describe('Flujo Communication E2E: Anuncio + Mensajería', () => {
     await expect(page.locator('table')).toBeVisible()
 
     // El apoderado ve el anuncio (filtrado por su rol APODERADO)
-    await expect(page.locator('td')).toContainText('Reunión de Padres')
+    await expect(page.locator('tbody tr', { hasText: 'Reunión de Padres' }).first()).toBeVisible()
 
-    // Ver detalle del anuncio
-    await page.locator('tbody tr').first().locator('button:has-text("Editar")').click()
-    // Como apoderado no tiene permiso de gestión, no debería ver botón editar
-    // En su lugar, verificar que ve el título en la tabla
-    await expect(page.locator('td')).toContainText('Reunión de Padres')
+    // El apoderado no tiene permiso de gestión: no ve acciones de edición
+    await expect(page.locator('button:has-text("Editar")')).toHaveCount(0)
 
     // ==========================================
     // 3. DOCENTE (TUTOR): RESPONDER EN HILLO DE MENSAJERÍA
@@ -131,16 +124,13 @@ test.describe('Flujo Communication E2E: Anuncio + Mensajería', () => {
     await page.fill('textarea[name="cuerpo"]', 'Estimados padres, confirmo la reunión para el viernes. Les esperamos.')
     
     await page.click('button:has-text("Enviar mensaje")')
-    await expect(page.locator('.text-emerald-800')).toContainText('Mensaje enviado')
 
-    // Verificar que el mensaje aparece en el hilo
-    await expect(page.locator('text=Estimados padres')).toBeVisible()
-    await expect(page.locator('text=confirmo la reunión')).toBeVisible()
-
-    // Verificar que aparece el autor y su rol
-    await expect(page.locator('text=Carlos Pérez García')).toBeVisible()
-    await expect(page.locator('text=Docente')).toBeVisible()
-    await expect(page.locator('text=Tuyo')).toBeVisible() // Marcado como propio
+    // El mensaje aparece en el hilo con su autor
+    const hilo = page.locator('main')
+    await expect(hilo).toContainText('Estimados padres, confirmo la reunión para el viernes.')
+    await expect(hilo).toContainText('Carlos Pérez García')
+    await expect(hilo).toContainText('Docente')
+    await expect(hilo).toContainText('Tuyo') // Marcado como propio
 
     // ==========================================
     // 4. APODERADO: VER RESPUESTA DEL TUTOR EN HILLO
@@ -155,13 +145,13 @@ test.describe('Flujo Communication E2E: Anuncio + Mensajería', () => {
 
     // Ir a mensajería de la Sección A
     await page.goto(`/mensajeria/${_SECCION_A}`)
-    await expect(page.locator('table')).toBeVisible()
+    await expect(page.locator('h1')).toContainText('Mensajería de Sección')
 
     // El apoderado ve el mensaje del tutor
-    await expect(page.locator('text=Estimados padres')).toBeVisible()
-    await expect(page.locator('text=confirmo la reunión')).toBeVisible()
-    await expect(page.locator('text=Carlos Pérez García')).toBeVisible()
-    await expect(page.locator('text=Docente')).toBeVisible()
+    const hiloApoderado = page.locator('main')
+    await expect(hiloApoderado).toContainText('Estimados padres, confirmo la reunión')
+    await expect(hiloApoderado).toContainText('Carlos Pérez García')
+    await expect(hiloApoderado).toContainText('Docente')
 
     // El apoderado NO ve botón "Nuevo mensaje" (solo lectura para apoderados en mensajería)
     // Según especificación, solo tutor y apoderados con vínculo pueden enviar

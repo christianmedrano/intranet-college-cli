@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps, react-hooks/incompatible-library */
+/* eslint-disable react-hooks/incompatible-library */
 import { useState, useEffect } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -122,7 +122,7 @@ export function AnuncioForm({ anuncio, onGuardado, onCancelar }: AnuncioFormProp
           cuerpo: anuncio!.cuerpo,
           tipo: anuncio!.tipo,
           estado: anuncio!.estado,
-          anioId: anuncio!.anioId,
+          anioId: anuncio!.anioId ?? undefined,
           audienciaNiveles: anuncio!.audienciaNiveles,
           audienciaGrados: anuncio!.audienciaGrados,
           audienciaSecciones: anuncio!.audienciaSecciones,
@@ -256,24 +256,22 @@ export function AnuncioForm({ anuncio, onGuardado, onCancelar }: AnuncioFormProp
         )}
       </div>
 
-      {/* Estado (solo en edición) */}
-      {esEdicion && (
-        <div>
-          <label htmlFor="estado" className="block text-sm font-medium text-slate-700 mb-1">
-            Estado
-          </label>
-          <select
-            id="estado"
-            {...register('estado')}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="BORRADOR">Borrador</option>
-            <option value="PUBLICADO">Publicado</option>
-            <option value="EXPIRADO">Expirado</option>
-            <option value="ARCHIVADO">Archivado</option>
-          </select>
-        </div>
-      )}
+      {/* Estado: al crear solo se permite borrador o publicación (RF-COM-001) */}
+      <div>
+        <label htmlFor="estado" className="block text-sm font-medium text-slate-700 mb-1">
+          Estado
+        </label>
+        <select
+          id="estado"
+          {...register('estado')}
+          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="BORRADOR">Borrador</option>
+          <option value="PUBLICADO">Publicado</option>
+          {esEdicion && <option value="EXPIRADO">Expirado</option>}
+          {esEdicion && <option value="ARCHIVADO">Archivado</option>}
+        </select>
+      </div>
 
       {/* Segmentación de audiencia (solo para INSTITUCIONAL) */}
       {tipo === 'INSTITUCIONAL' && (

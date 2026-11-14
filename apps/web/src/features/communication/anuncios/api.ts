@@ -160,12 +160,12 @@ export interface CatalogoOpcion {
 }
 
 export async function listarNivelesCatalogo(): Promise<{ id: string; nombre: string }[]> {
-  const respuesta = await apiRequest('/api/v1/niveles?pageSize=100', catalogoNivelesResponseSchema)
+  const respuesta = await apiRequest('/niveles?pageSize=100', catalogoNivelesResponseSchema)
   return respuesta.data.map((n: { id: string; nombre: string }) => ({ id: n.id, nombre: n.nombre }))
 }
 
 export async function listarGradosCatalogo(): Promise<{ id: string; nombre: string; nivelId: string }[]> {
-  const respuesta = await apiRequest('/api/v1/grados?pageSize=100', catalogoGradosResponseSchema)
+  const respuesta = await apiRequest('/grados?pageSize=100', catalogoGradosResponseSchema)
   return respuesta.data.map((g: { id: string; nombre: string; nivelId: string }) => ({
     id: g.id,
     nombre: g.nombre,
@@ -174,7 +174,7 @@ export async function listarGradosCatalogo(): Promise<{ id: string; nombre: stri
 }
 
 export async function listarSeccionesCatalogo(): Promise<{ id: string; nombre: string; gradoId: string }[]> {
-  const respuesta = await apiRequest('/api/v1/secciones?pageSize=100', catalogoSeccionesResponseSchema)
+  const respuesta = await apiRequest('/secciones?pageSize=100', catalogoSeccionesResponseSchema)
   return respuesta.data.map((s: { id: string; nombre: string; gradoId: string }) => ({
     id: s.id,
     nombre: s.nombre,
@@ -183,7 +183,7 @@ export async function listarSeccionesCatalogo(): Promise<{ id: string; nombre: s
 }
 
 export async function listarAniosCatalogo(): Promise<{ id: string; nombre: string }[]> {
-  const respuesta = await apiRequest('/api/v1/anios-academicos?pageSize=100', catalogoAniosResponseSchema)
+  const respuesta = await apiRequest('/anios-academicos?pageSize=100', catalogoAniosResponseSchema)
   return respuesta.data.map((a: { id: string; nombre: string }) => ({
     id: a.id,
     nombre: a.nombre,

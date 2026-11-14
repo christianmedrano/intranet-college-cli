@@ -43,7 +43,11 @@ export async function listarMensajesController(
   }
 
   const { id } = parseOrThrow(uuidParamSchema, request.params)
-  const { page, pageSize } = parseOrThrow(listarMensajesQuerySchema, request.query)
+  // `seccionId` viene en la ruta; se completa para reutilizar el schema del cliente.
+  const { page, pageSize } = parseOrThrow(listarMensajesQuerySchema, {
+    ...(request.query as Record<string, unknown>),
+    seccionId: id,
+  })
 
   const resultado = await listarMensajesService(
     { seccionId: id },

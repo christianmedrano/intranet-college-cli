@@ -89,7 +89,9 @@
 
 - [x] T021 — Registrar ruta `/anuncios` en `apps/web/src/app/routes.tsx` — `apps/web/src/app/routes.tsx` — RF-COM-001 a RF-COM-003 — `{ path: '/anuncios', element: <AnunciosPage /> }`, `{ path: '/anuncios/:id', element: <AnuncioDetallePage /> }`; `npm run typecheck` en verde
 
-- [x] T022 — Tests UI: `AnunciosPage.test.tsx`, `AnuncioForm.test.tsx` — `apps/web/src/features/communication/anuncios/*.test.tsx` — RF-COM-001 a RF-COM-003 — Caso feliz + error (validación, 403, vacío); `npm test` en verde
+- [ ] T022 — Tests UI: `AnunciosPage.test.tsx`, `AnuncioForm.test.tsx` — `apps/web/src/features/communication/anuncios/*.test.tsx` — RF-COM-001 a RF-COM-003 — Caso feliz + error (validación, 403, vacío); `npm test` en verde
+
+> **T022 (reabierta 2026-11-13):** se había marcado como completada sin crear los archivos de prueba. `apps/web/src/features/communication/anuncios/` no contiene ningún `*.test.tsx`, por lo que el DoD no se cumple. Queda pendiente.
 
 ---
 
@@ -103,15 +105,29 @@
 
 - [x] T026 — Registrar ruta `/mensajeria/:seccionId` en `apps/web/src/app/routes.tsx` — `apps/web/src/app/routes.tsx` — RF-COM-004, RF-COM-005 — `{ path: '/mensajeria/:seccionId', element: <MensajeriaPage /> }`; `npm run typecheck` en verde
 
-- [x] T027 — Tests UI: `MensajeriaPage.test.tsx`, `MensajeForm.test.tsx` — `apps/web/src/features/communication/mensajeria/*.test.tsx` — RF-COM-004, RF-COM-005 — Caso feliz + error (403 sin vínculo, validación, vacío); `npm test` en verde
+- [ ] T027 — Tests UI: `MensajeriaPage.test.tsx`, `MensajeForm.test.tsx` — `apps/web/src/features/communication/mensajeria/*.test.tsx` — RF-COM-004, RF-COM-005 — Caso feliz + error (403 sin vínculo, validación, vacío); `npm test` en verde
+
+> **T027 (reabierta 2026-11-13):** igual que T022, se marcó sin crear los archivos de prueba. `apps/web/src/features/communication/mensajeria/` solo contiene `api.ts`, `MensajeForm.tsx` y `MensajeriaPage.tsx`. Queda pendiente.
 
 ---
 
 ## Fase 9 — Cierre
 
-- [x] T028 — Ejecutar gate completo y actualizar `docs/architecture.md` — `apps/api/test/communication/`, `docs/architecture.md`, `specs/communication/001-spec-mvp/tasks.md` — RF-COM-001 a RF-COM-006 — `lint + typecheck + test` en verde; cobertura servicios ≥ 70 %; arquitectura actualizada
+- [ ] T028 — Ejecutar gate completo y actualizar `docs/architecture.md` — `apps/api/test/communication/`, `docs/architecture.md`, `specs/communication/001-spec-mvp/tasks.md` — RF-COM-001 a RF-COM-006 — `lint + typecheck + test` en verde; cobertura servicios ≥ 70 %; arquitectura actualizada
 
-- [ ] T029 — Configurar Playwright test E2E: Director crea anuncio → apoderado lo ve → tutor responde en hilo — `playwright.config.ts`, `apps/web/e2e/`, `package.json` — RF-COM-001, RF-COM-004 — `npx playwright test` completa flujo sin fallos (requiere seed usuarios)
+> **T028 (reabierta 2026-11-13):** `docs/architecture.md` se actualizó y el gate está en verde, pero falta la medición de cobertura de servicios y depende de T022, T027, T030 y T031.
+
+- [x] T029 — Configurar Playwright test E2E: Director crea anuncio → apoderado lo ve → tutor responde en hilo — `playwright.config.ts`, `apps/web/e2e/`, `package.json` — RF-COM-001, RF-COM-004 — `npx playwright test` completa flujo sin fallos (requiere seed usuarios)
+
+> **T029 (2026-11-13):** `apps/web/e2e/flujo-comunicacion.spec.ts` en verde (`1 passed`). Cubre: Director crea anuncio `PUBLICADO` con audiencia por rol y año académico, apoderado lo ve sin acciones de gestión, docente tutor responde en el hilo y el apoderado lee la respuesta. El flujo destapó y corrigió el filtrado JSON de audiencias (`array_contains`), las rutas de relación `persona.usuario.id`, el permiso `communication.mensajeria.gestionar` del docente y el envío de mensajes desde el cliente (`enviarMensaje` con bearer en lugar de `fetch` con cookies).
+
+---
+
+## Fase 10 — Deuda de pruebas del backend
+
+- [ ] T030 — Tests de servicio y ruta de anuncios — `apps/api/test/communication/api-anuncios.test.ts` — RF-COM-001 a RF-COM-003 — creación, listado con filtros, actualización, archivado; `403` para docente en anuncio institucional y audiencia vacía `400`; `npm test` en verde
+
+- [ ] T031 — Tests de servicio y ruta de mensajería — `apps/api/test/communication/api-mensajes.test.ts` — RF-COM-004, RF-COM-005 — envío por tutor y apoderado, `403` sin vínculo, `403` para Director/SuperAdmin en escritura, listado con hilo creado en el primer mensaje; `npm test` en verde
 
 ---
 

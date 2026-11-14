@@ -174,6 +174,7 @@ export async function actualizarAnuncio(
   if (data.audienciaGrados !== undefined) datos.audienciaGrados = data.audienciaGrados
   if (data.audienciaSecciones !== undefined) datos.audienciaSecciones = data.audienciaSecciones
   if (data.audienciaRoles !== undefined) datos.audienciaRoles = data.audienciaRoles
+  if (data.anioId !== undefined) datos.anio = { connect: { id: data.anioId } }
   if (data.expiraEn !== undefined) datos.expiraEn = data.expiraEn ? new Date(data.expiraEn) : null
 
   // Si pasa a PUBLICADO y no tenía publicadoEn, setear ahora

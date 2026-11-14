@@ -129,6 +129,7 @@ export const rolePermissions: Readonly<
     'academic.asistencias.justificar',
     'academic.horarios.leer',
     'communication.anuncios.leer',
+    'communication.mensajeria.gestionar',
     'virtual.leer',
     'virtual.gestionar',
     'virtual.eliminar',

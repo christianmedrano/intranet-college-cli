@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { crearMensajeSchema, type CrearMensajeInput } from '@intranet/shared'
 import { mensajeError } from '../shared/formato'
 import { AdjuntosUpload } from '../shared/AdjuntosUpload'
+import { enviarMensaje } from './api'
 
 interface MensajeFormProps {
   seccionId: string
@@ -29,19 +30,7 @@ export function MensajeForm({ seccionId, onEnviado, onCancelar }: MensajeFormPro
     setError(null)
 
     try {
-      const formData = new FormData()
-      formData.append('cuerpo', data.cuerpo)
-
-      const respuesta = await fetch(`/api/v1/secciones/${seccionId}/mensajes`, {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-      })
-
-      if (!respuesta.ok) {
-        const error = await respuesta.json().catch(() => ({}))
-        throw new Error(error.error?.message ?? 'Error al enviar mensaje')
-      }
+      await enviarMensaje(seccionId, { cuerpo: data.cuerpo })
 
       onEnviado('Mensaje enviado')
     } catch (err) {

@@ -62,26 +62,12 @@ export async function construirAlcanceAnuncios(
     }
     if (filtros.tipo) where.tipo = filtros.tipo
     if (filtros.estado) where.estado = filtros.estado
-    if (filtros.nivelId) {
-      (where as Record<string, unknown>).audienciaNiveles = {
-        path: ['$*', { string_contains: filtros.nivelId }],
-      }
-    }
-    if (filtros.gradoId) {
-      (where as Record<string, unknown>).audienciaGrados = {
-        path: ['$*', { string_contains: filtros.gradoId }],
-      }
-    }
-    if (filtros.seccionId) {
-      (where as Record<string, unknown>).audienciaSecciones = {
-        path: ['$*', { string_contains: filtros.seccionId }],
-      }
-    }
-    if (filtros.rol) {
-      (where as Record<string, unknown>).audienciaRoles = {
-        path: ['$*', { string_contains: filtros.rol }],
-      }
-    }
+    // MySQL no admite `path` en filtros JSON desde Prisma; `array_contains`
+    // comprueba la pertenencia al array JSON almacenado.
+    if (filtros.nivelId) where.audienciaNiveles = { array_contains: filtros.nivelId }
+    if (filtros.gradoId) where.audienciaGrados = { array_contains: filtros.gradoId }
+    if (filtros.seccionId) where.audienciaSecciones = { array_contains: filtros.seccionId }
+    if (filtros.rol) where.audienciaRoles = { array_contains: filtros.rol }
     if (filtros.desde || filtros.hasta) {
       where.publicadoEn = {}
       if (filtros.desde) where.publicadoEn.gte = new Date(filtros.desde)
@@ -100,11 +86,11 @@ export async function construirAlcanceAnuncios(
   const where: Prisma.AnuncioWhereInput = {
     deletedAt: null,
     institucionId: actor.institucionId,
-    estado: 'PUBLICADO', // Solo anuncios publicados para roles no administrativos
+    // Los roles no administrativos solo ven anuncios publicados (RF-COM-003).
+    estado: 'PUBLICADO',
   }
 
   if (filtros.tipo) where.tipo = filtros.tipo
-  if (filtros.estado) where.estado = filtros.estado // Permitir override si se pide explícitamente
   if (filtros.desde || filtros.hasta) {
     where.publicadoEn = {}
     if (filtros.desde) where.publicadoEn.gte = new Date(filtros.desde)
@@ -116,64 +102,75 @@ export async function construirAlcanceAnuncios(
 
   if (esDO) {
     // Docente: ve institucionales + secciones donde es tutor + secciones asignadas
-    condicionesAudiencia.push(
-      { tipo: 'INSTITUCIONAL' },
-      {
+    condicionesAudiencia.push({ tipo: 'INSTITUCIONAL' })
+    for (const seccionId of vinculos.seccionIds) {
+      condicionesAudiencia.push({
         tipo: 'SECCION',
-        audienciaSecciones: {
-          path: ['$*', { string_contains: { in: vinculos.seccionIds } }],
-        } as unknown as Prisma.JsonFilter<'Anuncio'>,
-      },
-    )
+        audienciaSecciones: { array_contains: seccionId },
+      })
+    }
   } else if (esPA) {
-    // Apoderado: ve anuncios dirigidos a sus alumnos (nivel/grado/sección/rol APODERADO/ALUMNO)
+    // Apoderado: ve anuncios dirigidos a su rol o al nivel/grado/sección de sus alumnos
     condicionesAudiencia.push(
-      { tipo: 'INSTITUCIONAL', audienciaRoles: { hasSome: ['APODERADO', 'ALUMNO'] } as unknown as Prisma.JsonFilter<'Anuncio'> },
-      {
-        tipo: 'SECCION',
-        audienciaSecciones: {
-          path: ['$*', { string_contains: { in: vinculos.seccionIds } }],
-        } as unknown as Prisma.JsonFilter<'Anuncio'>,
-      },
+      { tipo: 'INSTITUCIONAL', audienciaRoles: { array_contains: 'APODERADO' } },
+      { tipo: 'INSTITUCIONAL', audienciaRoles: { array_contains: 'ALUMNO' } },
     )
+    for (const nivelId of vinculos.nivelIds) {
+      condicionesAudiencia.push({
+        tipo: 'INSTITUCIONAL',
+        audienciaNiveles: { array_contains: nivelId },
+      })
+    }
+    for (const gradoId of vinculos.gradoIds) {
+      condicionesAudiencia.push({
+        tipo: 'INSTITUCIONAL',
+        audienciaGrados: { array_contains: gradoId },
+      })
+    }
+    for (const seccionId of vinculos.seccionIds) {
+      condicionesAudiencia.push(
+        { tipo: 'INSTITUCIONAL', audienciaSecciones: { array_contains: seccionId } },
+        { tipo: 'SECCION', audienciaSecciones: { array_contains: seccionId } },
+      )
+    }
   } else if (esAL) {
     // Alumno: ve anuncios dirigidos a su sección/grado/nivel/rol ALUMNO
-    condicionesAudiencia.push(
-      { tipo: 'INSTITUCIONAL', audienciaRoles: { has: 'ALUMNO' } as unknown as Prisma.JsonFilter<'Anuncio'> },
-      {
-        tipo: 'SECCION',
-        audienciaSecciones: {
-          path: ['$*', { string_contains: { in: vinculos.seccionIds } }],
-        } as unknown as Prisma.JsonFilter<'Anuncio'>,
-      },
-    )
+    condicionesAudiencia.push({
+      tipo: 'INSTITUCIONAL',
+      audienciaRoles: { array_contains: 'ALUMNO' },
+    })
+    for (const nivelId of vinculos.nivelIds) {
+      condicionesAudiencia.push({
+        tipo: 'INSTITUCIONAL',
+        audienciaNiveles: { array_contains: nivelId },
+      })
+    }
+    for (const gradoId of vinculos.gradoIds) {
+      condicionesAudiencia.push({
+        tipo: 'INSTITUCIONAL',
+        audienciaGrados: { array_contains: gradoId },
+      })
+    }
+    for (const seccionId of vinculos.seccionIds) {
+      condicionesAudiencia.push(
+        { tipo: 'INSTITUCIONAL', audienciaSecciones: { array_contains: seccionId } },
+        { tipo: 'SECCION', audienciaSecciones: { array_contains: seccionId } },
+      )
+    }
   }
 
   // Aplicar filtros de audiencia adicionales si se proporcionan (refinan el alcance)
-  if (filtros.nivelId) {
-    (where as Record<string, unknown>).audienciaNiveles = {
-      path: ['$*', { string_contains: filtros.nivelId }],
-    }
-  }
-  if (filtros.gradoId) {
-    (where as Record<string, unknown>).audienciaGrados = {
-      path: ['$*', { string_contains: filtros.gradoId }],
-    }
-  }
-  if (filtros.seccionId) {
-    (where as Record<string, unknown>).audienciaSecciones = {
-      path: ['$*', { string_contains: filtros.seccionId }],
-    }
-  }
-  if (filtros.rol) {
-    (where as Record<string, unknown>).audienciaRoles = {
-      path: ['$*', { string_contains: filtros.rol }],
-    }
-  }
+  if (filtros.nivelId) where.audienciaNiveles = { array_contains: filtros.nivelId }
+  if (filtros.gradoId) where.audienciaGrados = { array_contains: filtros.gradoId }
+  if (filtros.seccionId) where.audienciaSecciones = { array_contains: filtros.seccionId }
+  if (filtros.rol) where.audienciaRoles = { array_contains: filtros.rol }
 
   // Combinar alcance base + condiciones de audiencia por rol
   if (condicionesAudiencia.length > 0) {
     where.OR = condicionesAudiencia
+  } else {
+    // Sin vínculos ni rol reconocido no hay anuncios visibles.
+    where.id = { in: [] }
   }
 
   return {
@@ -198,7 +195,7 @@ async function resolverVinculosActor(
     // Docente: secciones donde es tutor + secciones de sus asignaciones
     const asignaciones = await prisma.asignacionDocente.findMany({
       where: {
-        docente: { usuarioId: actor.id },
+        docente: { persona: { usuario: { id: actor.id } } },
         anio: { estado: 'ACTIVO' },
       },
       select: {
@@ -218,7 +215,7 @@ async function resolverVinculosActor(
   if (actor.roles.includes('APODERADO')) {
     // Apoderado: secciones de sus alumnos con matrícula APROBADA en año ACTIVO
     const apoderado = await prisma.apoderado.findFirst({
-      where: { persona: { usuarioId: actor.id } },
+      where: { persona: { usuario: { id: actor.id } } },
       select: { id: true },
     })
 
@@ -251,7 +248,7 @@ async function resolverVinculosActor(
   if (actor.roles.includes('ALUMNO')) {
     // Alumno: su propia sección actual
     const alumno = await prisma.alumno.findFirst({
-      where: { persona: { usuarioId: actor.id } },
+      where: { persona: { usuario: { id: actor.id } } },
       select: { id: true },
     })
 
