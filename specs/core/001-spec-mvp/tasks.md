@@ -96,6 +96,10 @@ Formato obligatorio:
 - [x] T043 — CRUD de cuentas de usuario y asignación de roles — `apps/api/src/modules/core/usuarios/`, `packages/shared/src/schemas/usuario.ts`, `packages/shared/src/contracts/usuario.ts`, `apps/api/test/core/usuarios.test.ts` — RF-CORE-002 — alta con PIN temporal, baja lógica, activación y roles múltiples; el Director no puede crear SuperAdmins; fuera del alcance de T025
 - [x] T044 — Añadir `es_tutor` a `AsignacionDocente`, garantizar un solo tutor vigente por sección y año, y exponerlo en `/asignaciones-docente` — `apps/api/prisma/schema.prisma`, `apps/api/src/modules/core/estructura/`, `packages/shared/src/schemas/asignacion-docente.ts`, `packages/shared/src/contracts/asignacion-docente.ts`, `apps/api/test/core/` — RF-CORE-011 — requerido por `RF-ACAD-006`; máximo un tutor por sección y año
 
+- [x] T045 — Mostrar la sesión activa en la cabecera y permitir cerrar sesión — `apps/web/src/app/layouts/AppLayout.tsx`, `apps/web/src/app/layouts/AppLayout.test.tsx` — RF-CORE-005, RF-CORE-006 — la cabecera muestra nombres y apellidos del usuario autenticado (sin documento), el botón «Cerrar sesión» invoca `cerrarSesion()` y redirige a `/login`; sin sesión se ofrece «Iniciar sesión»
+
+> **T045 (2026-11-13):** trabajo descubierto al escribir el E2E de Communication (T029): la aplicación no ofrecía ningún control de cierre de sesión, por lo que los cuatro E2E que cambian de usuario no podían ejecutarse. Se registra como tarea del núcleo por depender de `RF-CORE-005`/`RF-CORE-006`, no se modifica la spec.
+
 > **T044 (2026-11-08):** extensión del núcleo autorizada para que el módulo académico identifique al docente tutor. Migración `20261109023424_core_asignacion_tutor` aplicada en desarrollo y en la base de pruebas; `PATCH /asignaciones-docente/:id` marca o desmarca al tutor. La unicidad se garantiza con `SELECT … FOR UPDATE` más una lectura bloqueante del tutor existente, porque MySQL no admite índices parciales; la prueba concurrente confirma que solo uno queda vigente.
 
 ## Definition of Done
